@@ -1,0 +1,13 @@
+name: 'npm-dependency-stats-action'
+description: 'An action for getting stats about npm dependencies'
+author: 'Side Inc.'
+inputs:
+  ignore:
+    required: false
+    description: 'input description here'
+  cwd:
+    required: false
+    description: 'Current working directory'
+runs:
+  using: 'node12'
+  main: 'dist/index.js'
