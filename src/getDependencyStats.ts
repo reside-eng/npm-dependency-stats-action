@@ -259,10 +259,19 @@ export default async function getDepedencyStats(): Promise<StatsOutput> {
   const minorsOutOfDate = sorted.minor.length;
   const patchesOutOfDate = sorted.patch.length;
   const numDeps = await getNumberOfDependencies(workingDirectory);
-  const percentOutOfDate = ((majorsOutOfDate / numDeps) * 100).toFixed(2);
-  core.debug(
-    `Major versions behind:\n\t${majorsOutOfDate} / ${numDeps}\n\t${percentOutOfDate} %`,
-  );
+  const majorPercentOutOfDate = ((majorsOutOfDate / numDeps) * 100).toFixed(2);
+  const minorPercentOutOfDate = ((minorsOutOfDate / numDeps) * 100).toFixed(2);
+  const patchPercentOutOfDate = ((patchesOutOfDate / numDeps) * 100).toFixed(2);
+  const upToDatePercent = ((majorsOutOfDate / numDeps) * 100).toFixed(2);
+  const messageLines = [
+    `up to date: ${
+      numDeps - (majorsOutOfDate + minorsOutOfDate + patchesOutOfDate)
+    }/${numDeps} (${upToDatePercent} %)`,
+    `major behind: ${majorsOutOfDate}/${numDeps} (${majorPercentOutOfDate} %)`,
+    `minor behind: ${minorsOutOfDate}/${numDeps} (${minorPercentOutOfDate} %)`,
+    `patch behind: ${patchesOutOfDate}/${numDeps} (${patchPercentOutOfDate} %)`,
+  ];
+  core.debug(messageLines.join('\n'));
   // TODO: output total number of dependencies as well as dev/non-dev
   return {
     dependencies: {
@@ -279,10 +288,10 @@ export default async function getDepedencyStats(): Promise<StatsOutput> {
       patch: patchesOutOfDate,
     },
     percents: {
-      upToDate: ((majorsOutOfDate / numDeps) * 100).toFixed(2),
-      major: percentOutOfDate,
-      minor: ((minorsOutOfDate / numDeps) * 100).toFixed(2),
-      patch: ((patchesOutOfDate / numDeps) * 100).toFixed(2),
+      upToDate: upToDatePercent,
+      major: majorPercentOutOfDate,
+      minor: minorPercentOutOfDate,
+      patch: patchPercentOutOfDate,
     },
   };
 }

@@ -8687,6 +8687,7 @@ const path_1 = __importDefault(__nccwpck_require__(5622));
 const yarnOutdated_1 = __importDefault(__nccwpck_require__(622));
 /**
  * Sort packages by their out of date version (major, minor, patch)
+ *
  * @param {Array} packages - List of package settings from yarn outdated
  * @returns Object of packages sorted by out of date version
  */
@@ -8738,9 +8739,11 @@ function groupPackagesByOutOfDateName(packages) {
 }
 /**
  * Load and parse a JSON file from the file system
- * @param {String} filePath - File path
- * @returns Parsed JSON file
+ *
+ * @param filePath - File path
+ * @returns Parsed JSON file contents
  */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function loadJsonFile(filePath) {
     return __awaiter(this, void 0, void 0, function* () {
         const fileBuff = yield fs_1.default.promises.readFile(filePath);
@@ -8755,7 +8758,8 @@ function loadJsonFile(filePath) {
 }
 /**
  * Get number of dependencies listed in package file
- * @param {String} basePath - Base path of package.json
+ *
+ * @param {string} basePath - Base path of package.json
  * @returns Number of dependencies (both dev and prod dependencies)
  */
 function getNumberOfDependencies(basePath) {
@@ -8771,6 +8775,9 @@ function getNumberOfDependencies(basePath) {
         return numDependencies + numDevDependencies;
     });
 }
+/**
+ * @returns Dependabot config
+ */
 function loadDependabotConfig() {
     const configPath = __nccwpck_require__.ab + "dependabot.yml";
     if (!fs_1.default.existsSync(__nccwpck_require__.ab + "dependabot.yml")) {
@@ -8794,6 +8801,10 @@ function loadDependabotConfig() {
         throw error;
     }
 }
+/**
+ * @param cwdSetting - Current working directory setting
+ * @returns List of dependencies to ignore from dependabot config
+ */
 function loadIgnoreFromDependabotConfig(cwdSetting) {
     var _a;
     return __awaiter(this, void 0, void 0, function* () {
@@ -8825,7 +8836,7 @@ function loadIgnoreFromDependabotConfig(cwdSetting) {
 }
 /**
  * Get stats about dependencies which are outdated by at least 1 major version
- * @param {String} cwdPath - Current working directory
+ *
  * @returns Object containing stats about out of date packages
  */
 function getDepedencyStats() {
@@ -8850,8 +8861,17 @@ function getDepedencyStats() {
         const minorsOutOfDate = sorted.minor.length;
         const patchesOutOfDate = sorted.patch.length;
         const numDeps = yield getNumberOfDependencies(workingDirectory);
-        const percentOutOfDate = ((majorsOutOfDate / numDeps) * 100).toFixed(2);
-        core.debug(`Major versions behind:\n\t${majorsOutOfDate} / ${numDeps}\n\t${percentOutOfDate} %`);
+        const majorPercentOutOfDate = ((majorsOutOfDate / numDeps) * 100).toFixed(2);
+        const minorPercentOutOfDate = ((minorsOutOfDate / numDeps) * 100).toFixed(2);
+        const patchPercentOutOfDate = ((patchesOutOfDate / numDeps) * 100).toFixed(2);
+        const upToDatePercent = ((majorsOutOfDate / numDeps) * 100).toFixed(2);
+        const messageLines = [
+            `up to date: ${numDeps - (majorsOutOfDate + minorsOutOfDate + patchesOutOfDate)}/${numDeps} (${upToDatePercent} %)`,
+            `major behind: ${majorsOutOfDate}/${numDeps} (${majorPercentOutOfDate} %)`,
+            `minor behind: ${minorsOutOfDate}/${numDeps} (${minorPercentOutOfDate} %)`,
+            `patch behind: ${patchesOutOfDate}/${numDeps} (${patchPercentOutOfDate} %)`,
+        ];
+        core.debug(messageLines.join('\n'));
         // TODO: output total number of dependencies as well as dev/non-dev
         return {
             dependencies: {
@@ -8867,10 +8887,10 @@ function getDepedencyStats() {
                 patch: patchesOutOfDate,
             },
             percents: {
-                upToDate: ((majorsOutOfDate / numDeps) * 100).toFixed(2),
-                major: percentOutOfDate,
-                minor: ((minorsOutOfDate / numDeps) * 100).toFixed(2),
-                patch: ((patchesOutOfDate / numDeps) * 100).toFixed(2),
+                upToDate: upToDatePercent,
+                major: majorPercentOutOfDate,
+                minor: minorPercentOutOfDate,
+                patch: patchPercentOutOfDate,
             },
         };
     });
@@ -8957,6 +8977,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 const core = __importStar(__nccwpck_require__(2186));
 const getDependencyStats_1 = __importDefault(__nccwpck_require__(7247));
+/**
+ *
+ */
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
         const depStats = yield getDependencyStats_1.default();
@@ -9003,16 +9026,14 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 const core = __importStar(__nccwpck_require__(2186));
-const exec_1 = __importDefault(__nccwpck_require__(1514));
+const exec = __importStar(__nccwpck_require__(1514));
 /**
  * Get output of yarn outdated command parsed as JSON
  * Item format: [packageName, current, wanted, latest, depTypeListName]
- * @param {String} basePath - Base path of package.json
+ *
+ * @param {string} basePath - Base path of package.json
  * @returns Output of outdated command in JSON format
  */
 function yarnOutdated(basePath) {
@@ -9036,13 +9057,13 @@ function yarnOutdated(basePath) {
                     },
                 },
             };
-            yield exec_1.default.exec('yarn', args, options);
+            yield exec.exec('yarn', args, options);
             // Throw if stderr is triggered
             if (myError) {
                 throw new Error(myError);
             }
             // Split to second line since output is in json-lines format
-            const secondLineStr = myOutput.split('\n')[1];
+            const secondLineStr = myOutput.split('}\n')[1];
             const output = JSON.parse(secondLineStr);
             return (_a = output === null || output === void 0 ? void 0 : output.data) === null || _a === void 0 ? void 0 : _a.body;
         }
