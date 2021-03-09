@@ -7,8 +7,8 @@ const outdatedOutput = `{"type":"info","data":"Color legend : \n \"<red>\"    : 
 
 jest.mock('@actions/exec', () => ({
   exec: (cmd: string, args: string[], options: exec.ExecOptions) => {
-    options?.listeners?.stdout?.(Buffer.from(outdatedOutput, 'utf-8'));
-    return Promise.resolve(0);
+    options?.listeners?.stderr?.(Buffer.from(outdatedOutput, 'utf-8'));
+    return Promise.resolve(1);
   },
 }));
 
@@ -17,7 +17,7 @@ describe('yarnOutdated', () => {
     jest.clearAllMocks();
   });
 
-  it('should run with default action inputs', async () => {
+  it('should return a list of out of date dependencies', async () => {
     const result = await yarnOutdated('./test');
     expect(result).toBeInstanceOf(Array);
     expect(result[0]).toBeInstanceOf(Array);

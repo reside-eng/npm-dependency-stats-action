@@ -9057,13 +9057,13 @@ function yarnOutdated(basePath) {
                     },
                 },
             };
-            yield exec.exec('yarn', args, options);
-            // Throw if stderr is triggered
-            if (myError) {
-                throw new Error(myError);
+            const exitCode = yield exec.exec('yarn', args, options);
+            // If command doesn't throw, then there are no packages out of date
+            if (exitCode === 0 || !myError) {
+                return [];
             }
             // Split to second line since output is in json-lines format
-            const secondLineStr = myOutput.split('}\n')[1];
+            const secondLineStr = myError.split('}\n')[1];
             const output = JSON.parse(secondLineStr);
             return (_a = output === null || output === void 0 ? void 0 : output.data) === null || _a === void 0 ? void 0 : _a.body;
         }

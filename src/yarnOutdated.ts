@@ -40,15 +40,14 @@ export default async function yarnOutdated(
       },
     };
 
-    await exec.exec('yarn', args, options);
-
-    // Throw if stderr is triggered
-    if (myError) {
-      throw new Error(myError);
+    const exitCode = await exec.exec('yarn', args, options);
+    // If command doesn't throw, then there are no packages out of date
+    if (exitCode === 0 || !myError) {
+      return [];
     }
 
     // Split to second line since output is in json-lines format
-    const secondLineStr = myOutput.split('}\n')[1];
+    const secondLineStr = myError.split('}\n')[1];
     const output = JSON.parse(secondLineStr);
     return output?.data?.body;
   } catch (err) {

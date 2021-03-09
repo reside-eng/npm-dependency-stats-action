@@ -10,6 +10,7 @@
     "lint:fix": "npm run lint -- --fix",
     "build": "rimraf dist && ncc build src/index.ts --source-map --license licenses.txt && rm dist/dependabot.yml",
     "test": "yarn tsc && jest",
+    "test:cov": "yarn test --coverage",
     "all": "npm run build && npm run format && npm run lint && npm run package && npm test"
   },
   "author": "",
