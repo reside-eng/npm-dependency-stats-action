@@ -1,16 +1,15 @@
 {
   "name": "@side/npm-dependency-stats-action",
-  "version": "0.0.1",
-  "description": "",
-  "main": "lib/index.js",
+  "version": "0.0.0-development",
+  "description": "Github action for getting stats about npm dependencies",
+  "main": "dist/index.js",
   "scripts": {
-    "build": "tsc",
     "format": "prettier --write **/*.ts",
     "format-check": "prettier --check **/*.ts",
     "lint": "eslint src/**/*.ts",
     "lint:fix": "npm run lint -- --fix",
-    "package": "ncc build --source-map --license licenses.txt",
-    "test": "jest",
+    "build": "rimraf dist && ncc build src/index.ts --source-map --license licenses.txt && rm dist/dependabot.yml",
+    "test": "yarn tsc && jest",
     "all": "npm run build && npm run format && npm run lint && npm run package && npm test"
   },
   "author": "",
@@ -18,10 +17,16 @@
   "dependencies": {
     "@actions/core": "^1.2.6",
     "@actions/exec": "^1.0.4",
+    "js-yaml": "^4.0.0",
     "semver": "^7.3.4"
   },
   "devDependencies": {
+    "@commitlint/cli": "^12.0.1",
+    "@side/commitlint-config": "^0.1.3",
     "@side/eslint-config-base": "^0.11.2",
+    "@side/eslint-config-jest": "^0.3.4",
+    "@types/jest": "^26.0.20",
+    "@types/js-yaml": "^4.0.0",
     "@types/node": "^14.14.32",
     "@types/semver": "^7.3.4",
     "@typescript-eslint/eslint-plugin": "^4.17.0",
@@ -31,10 +36,15 @@
     "eslint-config-airbnb-base": "^14.2.1",
     "eslint-config-prettier": "^8.1.0",
     "eslint-plugin-import": "^2.22.1",
+    "eslint-plugin-jsdoc": "^32.2.0",
     "eslint-plugin-prettier": "^3.3.1",
     "husky": "4.3.8",
+    "jest": "^26.6.3",
     "lint-staged": "^10.5.4",
     "prettier": "^2.2.1",
+    "rimraf": "^3.0.2",
+    "ts-jest": "^26.5.3",
+    "ts-node": "^9.1.1",
     "typescript": "^4.2.3"
   },
   "lint-staged": {

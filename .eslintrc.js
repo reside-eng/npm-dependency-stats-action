@@ -1,27 +1,39 @@
 module.exports = {
   root: true,
+  extends: [
+    '@side/base',
+    '@side/prettier',
+    'plugin:@typescript-eslint/recommended',
+    'prettier',
+    'plugin:jsdoc/recommended',
+  ],
   parser: '@typescript-eslint/parser',
-  extends: ['airbnb-base', 'plugin:prettier/recommended', 'prettier'],
-  plugins: ['prettier', '@typescript-eslint'],
+  // TODO: Move settings to lint-config base
   settings: {
+    'import/extensions': ['.js', '.jsx', '.ts', '.tsx'],
     'import/resolver': {
       node: {
-        moduleDirectory: ['node_modules', '/'],
-        extensions: ['.ts', '.jsx', '.js'],
+        extensions: ['.js', '.json', '.jsx', '.ts', '.tsx'],
       },
     },
   },
-  env: {
-    node: true,
-  },
   rules: {
-    'no-return-await': 2,
+    'jsdoc/require-returns-type': 0,
+    'jsdoc/require-param-type': 0,
     quotes: ['error', 'single', { avoidEscape: true }],
-    'prettier/prettier': [
+    // Override airbnb extensions settings
+    // TODO: Move this to lint-config base
+    // Ensure consistent use of file extension within the import path
+    // https://github.com/benmosher/eslint-plugin-import/blob/master/docs/rules/extensions.md
+    'import/extensions': [
       'error',
+      'ignorePackages',
       {
-        singleQuote: true,
-        trailingComma: 'all',
+        js: 'never',
+        mjs: 'never',
+        jsx: 'never',
+        ts: 'never',
+        tsx: 'never',
       },
     ],
   },

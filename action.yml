@@ -2,10 +2,7 @@ name: 'npm-dependency-stats-action'
 description: 'An action for getting stats about npm dependencies'
 author: 'Side Inc.'
 inputs:
-  ignore:
-    required: false
-    description: 'input description here'
-  cwd:
+  working-directory:
     required: false
     description: 'Current working directory'
 runs:
