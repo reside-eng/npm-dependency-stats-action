@@ -9044,9 +9044,9 @@ function yarnOutdated(basePath) {
             args.push('--cwd');
             args.push(basePath);
         }
+        let myOutput = '';
+        let myError = '';
         try {
-            let myOutput = '';
-            let myError = '';
             const options = {
                 listeners: {
                     stdout: (data) => {
@@ -9057,19 +9057,21 @@ function yarnOutdated(basePath) {
                     },
                 },
             };
-            const exitCode = yield exec.exec('yarn', args, options);
+            yield exec.exec('yarn', args, options);
             // If command doesn't throw, then there are no packages out of date
-            if (exitCode === 0 || !myError) {
-                return [];
-            }
-            // Split to second line since output is in json-lines format
-            const secondLineStr = myError.split('}\n')[1];
-            const output = JSON.parse(secondLineStr);
-            return (_a = output === null || output === void 0 ? void 0 : output.data) === null || _a === void 0 ? void 0 : _a.body;
+            return [];
         }
         catch (err) {
-            core.error(`Error running yarn outdated command: ${err.message}`);
-            throw err;
+            try {
+                // Split to second line since output is in json-lines format
+                const secondLineStr = myError.split('}\n')[1];
+                const output = JSON.parse(secondLineStr);
+                return (_a = output === null || output === void 0 ? void 0 : output.data) === null || _a === void 0 ? void 0 : _a.body;
+            }
+            catch (err2) {
+                core.error(`Error running yarn outdated command: ${err2.message}`);
+                throw err2;
+            }
         }
     });
 }
