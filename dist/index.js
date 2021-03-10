@@ -8685,6 +8685,7 @@ const fs_1 = __importDefault(__nccwpck_require__(5747));
 const semver_1 = __importDefault(__nccwpck_require__(1383));
 const path_1 = __importDefault(__nccwpck_require__(5622));
 const yarnOutdated_1 = __importDefault(__nccwpck_require__(622));
+const getNumberOfDependencies_1 = __importDefault(__nccwpck_require__(3647));
 /**
  * Sort packages by their out of date version (major, minor, patch)
  *
@@ -8735,44 +8736,6 @@ function groupPackagesByOutOfDateName(packages) {
         major: [],
         minor: [],
         patch: [],
-    });
-}
-/**
- * Load and parse a JSON file from the file system
- *
- * @param filePath - File path
- * @returns Parsed JSON file contents
- */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function loadJsonFile(filePath) {
-    return __awaiter(this, void 0, void 0, function* () {
-        const fileBuff = yield fs_1.default.promises.readFile(filePath);
-        try {
-            return JSON.parse(fileBuff.toString());
-        }
-        catch (err) {
-            core.error(`Error loading json file "${filePath}"`);
-            throw err;
-        }
-    });
-}
-/**
- * Get number of dependencies listed in package file
- *
- * @param {string} basePath - Base path of package.json
- * @returns Number of dependencies (both dev and prod dependencies)
- */
-function getNumberOfDependencies(basePath) {
-    return __awaiter(this, void 0, void 0, function* () {
-        const pkgPath = `${basePath}/package.json`;
-        if (!fs_1.default.existsSync(pkgPath)) {
-            core.warning(`Package file does not exist at path ${basePath}`);
-            return 0;
-        }
-        const pkgFile = yield loadJsonFile(pkgPath);
-        const numDevDependencies = Object.keys(pkgFile.devDependencies || {}).length;
-        const numDependencies = Object.keys(pkgFile.dependencies || {}).length;
-        return numDependencies + numDevDependencies;
     });
 }
 /**
@@ -8850,17 +8813,18 @@ function getDepedencyStats() {
             : startWorkingDirectory;
         core.debug(`working directory ${workingDirectory}`);
         // Use yarn to list outdated packages and parse into JSON
-        const dataBody = yield yarnOutdated_1.default(workingDirectory);
+        const outdatedDependencies = yield yarnOutdated_1.default(workingDirectory);
+        // Get list of packages to ignore from dependabot config if it exists
         const ignoredPackages = yield loadIgnoreFromDependabotConfig(workingDirectoryInput);
         // Filter out any packages which should be ignored
-        const filtered = dataBody.filter(([packageName]) => !ignoredPackages.includes(packageName.toLowerCase()));
+        const filtered = outdatedDependencies.filter(([packageName]) => !ignoredPackages.includes(packageName.toLowerCase()));
         // Sort packages by if they are out by major/minor/patch
         const sorted = groupPackagesByOutOfDateName(filtered);
+        const numDeps = yield getNumberOfDependencies_1.default(workingDirectory);
         // TODO: Add option to select just dev dependencies
         const majorsOutOfDate = sorted.major.length;
         const minorsOutOfDate = sorted.minor.length;
         const patchesOutOfDate = sorted.patch.length;
-        const numDeps = yield getNumberOfDependencies(workingDirectory);
         const majorPercentOutOfDate = ((majorsOutOfDate / numDeps) * 100).toFixed(2);
         const minorPercentOutOfDate = ((minorsOutOfDate / numDeps) * 100).toFixed(2);
         const patchPercentOutOfDate = ((patchesOutOfDate / numDeps) * 100).toFixed(2);
@@ -8896,6 +8860,88 @@ function getDepedencyStats() {
     });
 }
 exports.default = getDepedencyStats;
+
+
+/***/ }),
+
+/***/ 3647:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+const core = __importStar(__nccwpck_require__(2186));
+const fs_1 = __importDefault(__nccwpck_require__(5747));
+/**
+ * Load and parse a JSON file from the file system
+ *
+ * @param filePath - File path
+ * @returns Parsed JSON file contents
+ */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function loadJsonFile(filePath) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const fileBuff = yield fs_1.default.promises.readFile(filePath);
+        try {
+            return JSON.parse(fileBuff.toString());
+        }
+        catch (err) {
+            core.error(`Error loading json file "${filePath}"`);
+            throw err;
+        }
+    });
+}
+/**
+ * Get number of dependencies listed in package file
+ *
+ * @param basePath - Base path of package.json
+ * @returns Number of dependencies (both dev and prod dependencies)
+ */
+function getNumberOfDependencies(basePath) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const pkgPath = `${basePath}/package.json`;
+        if (!fs_1.default.existsSync(pkgPath)) {
+            core.warning(`Package file does not exist at path ${basePath}`);
+            return 0;
+        }
+        const pkgFile = yield loadJsonFile(pkgPath);
+        const numDevDependencies = Object.keys((pkgFile === null || pkgFile === void 0 ? void 0 : pkgFile.devDependencies) || {}).length;
+        const numDependencies = Object.keys((pkgFile === null || pkgFile === void 0 ? void 0 : pkgFile.dependencies) || {}).length;
+        return numDependencies + numDevDependencies;
+    });
+}
+exports.default = getNumberOfDependencies;
 
 
 /***/ }),
