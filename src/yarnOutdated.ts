@@ -44,10 +44,11 @@ export default async function yarnOutdated(
     return [];
   } catch (err) {
     try {
-      // Split to second line since output is in json-lines format
-      const secondLineStr = myError.split('}\n')[1];
-      const output = JSON.parse(secondLineStr);
-      return output?.data?.body;
+      // Output is in json-lines format - use Regex to handle different newline characters
+      const outdatedDataStr =
+        myError.match(/{"type":"table"(.*}})/)?.[0] || '{}';
+      const outdatedData = JSON.parse(outdatedDataStr);
+      return outdatedData?.data?.body;
     } catch (err2) {
       core.error(`Error running yarn outdated command: ${err2.message}`);
       throw err2;

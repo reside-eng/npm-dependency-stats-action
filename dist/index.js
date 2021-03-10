@@ -9083,7 +9083,7 @@ const exec = __importStar(__nccwpck_require__(1514));
  * @returns Output of outdated command in JSON format
  */
 function yarnOutdated(basePath) {
-    var _a;
+    var _a, _b;
     return __awaiter(this, void 0, void 0, function* () {
         const args = ['outdated', '--json'];
         if (basePath) {
@@ -9109,10 +9109,10 @@ function yarnOutdated(basePath) {
         }
         catch (err) {
             try {
-                // Split to second line since output is in json-lines format
-                const secondLineStr = myError.split('}\n')[1];
-                const output = JSON.parse(secondLineStr);
-                return (_a = output === null || output === void 0 ? void 0 : output.data) === null || _a === void 0 ? void 0 : _a.body;
+                // Output is in json-lines format - use Regex to handle different newline characters
+                const outdatedDataStr = ((_a = myError.match(/{"type":"table"(.*}})/)) === null || _a === void 0 ? void 0 : _a[0]) || '{}';
+                const outdatedData = JSON.parse(outdatedDataStr);
+                return (_b = outdatedData === null || outdatedData === void 0 ? void 0 : outdatedData.data) === null || _b === void 0 ? void 0 : _b.body;
             }
             catch (err2) {
                 core.error(`Error running yarn outdated command: ${err2.message}`);
