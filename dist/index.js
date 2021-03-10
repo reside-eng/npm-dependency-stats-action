@@ -9083,7 +9083,7 @@ const exec = __importStar(__nccwpck_require__(1514));
  * @returns Output of outdated command in JSON format
  */
 function yarnOutdated(basePath) {
-    var _a, _b;
+    var _a, _b, _c;
     return __awaiter(this, void 0, void 0, function* () {
         const args = ['outdated', '--json'];
         if (basePath) {
@@ -9109,10 +9109,15 @@ function yarnOutdated(basePath) {
         }
         catch (err) {
             try {
+                core.info(`Output ${myOutput}`);
+                core.info(`Error output ${myError}`);
                 // Output is in json-lines format - use Regex to handle different newline characters
-                const outdatedDataStr = ((_a = myError.match(/{"type":"table"(.*}})/)) === null || _a === void 0 ? void 0 : _a[0]) || '{}';
+                const outdatedDataStr = ((_a = myError.match(/{"type":"table"(.*}})/)) === null || _a === void 0 ? void 0 : _a[0]) ||
+                    ((_b = myOutput.match(/{"type":"table"(.*}})/)) === null || _b === void 0 ? void 0 : _b[0]) ||
+                    '{}';
+                core.info(`Output of parsing yarn outdated command: ${outdatedDataStr}`);
                 const outdatedData = JSON.parse(outdatedDataStr);
-                return (_b = outdatedData === null || outdatedData === void 0 ? void 0 : outdatedData.data) === null || _b === void 0 ? void 0 : _b.body;
+                return ((_c = outdatedData === null || outdatedData === void 0 ? void 0 : outdatedData.data) === null || _c === void 0 ? void 0 : _c.body) || [];
             }
             catch (err2) {
                 core.error(`Error running yarn outdated command: ${err2.message}`);
