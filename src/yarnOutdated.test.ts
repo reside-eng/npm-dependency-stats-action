@@ -29,7 +29,7 @@ describe('yarnOutdated', () => {
     /* eslint-enable no-useless-escape */
     mockExec.exec.mockImplementation(
       async (cmd: string, args?: string[], options?: exec.ExecOptions) => {
-        options?.listeners?.stderr?.(Buffer.from(outdatedOutput, 'utf-8'));
+        options?.listeners?.stdout?.(Buffer.from(outdatedOutput, 'utf-8'));
         throw new Error('test');
       },
     );

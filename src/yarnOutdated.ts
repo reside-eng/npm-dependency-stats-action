@@ -44,14 +44,10 @@ export default async function yarnOutdated(
     return [];
   } catch (err) {
     try {
-      core.info(`Output ${myOutput}`);
-      core.info(`Error output ${myError}`);
       // Output is in json-lines format - use Regex to handle different newline characters
       const outdatedDataStr =
-        myError.match(/{"type":"table"(.*}})/)?.[0] ||
-        myOutput.match(/{"type":"table"(.*}})/)?.[0] ||
-        '{}';
-      core.info(`Output of parsing yarn outdated command: ${outdatedDataStr}`);
+        myOutput.match(/{"type":"table"(.*}})/)?.[0] || '{}';
+      core.debug(`Output of parsing yarn outdated command: ${outdatedDataStr}`);
       const outdatedData = JSON.parse(outdatedDataStr);
       return outdatedData?.data?.body || [];
     } catch (err2) {
