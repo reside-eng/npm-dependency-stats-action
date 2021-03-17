@@ -694,9 +694,9 @@
     fastq "^1.6.0"
 
 "@side/commitlint-config@^0.1.3":
-  version "0.1.3"
-  resolved "https://registry.yarnpkg.com/@side/commitlint-config/-/commitlint-config-0.1.3.tgz#569827a18f311686ace92e2718f55bdc56d57683"
-  integrity sha512-RkDTIitQNxlG2Q3nBlAxlG8tS4EgpBDzcKchf3O4T06gT29f0sNPXNsmc2IVlt6t52hNtMLceiACp3/KNYA+Ew==
+  version "0.1.4"
+  resolved "https://registry.yarnpkg.com/@side/commitlint-config/-/commitlint-config-0.1.4.tgz#4e2a5ff12f1dcca8cf4cec94aac3889331c86057"
+  integrity sha512-jXA90X9lzR68DUYUlNBc4zTeR9q36yUNSg6M4BU4BP3nUXwAS5KJvHSigg5VUMwLx/xqEyfzWIQOFQMg0o5O7g==
   dependencies:
     "@commitlint/config-conventional" "^12.0.1"
 
