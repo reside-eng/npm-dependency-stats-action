@@ -2,19 +2,19 @@
   "name": "@side/npm-dependency-stats-action",
   "version": "0.0.0-development",
   "description": "Github action for getting stats about npm dependencies",
+  "author": "Side Inc.",
+  "license": "MIT",
   "main": "dist/index.js",
   "scripts": {
     "format": "prettier --write **/*.ts",
     "format-check": "prettier --check **/*.ts",
     "lint": "eslint src/**/*.ts",
-    "lint:fix": "npm run lint -- --fix",
+    "lint:fix": "yarn lint --fix",
     "build": "rimraf dist && ncc build src/index.ts --source-map --license licenses.txt && rm dist/dependabot.yml",
     "test": "yarn tsc && jest",
     "test:cov": "yarn test --coverage",
-    "all": "npm run build && npm run format && npm run lint && npm run package && npm test"
+    "all": "yarn build && yarn format && yarn lint && yarn package && npm test"
   },
-  "author": "",
-  "license": "ISC",
   "dependencies": {
     "@actions/core": "^1.2.6",
     "@actions/exec": "^1.0.4",
@@ -61,5 +61,9 @@
       "commit-msg": "commitlint -E HUSKY_GIT_PARAMS",
       "pre-commit": "lint-staged && yarn build"
     }
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/reside-eng/npm-dependency-stats-action.git"
   }
 }
