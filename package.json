@@ -9,7 +9,7 @@
     "format": "prettier --write **/*.ts",
     "format-check": "prettier --check **/*.ts",
     "lint": "eslint src/**/*.ts",
-    "lint:fix": "yarn lint -- --fix",
+    "lint:fix": "yarn lint --fix",
     "build": "rimraf dist && ncc build src/index.ts --source-map --license licenses.txt && rm dist/dependabot.yml",
     "test": "yarn tsc && jest",
     "test:cov": "yarn test --coverage",
