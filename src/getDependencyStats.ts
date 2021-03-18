@@ -26,6 +26,15 @@ function groupPackagesByOutOfDateName(
       // TODO: Support npm outdated format or convert to match this format
       const current = packageInfo[1];
       const latest = packageInfo[3];
+      const packageName = packageInfo[0];
+
+      // Skip dependencies which have "exotic" version (can be caused by pointing to a github repo in package file)
+      if (latest === 'exotic') {
+        core.debug(
+          `Skipping check of ${packageName} since it's latest version is "exotic" (i.e. not found in package registry)`,
+        );
+        return acc;
+      }
 
       const currentMajor = semver.major(current);
       const latestMajor = semver.major(latest);

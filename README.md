@@ -104,7 +104,7 @@ jobs:
       - name: Set up Google Cloud SDK
         uses: google-github-actions/setup-gcloud@master
         with:
-          project_id: "reside-stage"
+          project_id: "some-project"
           service_account_key: ${{ secrets.STAGE_SERVICE_ACCOUNT }}
           export_default_credentials: true
 
@@ -113,7 +113,7 @@ jobs:
         run: |
           echo "Uploading results to cloud storage"
           echo ""
-          bucket=reside-stage.appspot.com
+          bucket=some-project.appspot.com
           depStatsFolder=dependency-stats
           gsutil -m -q cp ./dep-stats.json gs://$bucket/$depStatsFolder/$(date +%Y-%m-%d_%H-%M-%S).json
           gsutil -m -q cp ./dep-stats.json gs://$bucket/$depStatsFolder/latest.json
