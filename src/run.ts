@@ -4,7 +4,8 @@ import path from 'path';
 import getDependencyStats from './getDependencyStats';
 
 /**
- *
+ * Run npm-dependency-stats action. All outputs are set
+ * at this level
  */
 export default async function run(): Promise<void> {
   const depStats = await getDependencyStats();

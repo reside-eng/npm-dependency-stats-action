@@ -8697,6 +8697,12 @@ function groupPackagesByOutOfDateName(packages) {
         // TODO: Support npm outdated format or convert to match this format
         const current = packageInfo[1];
         const latest = packageInfo[3];
+        const packageName = packageInfo[0];
+        // Skip dependencies which have "exotic" version (can be caused by pointing to a github repo in package file)
+        if (latest === 'exotic') {
+            core.debug(`Skipping check of ${packageName} since it's latest version is "exotic" (i.e. not found in package registry)`);
+            return acc;
+        }
         const currentMajor = semver_1.default.major(current);
         const latestMajor = semver_1.default.major(latest);
         const currentMinor = semver_1.default.minor(current);
@@ -8828,7 +8834,9 @@ function getDepedencyStats() {
         const majorPercentOutOfDate = ((majorsOutOfDate / numDeps) * 100).toFixed(2);
         const minorPercentOutOfDate = ((minorsOutOfDate / numDeps) * 100).toFixed(2);
         const patchPercentOutOfDate = ((patchesOutOfDate / numDeps) * 100).toFixed(2);
-        const upToDatePercent = ((majorsOutOfDate / numDeps) * 100).toFixed(2);
+        const upToDatePercent = (((numDeps - (majorsOutOfDate + minorsOutOfDate + patchesOutOfDate)) /
+            numDeps) *
+            100).toFixed(2);
         const messageLines = [
             `up to date: ${numDeps - (majorsOutOfDate + minorsOutOfDate + patchesOutOfDate)}/${numDeps} (${upToDatePercent} %)`,
             `major behind: ${majorsOutOfDate}/${numDeps} (${majorPercentOutOfDate} %)`,
@@ -8903,6 +8911,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 const core = __importStar(__nccwpck_require__(2186));
 const fs_1 = __importDefault(__nccwpck_require__(5747));
+const path_1 = __nccwpck_require__(5622);
 /**
  * Load and parse a JSON file from the file system
  *
@@ -8917,8 +8926,8 @@ function loadJsonFile(filePath) {
             return JSON.parse(fileBuff.toString());
         }
         catch (err) {
-            core.error(`Error loading json file "${filePath}"`);
-            throw err;
+            core.error(`Error parsing json file "${filePath}"`);
+            throw new Error(err.message);
         }
     });
 }
@@ -8930,7 +8939,7 @@ function loadJsonFile(filePath) {
  */
 function getNumberOfDependencies(basePath) {
     return __awaiter(this, void 0, void 0, function* () {
-        const pkgPath = `${basePath}/package.json`;
+        const pkgPath = __nccwpck_require__.ab + "npm-dependency-stats-action/" + basePath + '/package.json';
         if (!fs_1.default.existsSync(pkgPath)) {
             core.warning(`Package file does not exist at path ${basePath}`);
             return 0;
@@ -9026,7 +9035,8 @@ const fs_1 = __importDefault(__nccwpck_require__(5747));
 const path_1 = __importDefault(__nccwpck_require__(5622));
 const getDependencyStats_1 = __importDefault(__nccwpck_require__(7247));
 /**
- *
+ * Run npm-dependency-stats action. All outputs are set
+ * at this level
  */
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
