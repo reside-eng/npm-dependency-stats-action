@@ -229,7 +229,11 @@ export default async function getDepedencyStats(): Promise<StatsOutput> {
   const majorPercentOutOfDate = ((majorsOutOfDate / numDeps) * 100).toFixed(2);
   const minorPercentOutOfDate = ((minorsOutOfDate / numDeps) * 100).toFixed(2);
   const patchPercentOutOfDate = ((patchesOutOfDate / numDeps) * 100).toFixed(2);
-  const upToDatePercent = ((majorsOutOfDate / numDeps) * 100).toFixed(2);
+  const upToDatePercent = (
+    ((numDeps - (majorsOutOfDate + minorsOutOfDate + patchesOutOfDate)) /
+      numDeps) *
+    100
+  ).toFixed(2);
   const messageLines = [
     `up to date: ${
       numDeps - (majorsOutOfDate + minorsOutOfDate + patchesOutOfDate)

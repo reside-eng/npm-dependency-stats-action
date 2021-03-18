@@ -1,5 +1,6 @@
 import * as core from '@actions/core';
 import fs from 'fs';
+import { resolve } from 'path';
 
 /**
  * Load and parse a JSON file from the file system
@@ -13,8 +14,8 @@ async function loadJsonFile(filePath: string): Promise<any> {
   try {
     return JSON.parse(fileBuff.toString());
   } catch (err) {
-    core.error(`Error loading json file "${filePath}"`);
-    throw err;
+    core.error(`Error parsing json file "${filePath}"`);
+    throw new Error(err.message);
   }
 }
 
@@ -37,7 +38,7 @@ interface PackageFile {
 export default async function getNumberOfDependencies(
   basePath: string,
 ): Promise<number> {
-  const pkgPath = `${basePath}/package.json`;
+  const pkgPath = resolve(basePath, 'package.json');
   if (!fs.existsSync(pkgPath)) {
     core.warning(`Package file does not exist at path ${basePath}`);
     return 0;
