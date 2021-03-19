@@ -1,6 +1,5 @@
 import * as core from '@actions/core';
 import fs from 'fs';
-import { resolve } from 'path';
 
 /**
  * Load and parse a JSON file from the file system
@@ -38,7 +37,7 @@ interface PackageFile {
 export default async function getNumberOfDependencies(
   basePath: string,
 ): Promise<number> {
-  const pkgPath = resolve(basePath, 'package.json');
+  const pkgPath = `${basePath}/package.json`;
   if (!fs.existsSync(pkgPath)) {
     core.warning(`Package file does not exist at path ${basePath}`);
     return 0;

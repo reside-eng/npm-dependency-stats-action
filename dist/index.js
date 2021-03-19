@@ -8911,7 +8911,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 const core = __importStar(__nccwpck_require__(2186));
 const fs_1 = __importDefault(__nccwpck_require__(5747));
-const path_1 = __nccwpck_require__(5622);
 /**
  * Load and parse a JSON file from the file system
  *
@@ -8939,7 +8938,7 @@ function loadJsonFile(filePath) {
  */
 function getNumberOfDependencies(basePath) {
     return __awaiter(this, void 0, void 0, function* () {
-        const pkgPath = __nccwpck_require__.ab + "npm-dependency-stats-action/" + basePath + '/package.json';
+        const pkgPath = `${basePath}/package.json`;
         if (!fs_1.default.existsSync(pkgPath)) {
             core.warning(`Package file does not exist at path ${basePath}`);
             return 0;
