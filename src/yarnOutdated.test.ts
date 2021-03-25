@@ -38,4 +38,34 @@ describe('yarnOutdated', () => {
     expect(result[0]).toBeInstanceOf(Array);
     expect(result[0][0]).toBe('@types/node');
   });
+
+  it('should handle error output from yarn outdated command', async () => {
+    /* eslint-disable no-useless-escape */
+    const outdatedOutput = '{"error": "asdf"}';
+    /* eslint-enable no-useless-escape */
+    mockExec.exec.mockImplementation(
+      async (cmd: string, args?: string[], options?: exec.ExecOptions) => {
+        options?.listeners?.stderr?.(Buffer.from(outdatedOutput, 'utf-8'));
+        throw new Error('test');
+      },
+    );
+    await expect(yarnOutdated('./test')).rejects.toThrow(
+      new Error('Unexpected end of JSON input'),
+    );
+  });
+
+  it('should handle invalid response from yarn outdated command', async () => {
+    /* eslint-disable no-useless-escape */
+    const outdatedOutput = 'asdfasdf]][[';
+    /* eslint-enable no-useless-escape */
+    mockExec.exec.mockImplementation(
+      async (cmd: string, args?: string[], options?: exec.ExecOptions) => {
+        options?.listeners?.stdout?.(Buffer.from(outdatedOutput, 'utf-8'));
+        throw new Error('test');
+      },
+    );
+    await expect(yarnOutdated('./test')).rejects.toThrowError(
+      new Error('Unexpected end of JSON input'),
+    );
+  });
 });

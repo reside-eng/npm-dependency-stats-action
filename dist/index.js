@@ -9119,7 +9119,7 @@ function yarnOutdated(basePath) {
         catch (err) {
             try {
                 // Output is in json-lines format - use Regex to handle different newline characters
-                const outdatedDataStr = ((_a = myOutput.match(/{"type":"table"(.*}})/)) === null || _a === void 0 ? void 0 : _a[0]) || '{}';
+                const outdatedDataStr = ((_a = myOutput.match(/{"type":"table"(.*}})/)) === null || _a === void 0 ? void 0 : _a[0]) || '';
                 core.debug(`Output of parsing yarn outdated command: ${outdatedDataStr}`);
                 const outdatedData = JSON.parse(outdatedDataStr);
                 return ((_b = outdatedData === null || outdatedData === void 0 ? void 0 : outdatedData.data) === null || _b === void 0 ? void 0 : _b.body) || [];

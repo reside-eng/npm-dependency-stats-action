@@ -46,7 +46,7 @@ export default async function yarnOutdated(
     try {
       // Output is in json-lines format - use Regex to handle different newline characters
       const outdatedDataStr =
-        myOutput.match(/{"type":"table"(.*}})/)?.[0] || '{}';
+        myOutput.match(/{"type":"table"(.*}})/)?.[0] || '';
       core.debug(`Output of parsing yarn outdated command: ${outdatedDataStr}`);
       const outdatedData = JSON.parse(outdatedDataStr);
       return outdatedData?.data?.body || [];
