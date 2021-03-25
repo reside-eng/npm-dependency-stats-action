@@ -27,7 +27,6 @@ describe('getDependencyStats', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     mockCore.getInput.mockImplementation((name: string): string => {
-      // console.log('name:', name);
       return mock.inputs[name] || '';
     });
 
