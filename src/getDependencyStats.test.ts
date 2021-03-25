@@ -4,8 +4,6 @@ import yaml from 'js-yaml';
 import getDependencyStats from './getDependencyStats';
 import { YarnDepdendencyInfoRow } from './yarnOutdated';
 
-jest.mock('@actions/core');
-
 const mockCore = core as jest.Mocked<typeof core>;
 
 interface MockObj {
@@ -14,13 +12,12 @@ interface MockObj {
 }
 let mock: MockObj;
 
+jest.mock('@actions/core');
 jest.mock('fs');
-
 jest.mock('./yarnOutdated', () => ({
   __esModule: true,
   default: () => Promise.resolve(mock.outdated),
 }));
-
 jest.mock('./getNumberOfDependencies', () => ({
   __esModule: true,
   default: () => Promise.resolve(mock.outdated?.length || 0),
@@ -53,11 +50,26 @@ describe('getDependencyStats', () => {
 
   it('returns stats if all dependencies are up to date', async () => {
     const result = await getDependencyStats();
-    expect(result).toHaveProperty('dependencies');
-    expect(result).toHaveProperty('counts');
-    expect(result).toHaveProperty('percents');
-    expect(result.counts).toHaveProperty('total', 1);
-    expect(result.counts).toHaveProperty('upToDate', 1);
+    expect(result).toEqual({
+      counts: {
+        total: 1,
+        upToDate: 1,
+        major: 0,
+        minor: 0,
+        patch: 0,
+      },
+      percents: {
+        upToDate: '100.00',
+        major: '0.00',
+        minor: '0.00',
+        patch: '0.00',
+      },
+      dependencies: {
+        major: [],
+        minor: [],
+        patch: [],
+      },
+    });
   });
 
   it('returns stats about out of date major, minor, and patch versions', async () => {
@@ -70,16 +82,26 @@ describe('getDependencyStats', () => {
       [patchDepName, '1.0.0', '1.0.0', '1.0.1', 'dependencies', ''],
     ];
     const result = await getDependencyStats();
-    expect(result).toHaveProperty('dependencies');
-    expect(result).toHaveProperty('counts');
-    expect(result).toHaveProperty('percents');
-    expect(result.counts).toHaveProperty('total', 3);
-    expect(result.counts).toHaveProperty('major', 1);
-    expect(result.dependencies).toHaveProperty('major.0.0', majorDepName);
-    expect(result.counts).toHaveProperty('minor', 1);
-    expect(result.dependencies).toHaveProperty('minor.0.0', minorDepName);
-    expect(result.counts).toHaveProperty('patch', 1);
-    expect(result.dependencies).toHaveProperty('patch.0.0', patchDepName);
+    expect(result).toEqual({
+      counts: {
+        total: 3,
+        upToDate: 0,
+        major: 1,
+        minor: 1,
+        patch: 1,
+      },
+      percents: {
+        major: '33.33',
+        minor: '33.33',
+        patch: '33.33',
+        upToDate: '0.00',
+      },
+      dependencies: {
+        major: [mock.outdated[0]],
+        minor: [mock.outdated[1]],
+        patch: [mock.outdated[2]],
+      },
+    });
   });
 
   it('marks out of date minors for pre-v1.0.0 versions as out of date majors', async () => {
@@ -87,11 +109,26 @@ describe('getDependencyStats', () => {
       ['some-dep', '0.0.1', '0.1.0', '0.1.0', 'dependencies', ''],
     ];
     const result = await getDependencyStats();
-    expect(result).toHaveProperty('dependencies');
-    expect(result).toHaveProperty('counts');
-    expect(result).toHaveProperty('percents');
-    expect(result.counts).toHaveProperty('total', 1);
-    expect(result.counts).toHaveProperty('major', 1);
+    expect(result).toEqual({
+      counts: {
+        total: 1,
+        upToDate: 0,
+        major: 1,
+        minor: 0,
+        patch: 0,
+      },
+      percents: {
+        upToDate: '0.00',
+        major: '100.00',
+        minor: '0.00',
+        patch: '0.00',
+      },
+      dependencies: {
+        major: [mock.outdated[0]],
+        minor: [],
+        patch: [],
+      },
+    });
   });
 
   it('marks out of date minors for pre-v1.0.0 versions as out of date majors', async () => {
@@ -99,11 +136,26 @@ describe('getDependencyStats', () => {
       ['some-dep', '0.0.1', '0.1.0', '0.1.0', 'dependencies', ''],
     ];
     const result = await getDependencyStats();
-    expect(result).toHaveProperty('dependencies');
-    expect(result).toHaveProperty('counts');
-    expect(result).toHaveProperty('percents');
-    expect(result.counts).toHaveProperty('total', 1);
-    expect(result.counts).toHaveProperty('major', 1);
+    expect(result).toEqual({
+      counts: {
+        total: 1,
+        upToDate: 0,
+        major: 1,
+        minor: 0,
+        patch: 0,
+      },
+      percents: {
+        upToDate: '0.00',
+        major: '100.00',
+        minor: '0.00',
+        patch: '0.00',
+      },
+      dependencies: {
+        major: [mock.outdated[0]],
+        minor: [],
+        patch: [],
+      },
+    });
   });
 
   it('marks out of date patch for pre-v0.1.0 versions as out of date major', async () => {
@@ -111,11 +163,26 @@ describe('getDependencyStats', () => {
       ['some-dep', '0.0.1', '0.0.2', '0.0.2', 'dependencies', ''],
     ];
     const result = await getDependencyStats();
-    expect(result).toHaveProperty('dependencies');
-    expect(result).toHaveProperty('counts');
-    expect(result).toHaveProperty('percents');
-    expect(result.counts).toHaveProperty('total', 1);
-    expect(result.counts).toHaveProperty('major', 1);
+    expect(result).toEqual({
+      counts: {
+        total: 1,
+        upToDate: 0,
+        major: 1,
+        minor: 0,
+        patch: 0,
+      },
+      percents: {
+        upToDate: '0.00',
+        major: '100.00',
+        minor: '0.00',
+        patch: '0.00',
+      },
+      dependencies: {
+        major: [mock.outdated[0]],
+        minor: [],
+        patch: [],
+      },
+    });
   });
 
   it('marks out of date patch for pre-v1.0.0 versions as out of date minor', async () => {
@@ -123,11 +190,26 @@ describe('getDependencyStats', () => {
       ['some-dep', '0.2.0', '0.2.1', '0.2.1', 'dependencies', ''],
     ];
     const result = await getDependencyStats();
-    expect(result).toHaveProperty('dependencies');
-    expect(result).toHaveProperty('counts');
-    expect(result).toHaveProperty('percents');
-    expect(result.counts).toHaveProperty('total', 1);
-    expect(result.counts).toHaveProperty('minor', 1);
+    expect(result).toEqual({
+      counts: {
+        total: 1,
+        upToDate: 0,
+        major: 0,
+        minor: 1,
+        patch: 0,
+      },
+      percents: {
+        upToDate: '0.00',
+        major: '0.00',
+        minor: '100.00',
+        patch: '0.00',
+      },
+      dependencies: {
+        major: [],
+        minor: [mock.outdated[0]],
+        patch: [],
+      },
+    });
   });
 
   it('handles dependencies marked as "exotic" (their latest version can not be found)', async () => {
@@ -136,11 +218,26 @@ describe('getDependencyStats', () => {
       ['some-exotic-dep', '0.0.1', 'exotic', 'exotic', 'dependencies', ''],
     ];
     const result = await getDependencyStats();
-    expect(result).toHaveProperty('dependencies');
-    expect(result).toHaveProperty('counts');
-    expect(result).toHaveProperty('percents');
-    expect(result.counts).toHaveProperty('total', 2);
-    expect(result.counts).toHaveProperty('major', 1);
+    expect(result).toEqual({
+      counts: {
+        total: 2,
+        upToDate: 1,
+        major: 1,
+        minor: 0,
+        patch: 0,
+      },
+      percents: {
+        upToDate: '50.00',
+        major: '50.00',
+        minor: '0.00',
+        patch: '0.00',
+      },
+      dependencies: {
+        major: [mock.outdated[0]],
+        minor: [],
+        patch: [],
+      },
+    });
   });
 
   it('returns stats about out of date major, minor, and patch versions', async () => {
@@ -155,10 +252,26 @@ describe('getDependencyStats', () => {
       ['up-to-date-dep-2', '3.0.0', '3.0.0', '3.0.0', 'dependencies', ''],
     ];
     const result = await getDependencyStats();
-    expect(result.percents).toHaveProperty('upToDate', '40.00');
-    expect(result.percents).toHaveProperty('major', '20.00');
-    expect(result.percents).toHaveProperty('minor', '20.00');
-    expect(result.percents).toHaveProperty('patch', '20.00');
+    expect(result).toEqual({
+      counts: {
+        total: 5,
+        upToDate: 2,
+        major: 1,
+        minor: 1,
+        patch: 1,
+      },
+      percents: {
+        upToDate: '40.00',
+        major: '20.00',
+        minor: '20.00',
+        patch: '20.00',
+      },
+      dependencies: {
+        major: [mock.outdated[0]],
+        minor: [mock.outdated[1]],
+        patch: [mock.outdated[2]],
+      },
+    });
   });
 
   it('ignores dependencies which are ignored in dependabot settings', async () => {
@@ -182,10 +295,26 @@ describe('getDependencyStats', () => {
       ['some-other-dep', '0.1.0', '0.1.0', '0.1.0', 'dependencies', ''],
     ];
     const result = await getDependencyStats();
-    expect(result.percents).toHaveProperty('upToDate', '100.00');
-    expect(result.percents).toHaveProperty('major', '0.00');
-    expect(result.percents).toHaveProperty('minor', '0.00');
-    expect(result.percents).toHaveProperty('patch', '0.00');
+    expect(result).toEqual({
+      counts: {
+        total: 3,
+        upToDate: 3,
+        major: 0,
+        minor: 0,
+        patch: 0,
+      },
+      percents: {
+        upToDate: '100.00',
+        major: '0.00',
+        minor: '0.00',
+        patch: '0.00',
+      },
+      dependencies: {
+        major: [],
+        minor: [],
+        patch: [],
+      },
+    });
   });
 
   it('does not ignore any dependencies if dependabot config does not contain npm package ecosystem settings', async () => {
@@ -208,10 +337,26 @@ describe('getDependencyStats', () => {
       ['some-other-dep', '0.1.0', '0.1.0', '0.1.0', 'dependencies', ''],
     ];
     const result = await getDependencyStats();
-    expect(result.percents).toHaveProperty('upToDate', '66.67');
-    expect(result.percents).toHaveProperty('major', '33.33');
-    expect(result.percents).toHaveProperty('minor', '0.00');
-    expect(result.percents).toHaveProperty('patch', '0.00');
+    expect(result).toEqual({
+      counts: {
+        total: 3,
+        upToDate: 2,
+        major: 1,
+        minor: 0,
+        patch: 0,
+      },
+      percents: {
+        upToDate: '66.67',
+        major: '33.33',
+        minor: '0.00',
+        patch: '0.00',
+      },
+      dependencies: {
+        major: [mock.outdated[0]],
+        minor: [],
+        patch: [],
+      },
+    });
   });
 
   it('handles empty dependabot config file (not ignoring any dependencies)', async () => {
@@ -224,10 +369,26 @@ describe('getDependencyStats', () => {
       ['some-other-dep', '0.1.0', '0.1.0', '0.1.0', 'dependencies', ''],
     ];
     const result = await getDependencyStats();
-    expect(result.percents).toHaveProperty('upToDate', '66.67');
-    expect(result.percents).toHaveProperty('major', '33.33');
-    expect(result.percents).toHaveProperty('minor', '0.00');
-    expect(result.percents).toHaveProperty('patch', '0.00');
+    expect(result).toEqual({
+      counts: {
+        total: 3,
+        upToDate: 2,
+        major: 1,
+        minor: 0,
+        patch: 0,
+      },
+      percents: {
+        major: '33.33',
+        minor: '0.00',
+        patch: '0.00',
+        upToDate: '66.67',
+      },
+      dependencies: {
+        major: [mock.outdated[0]],
+        minor: [],
+        patch: [],
+      },
+    });
   });
 
   it('handles error parsing dependabot config file (not ignoring any dependencies)', async () => {
@@ -240,9 +401,25 @@ describe('getDependencyStats', () => {
       ['some-other-dep', '0.1.0', '0.1.0', '0.1.0', 'dependencies', ''],
     ];
     const result = await getDependencyStats();
-    expect(result.percents).toHaveProperty('upToDate', '66.67');
-    expect(result.percents).toHaveProperty('major', '33.33');
-    expect(result.percents).toHaveProperty('minor', '0.00');
-    expect(result.percents).toHaveProperty('patch', '0.00');
+    expect(result).toEqual({
+      counts: {
+        total: 3,
+        upToDate: 2,
+        major: 1,
+        minor: 0,
+        patch: 0,
+      },
+      percents: {
+        upToDate: '66.67',
+        major: '33.33',
+        minor: '0.00',
+        patch: '0.00',
+      },
+      dependencies: {
+        major: [mock.outdated[0]],
+        minor: [],
+        patch: [],
+      },
+    });
   });
 });
