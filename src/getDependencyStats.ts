@@ -125,8 +125,10 @@ function loadDependabotConfig(): DependabotConfig {
     }
     return configFile;
   } catch (error) {
-    core.error('Error loading dependabot config from .github/dependabot.yml');
-    throw error;
+    core.warning(
+      'Error parsing .github/dependabot.yml, confirm it is valid yaml in order for ignore settings to be picked up',
+    );
+    return {};
   }
 }
 
@@ -141,34 +143,27 @@ async function loadIgnoreFromDependabotConfig(
   core.debug(
     'Searching dependabot config for ignore settings which match current working directory',
   );
-  try {
-    // Look for settings which match the current path
-    const settingsForPath = dependabotConfig?.updates?.find(
-      (updateSetting: DependabotUpdateSetting) => {
-        if (updateSetting?.['package-ecosystem'] === 'npm') {
-          //  Trim leading and trailing slashes from directory setting and cwdSetting
-          const cleanDirectorySetting = updateSetting?.directory?.replace(
-            /^\/|\/$/g,
-            '',
-          );
-          return cwdSetting
-            ? cleanDirectorySetting === cwdSetting?.replace(/^\/|\/$/g, '')
-            : updateSetting?.directory === '/';
-        }
-        return false;
-      },
-    );
-    if (!settingsForPath?.ignore) {
-      return [];
-    }
-    return settingsForPath.ignore.map(
-      (ignoreSetting: DependabotIgnoreSetting) =>
-        ignoreSetting['dependency-name'],
-    );
-  } catch (error) {
-    core.error('Error parsing .github/dependabot.yml');
-    throw error;
+  // Look for settings which match the current path
+  const settingsForPath = dependabotConfig?.updates?.find(
+    (updateSetting: DependabotUpdateSetting) => {
+      if (updateSetting?.['package-ecosystem'] === 'npm') {
+        //  Trim leading and trailing slashes from directory setting and cwdSetting
+        const directorySetting = updateSetting?.directory || '';
+        const cleanDirectorySetting = directorySetting.replace(/^\/|\/$/g, '');
+        return cwdSetting
+          ? cleanDirectorySetting === cwdSetting?.replace(/^\/|\/$/g, '')
+          : updateSetting?.directory === '/';
+      }
+      return false;
+    },
+  );
+  if (!settingsForPath?.ignore) {
+    return [];
   }
+  return settingsForPath.ignore.map(
+    (ignoreSetting: DependabotIgnoreSetting) =>
+      ignoreSetting['dependency-name'],
+  );
 }
 
 export interface StatsOutput {

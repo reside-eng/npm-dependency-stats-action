@@ -136,9 +136,9 @@ jobs:
 [npm-image]: https://img.shields.io/npm/v/@side/npm-dependency-stats-action.svg?style=flat-square
 [npm-url]: https://npmjs.org/package/@side/npm-dependency-stats-action
 [build-status-image]: https://img.shields.io/github/workflow/status/reside-eng/npm-dependency-stats-action/Publish?style=flat-square
-[build-status-url]: https://github.com/reside-eng/npm-dependency-stats-saction/actions
+[build-status-url]: https://github.com/reside-eng/npm-dependency-stats-action/actions
 [coverage-image]: https://img.shields.io/codecov/c/github/reside-eng/npm-dependency-stats-action.svg?style=flat-square
-[coverage-url]: https://codecov.io/gh/reside-eng/npm-dependency-stats-saction
+[coverage-url]: https://codecov.io/gh/reside-eng/npm-dependency-stats-action
 [license-image]: https://img.shields.io/npm/l/@side/npm-dependency-stats-action.svg?style=flat-square
 [license-url]: https://github.com/reside-eng/npm-dependency-stats-action/blob/main/LICENSE
 [code-style-image]: https://img.shields.io/badge/code%20style-airbnb-blue.svg?style=flat-square

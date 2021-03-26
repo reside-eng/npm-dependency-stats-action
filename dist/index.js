@@ -8766,8 +8766,8 @@ function loadDependabotConfig() {
         return configFile;
     }
     catch (error) {
-        core.error('Error loading dependabot config from .github/dependabot.yml');
-        throw error;
+        core.warning('Error parsing .github/dependabot.yml, confirm it is valid yaml in order for ignore settings to be picked up');
+        return {};
     }
 }
 /**
@@ -8779,28 +8779,22 @@ function loadIgnoreFromDependabotConfig(cwdSetting) {
     return __awaiter(this, void 0, void 0, function* () {
         const dependabotConfig = loadDependabotConfig();
         core.debug('Searching dependabot config for ignore settings which match current working directory');
-        try {
-            // Look for settings which match the current path
-            const settingsForPath = (_a = dependabotConfig === null || dependabotConfig === void 0 ? void 0 : dependabotConfig.updates) === null || _a === void 0 ? void 0 : _a.find((updateSetting) => {
-                var _a;
-                if ((updateSetting === null || updateSetting === void 0 ? void 0 : updateSetting['package-ecosystem']) === 'npm') {
-                    //  Trim leading and trailing slashes from directory setting and cwdSetting
-                    const cleanDirectorySetting = (_a = updateSetting === null || updateSetting === void 0 ? void 0 : updateSetting.directory) === null || _a === void 0 ? void 0 : _a.replace(/^\/|\/$/g, '');
-                    return cwdSetting
-                        ? cleanDirectorySetting === (cwdSetting === null || cwdSetting === void 0 ? void 0 : cwdSetting.replace(/^\/|\/$/g, ''))
-                        : (updateSetting === null || updateSetting === void 0 ? void 0 : updateSetting.directory) === '/';
-                }
-                return false;
-            });
-            if (!(settingsForPath === null || settingsForPath === void 0 ? void 0 : settingsForPath.ignore)) {
-                return [];
+        // Look for settings which match the current path
+        const settingsForPath = (_a = dependabotConfig === null || dependabotConfig === void 0 ? void 0 : dependabotConfig.updates) === null || _a === void 0 ? void 0 : _a.find((updateSetting) => {
+            if ((updateSetting === null || updateSetting === void 0 ? void 0 : updateSetting['package-ecosystem']) === 'npm') {
+                //  Trim leading and trailing slashes from directory setting and cwdSetting
+                const directorySetting = (updateSetting === null || updateSetting === void 0 ? void 0 : updateSetting.directory) || '';
+                const cleanDirectorySetting = directorySetting.replace(/^\/|\/$/g, '');
+                return cwdSetting
+                    ? cleanDirectorySetting === (cwdSetting === null || cwdSetting === void 0 ? void 0 : cwdSetting.replace(/^\/|\/$/g, ''))
+                    : (updateSetting === null || updateSetting === void 0 ? void 0 : updateSetting.directory) === '/';
             }
-            return settingsForPath.ignore.map((ignoreSetting) => ignoreSetting['dependency-name']);
+            return false;
+        });
+        if (!(settingsForPath === null || settingsForPath === void 0 ? void 0 : settingsForPath.ignore)) {
+            return [];
         }
-        catch (error) {
-            core.error('Error parsing .github/dependabot.yml');
-            throw error;
-        }
+        return settingsForPath.ignore.map((ignoreSetting) => ignoreSetting['dependency-name']);
     });
 }
 /**
@@ -9125,7 +9119,7 @@ function yarnOutdated(basePath) {
         catch (err) {
             try {
                 // Output is in json-lines format - use Regex to handle different newline characters
-                const outdatedDataStr = ((_a = myOutput.match(/{"type":"table"(.*}})/)) === null || _a === void 0 ? void 0 : _a[0]) || '{}';
+                const outdatedDataStr = ((_a = myOutput.match(/{"type":"table"(.*}})/)) === null || _a === void 0 ? void 0 : _a[0]) || '';
                 core.debug(`Output of parsing yarn outdated command: ${outdatedDataStr}`);
                 const outdatedData = JSON.parse(outdatedDataStr);
                 return ((_b = outdatedData === null || outdatedData === void 0 ? void 0 : outdatedData.data) === null || _b === void 0 ? void 0 : _b.body) || [];
