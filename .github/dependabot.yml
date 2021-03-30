@@ -10,10 +10,6 @@ updates:
       - "reside-eng/platform"
     reviewers:
       - "reside-eng/platform"
-    ignore:
-    - dependency-name: "husky"
-      # TODO: re-enable once Husky's license has been updated
-      versions: ["5.x"]
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
