@@ -3,7 +3,7 @@ name: Verify (dependabot)
 on:
   pull_request_target:
     branches:
-      - master
+      - main
 
 jobs:
   build:
@@ -50,18 +50,16 @@ jobs:
             ${{ runner.os }}-yarn-
 
       - name: Install Dependencies
-        run: |
-          yarn install --frozen-lockfile
+        run: yarn install --frozen-lockfile
 
       - name: Lint
-        run: |
-          yarn lint
+        run: yarn lint
 
       - name: Test
-        run: |
-          yarn test --coverage --silent
-
-      - name: Upload Coverage
-        uses: codecov/codecov-action@v1
+        uses: raulanatol/jest-coverage-comment-action@v1.0.6
         with:
-          fail_ci_if_error: true
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          jest-command: yarn test --coverage --silent
+
+      - name: Build
+        run: yarn build
