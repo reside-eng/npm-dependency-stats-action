@@ -8618,15 +8618,6 @@ var semver_default = /*#__PURE__*/__nccwpck_require__.n(semver);
 // EXTERNAL MODULE: ./node_modules/@actions/exec/lib/exec.js
 var exec = __nccwpck_require__(1514);
 ;// CONCATENATED MODULE: ./src/yarnOutdated.ts
-var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
 
 
 /**
@@ -8636,57 +8627,45 @@ var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _argume
  * @param {string} basePath - Base path of package.json
  * @returns Output of outdated command in JSON format
  */
-function yarnOutdated(basePath) {
-    var _a, _b;
-    return __awaiter(this, void 0, void 0, function* () {
-        const args = ['outdated', '--json'];
-        if (basePath) {
-            args.push('--cwd');
-            args.push(basePath);
-        }
-        let myOutput = '';
-        let myError = '';
-        try {
-            const options = {
-                listeners: {
-                    stdout: (data) => {
-                        myOutput += data.toString();
-                    },
-                    stderr: (data) => {
-                        myError += data.toString();
-                    },
+async function yarnOutdated(basePath) {
+    const args = ['outdated', '--json'];
+    if (basePath) {
+        args.push('--cwd');
+        args.push(basePath);
+    }
+    let myOutput = '';
+    let myError = '';
+    try {
+        const options = {
+            listeners: {
+                stdout: (data) => {
+                    myOutput += data.toString();
                 },
-            };
-            yield exec.exec('yarn', args, options);
-            // If command doesn't throw, then there are no packages out of date
-            return [];
+                stderr: (data) => {
+                    myError += data.toString();
+                },
+            },
+        };
+        await exec.exec('yarn', args, options);
+        // If command doesn't throw, then there are no packages out of date
+        return [];
+    }
+    catch (err) {
+        try {
+            // Output is in json-lines format - use Regex to handle different newline characters
+            const outdatedDataStr = myOutput.match(/{"type":"table"(.*}})/)?.[0] || '';
+            core.debug(`Output of parsing yarn outdated command: ${outdatedDataStr}`);
+            const outdatedData = JSON.parse(outdatedDataStr);
+            return outdatedData?.data?.body || [];
         }
-        catch (err) {
-            try {
-                // Output is in json-lines format - use Regex to handle different newline characters
-                const outdatedDataStr = ((_a = myOutput.match(/{"type":"table"(.*}})/)) === null || _a === void 0 ? void 0 : _a[0]) || '';
-                core.debug(`Output of parsing yarn outdated command: ${outdatedDataStr}`);
-                const outdatedData = JSON.parse(outdatedDataStr);
-                return ((_b = outdatedData === null || outdatedData === void 0 ? void 0 : outdatedData.data) === null || _b === void 0 ? void 0 : _b.body) || [];
-            }
-            catch (err2) {
-                core.error(`Error running yarn outdated command: ${err2.message}`);
-                throw err2;
-            }
+        catch (err2) {
+            core.error(`Error running yarn outdated command: ${err2.message}`);
+            throw err2;
         }
-    });
+    }
 }
 
 ;// CONCATENATED MODULE: ./src/getNumberOfDependencies.ts
-var getNumberOfDependencies_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
 
 
 /**
@@ -8696,17 +8675,15 @@ var getNumberOfDependencies_awaiter = (undefined && undefined.__awaiter) || func
  * @returns Parsed JSON file contents
  */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-function loadJsonFile(filePath) {
-    return getNumberOfDependencies_awaiter(this, void 0, void 0, function* () {
-        const fileBuff = yield external_fs_default().promises.readFile(filePath);
-        try {
-            return JSON.parse(fileBuff.toString());
-        }
-        catch (err) {
-            core.error(`Error parsing json file "${filePath}"`);
-            throw new Error(err.message);
-        }
-    });
+async function loadJsonFile(filePath) {
+    const fileBuff = await external_fs_default().promises.readFile(filePath);
+    try {
+        return JSON.parse(fileBuff.toString());
+    }
+    catch (err) {
+        core.error(`Error parsing json file "${filePath}"`);
+        throw new Error(err.message);
+    }
 }
 /**
  * Get number of dependencies listed in package file
@@ -8714,30 +8691,19 @@ function loadJsonFile(filePath) {
  * @param basePath - Base path of package.json
  * @returns Number of dependencies (both dev and prod dependencies)
  */
-function getNumberOfDependencies(basePath) {
-    return getNumberOfDependencies_awaiter(this, void 0, void 0, function* () {
-        const pkgPath = `${basePath}/package.json`;
-        if (!external_fs_default().existsSync(pkgPath)) {
-            core.warning(`Package file does not exist at path ${basePath}`);
-            return 0;
-        }
-        const pkgFile = yield loadJsonFile(pkgPath);
-        const numDevDependencies = Object.keys((pkgFile === null || pkgFile === void 0 ? void 0 : pkgFile.devDependencies) || {}).length;
-        const numDependencies = Object.keys((pkgFile === null || pkgFile === void 0 ? void 0 : pkgFile.dependencies) || {}).length;
-        return numDependencies + numDevDependencies;
-    });
+async function getNumberOfDependencies(basePath) {
+    const pkgPath = `${basePath}/package.json`;
+    if (!external_fs_default().existsSync(pkgPath)) {
+        core.warning(`Package file does not exist at path ${basePath}`);
+        return 0;
+    }
+    const pkgFile = await loadJsonFile(pkgPath);
+    const numDevDependencies = Object.keys(pkgFile?.devDependencies || {}).length;
+    const numDependencies = Object.keys(pkgFile?.dependencies || {}).length;
+    return numDependencies + numDevDependencies;
 }
 
 ;// CONCATENATED MODULE: ./src/getDependencyStats.ts
-var getDependencyStats_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
 
 
 
@@ -8833,104 +8799,90 @@ function loadDependabotConfig() {
  * @param cwdSetting - Current working directory setting
  * @returns List of dependencies to ignore from dependabot config
  */
-function loadIgnoreFromDependabotConfig(cwdSetting) {
-    var _a;
-    return getDependencyStats_awaiter(this, void 0, void 0, function* () {
-        const dependabotConfig = loadDependabotConfig();
-        core.debug('Searching dependabot config for ignore settings which match current working directory');
-        // Look for settings which match the current path
-        const settingsForPath = (_a = dependabotConfig === null || dependabotConfig === void 0 ? void 0 : dependabotConfig.updates) === null || _a === void 0 ? void 0 : _a.find((updateSetting) => {
-            if ((updateSetting === null || updateSetting === void 0 ? void 0 : updateSetting['package-ecosystem']) === 'npm') {
-                //  Trim leading and trailing slashes from directory setting and cwdSetting
-                const directorySetting = (updateSetting === null || updateSetting === void 0 ? void 0 : updateSetting.directory) || '';
-                const cleanDirectorySetting = directorySetting.replace(/^\/|\/$/g, '');
-                return cwdSetting
-                    ? cleanDirectorySetting === (cwdSetting === null || cwdSetting === void 0 ? void 0 : cwdSetting.replace(/^\/|\/$/g, ''))
-                    : (updateSetting === null || updateSetting === void 0 ? void 0 : updateSetting.directory) === '/';
-            }
-            return false;
-        });
-        if (!(settingsForPath === null || settingsForPath === void 0 ? void 0 : settingsForPath.ignore)) {
-            return [];
+async function loadIgnoreFromDependabotConfig(cwdSetting) {
+    const dependabotConfig = loadDependabotConfig();
+    core.debug('Searching dependabot config for ignore settings which match current working directory');
+    // Look for settings which match the current path
+    const settingsForPath = dependabotConfig?.updates?.find((updateSetting) => {
+        if (updateSetting?.['package-ecosystem'] === 'npm') {
+            //  Trim leading and trailing slashes from directory setting and cwdSetting
+            const directorySetting = updateSetting?.directory || '';
+            const cleanDirectorySetting = directorySetting.replace(/^\/|\/$/g, '');
+            return cwdSetting
+                ? cleanDirectorySetting === cwdSetting?.replace(/^\/|\/$/g, '')
+                : updateSetting?.directory === '/';
         }
-        return settingsForPath.ignore.map((ignoreSetting) => ignoreSetting['dependency-name']);
+        return false;
     });
+    if (!settingsForPath?.ignore) {
+        return [];
+    }
+    return settingsForPath.ignore.map((ignoreSetting) => ignoreSetting['dependency-name']);
 }
 /**
  * Get stats about dependencies which are outdated by at least 1 major version
  *
  * @returns Object containing stats about out of date packages
  */
-function getDepedencyStats() {
-    return getDependencyStats_awaiter(this, void 0, void 0, function* () {
-        const startWorkingDirectory = process.cwd();
-        // seems the working directory should be absolute to work correctly
-        // https://github.com/cypress-io/github-action/issues/211
-        const workingDirectoryInput = core.getInput('working-directory');
-        const workingDirectory = workingDirectoryInput
-            ? external_path_default().resolve(workingDirectoryInput)
-            : startWorkingDirectory;
-        core.debug(`working directory ${workingDirectory}`);
-        // Use yarn to list outdated packages and parse into JSON
-        const outdatedDependencies = yield yarnOutdated(workingDirectory);
-        // Get list of packages to ignore from dependabot config if it exists
-        const ignoredPackages = yield loadIgnoreFromDependabotConfig(workingDirectoryInput);
-        // Filter out any packages which should be ignored
-        const filtered = outdatedDependencies.filter(([packageName]) => !ignoredPackages.includes(packageName.toLowerCase()));
-        // Sort packages by if they are out by major/minor/patch
-        const sorted = groupPackagesByOutOfDateName(filtered);
-        const numDeps = yield getNumberOfDependencies(workingDirectory);
-        // TODO: Add option to select just dev dependencies
-        const majorsOutOfDate = sorted.major.length;
-        const minorsOutOfDate = sorted.minor.length;
-        const patchesOutOfDate = sorted.patch.length;
-        const majorPercentOutOfDate = ((majorsOutOfDate / numDeps) * 100).toFixed(2);
-        const minorPercentOutOfDate = ((minorsOutOfDate / numDeps) * 100).toFixed(2);
-        const patchPercentOutOfDate = ((patchesOutOfDate / numDeps) * 100).toFixed(2);
-        const upToDatePercent = (((numDeps - (majorsOutOfDate + minorsOutOfDate + patchesOutOfDate)) /
-            numDeps) *
-            100).toFixed(2);
-        const messageLines = [
-            `up to date: ${numDeps - (majorsOutOfDate + minorsOutOfDate + patchesOutOfDate)}/${numDeps} (${upToDatePercent} %)`,
-            `major behind: ${majorsOutOfDate}/${numDeps} (${majorPercentOutOfDate} %)`,
-            `minor behind: ${minorsOutOfDate}/${numDeps} (${minorPercentOutOfDate} %)`,
-            `patch behind: ${patchesOutOfDate}/${numDeps} (${patchPercentOutOfDate} %)`,
-        ];
-        core.debug(messageLines.join('\n'));
-        // TODO: output total number of dependencies as well as dev/non-dev
-        return {
-            dependencies: {
-                major: sorted.major,
-                minor: sorted.minor,
-                patch: sorted.patch,
-            },
-            counts: {
-                total: numDeps,
-                upToDate: numDeps - (majorsOutOfDate + minorsOutOfDate + patchesOutOfDate),
-                major: majorsOutOfDate,
-                minor: minorsOutOfDate,
-                patch: patchesOutOfDate,
-            },
-            percents: {
-                upToDate: upToDatePercent,
-                major: majorPercentOutOfDate,
-                minor: minorPercentOutOfDate,
-                patch: patchPercentOutOfDate,
-            },
-        };
-    });
+async function getDepedencyStats() {
+    const startWorkingDirectory = process.cwd();
+    // seems the working directory should be absolute to work correctly
+    // https://github.com/cypress-io/github-action/issues/211
+    const workingDirectoryInput = core.getInput('working-directory');
+    const workingDirectory = workingDirectoryInput
+        ? external_path_default().resolve(workingDirectoryInput)
+        : startWorkingDirectory;
+    core.debug(`working directory ${workingDirectory}`);
+    // Use yarn to list outdated packages and parse into JSON
+    const outdatedDependencies = await yarnOutdated(workingDirectory);
+    // Get list of packages to ignore from dependabot config if it exists
+    const ignoredPackages = await loadIgnoreFromDependabotConfig(workingDirectoryInput);
+    // Filter out any packages which should be ignored
+    const filtered = outdatedDependencies.filter(([packageName]) => !ignoredPackages.includes(packageName.toLowerCase()));
+    // Sort packages by if they are out by major/minor/patch
+    const sorted = groupPackagesByOutOfDateName(filtered);
+    const numDeps = await getNumberOfDependencies(workingDirectory);
+    // TODO: Add option to select just dev dependencies
+    const majorsOutOfDate = sorted.major.length;
+    const minorsOutOfDate = sorted.minor.length;
+    const patchesOutOfDate = sorted.patch.length;
+    const majorPercentOutOfDate = ((majorsOutOfDate / numDeps) * 100).toFixed(2);
+    const minorPercentOutOfDate = ((minorsOutOfDate / numDeps) * 100).toFixed(2);
+    const patchPercentOutOfDate = ((patchesOutOfDate / numDeps) * 100).toFixed(2);
+    const upToDatePercent = (((numDeps - (majorsOutOfDate + minorsOutOfDate + patchesOutOfDate)) /
+        numDeps) *
+        100).toFixed(2);
+    const messageLines = [
+        `up to date: ${numDeps - (majorsOutOfDate + minorsOutOfDate + patchesOutOfDate)}/${numDeps} (${upToDatePercent} %)`,
+        `major behind: ${majorsOutOfDate}/${numDeps} (${majorPercentOutOfDate} %)`,
+        `minor behind: ${minorsOutOfDate}/${numDeps} (${minorPercentOutOfDate} %)`,
+        `patch behind: ${patchesOutOfDate}/${numDeps} (${patchPercentOutOfDate} %)`,
+    ];
+    core.debug(messageLines.join('\n'));
+    // TODO: output total number of dependencies as well as dev/non-dev
+    return {
+        dependencies: {
+            major: sorted.major,
+            minor: sorted.minor,
+            patch: sorted.patch,
+        },
+        counts: {
+            total: numDeps,
+            upToDate: numDeps - (majorsOutOfDate + minorsOutOfDate + patchesOutOfDate),
+            major: majorsOutOfDate,
+            minor: minorsOutOfDate,
+            patch: patchesOutOfDate,
+        },
+        percents: {
+            upToDate: upToDatePercent,
+            major: majorPercentOutOfDate,
+            minor: minorPercentOutOfDate,
+            patch: patchPercentOutOfDate,
+        },
+    };
 }
 
 ;// CONCATENATED MODULE: ./src/run.ts
-var run_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
 
 
 
@@ -8939,17 +8891,15 @@ var run_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _argu
  * Run npm-dependency-stats action. All outputs are set
  * at this level
  */
-function run() {
-    return run_awaiter(this, void 0, void 0, function* () {
-        const depStats = yield getDepedencyStats();
-        const outputFileConfig = core.getInput('output-file');
-        if (outputFileConfig) {
-            external_fs_default().writeFileSync(external_path_default().resolve(outputFileConfig), JSON.stringify(depStats, null, 2));
-        }
-        core.setOutput('dependencies', depStats.dependencies);
-        core.setOutput('counts', depStats.counts);
-        core.setOutput('percents', depStats.percents);
-    });
+async function run() {
+    const depStats = await getDepedencyStats();
+    const outputFileConfig = core.getInput('output-file');
+    if (outputFileConfig) {
+        external_fs_default().writeFileSync(external_path_default().resolve(outputFileConfig), JSON.stringify(depStats, null, 2));
+    }
+    core.setOutput('dependencies', depStats.dependencies);
+    core.setOutput('counts', depStats.counts);
+    core.setOutput('percents', depStats.percents);
 }
 
 ;// CONCATENATED MODULE: ./src/index.ts
