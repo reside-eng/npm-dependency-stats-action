@@ -5,16 +5,16 @@
   "author": "Side Inc.",
   "license": "MIT",
   "main": "dist/index.js",
+  "engines": {
+    "node": ">=14"
+  },
   "scripts": {
     "prepare": "husky install",
     "format": "prettier --write **/*.ts",
     "format-check": "prettier --check **/*.ts",
     "lint": "eslint src/**/*.ts",
-    "lint:fix": "yarn lint --fix",
     "build": "rimraf dist && ncc build src/index.ts --source-map --license licenses.txt && rm dist/dependabot.yml",
-    "test": "yarn tsc && jest",
-    "test:cov": "yarn test --coverage",
-    "all": "yarn build && yarn format && yarn lint && yarn package && npm test"
+    "test": "yarn tsc && jest"
   },
   "dependencies": {
     "@actions/core": "^1.2.6",
@@ -56,12 +56,6 @@
     "*.js": [
       "eslint --fix"
     ]
-  },
-  "husky": {
-    "hooks": {
-      "commit-msg": "commitlint -E HUSKY_GIT_PARAMS",
-      "pre-commit": "lint-staged && yarn build && git add ."
-    }
   },
   "repository": {
     "type": "git",
