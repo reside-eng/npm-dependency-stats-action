@@ -30,7 +30,7 @@
     "@tsconfig/node14": "1.0.1",
     "@types/jest": "^26.0.20",
     "@types/js-yaml": "^4.0.0",
-    "@types/node": "^15.0.0",
+    "@types/node": "^16.0.1",
     "@types/semver": "^7.3.4",
     "@typescript-eslint/eslint-plugin": "^4.17.0",
     "@typescript-eslint/parser": "^4.18.0",
