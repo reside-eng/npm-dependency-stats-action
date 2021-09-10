@@ -54,7 +54,7 @@ jobs:
         uses: raulanatol/jest-coverage-comment-action@v1.1.2
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          jest-command: yarn test --coverage --silent
+          jest-command: yarn test --coverage
 
       - name: Build
         run: yarn build
