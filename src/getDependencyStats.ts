@@ -123,7 +123,7 @@ function loadDependabotConfig(): DependabotConfig {
       );
       return {};
     }
-    return configFile;
+    return configFile as DependabotConfig;
   } catch (error) {
     core.warning(
       'Error parsing .github/dependabot.yml, confirm it is valid yaml in order for ignore settings to be picked up',
