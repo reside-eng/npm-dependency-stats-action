@@ -8866,7 +8866,8 @@ async function yarnOutdated(basePath) {
             return outdatedData?.data?.body || [];
         }
         catch (err2) {
-            core.error(`Error running yarn outdated command: ${err2.message}`);
+            const { message } = err2;
+            core.error(`Error running yarn outdated command: ${message}`);
             throw err2;
         }
     }
@@ -8889,7 +8890,8 @@ async function loadJsonFile(filePath) {
     }
     catch (err) {
         core.error(`Error parsing json file "${filePath}"`);
-        throw new Error(err.message);
+        const { message } = err;
+        throw new Error(message);
     }
 }
 /**

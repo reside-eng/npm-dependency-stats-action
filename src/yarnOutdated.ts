@@ -51,7 +51,8 @@ export default async function yarnOutdated(
       const outdatedData = JSON.parse(outdatedDataStr);
       return outdatedData?.data?.body || [];
     } catch (err2) {
-      core.error(`Error running yarn outdated command: ${err2.message}`);
+      const { message } = err2 as Error;
+      core.error(`Error running yarn outdated command: ${message}`);
       throw err2;
     }
   }
