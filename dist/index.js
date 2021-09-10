@@ -8840,19 +8840,24 @@ async function yarnOutdated(basePath) {
         args.push('--cwd');
         args.push(basePath);
     }
-    let myOutput = '';
-    let myError = '';
+    let outputData = '';
+    let errorData = '';
     try {
         const options = {
             listeners: {
                 stdout: (data) => {
-                    myOutput += data.toString();
+                    outputData += data.toString();
                 },
                 stderr: (data) => {
-                    myError += data.toString();
+                    errorData += data.toString();
                 },
             },
         };
+        // Handle errors thrown in outdated command
+        if (errorData) {
+            core.error(`Yarn outdated command emitted an error: ${errorData}`);
+            throw new Error(errorData);
+        }
         await exec.exec('yarn', args, options);
         // If command doesn't throw, then there are no packages out of date
         return [];
@@ -8860,14 +8865,14 @@ async function yarnOutdated(basePath) {
     catch (err) {
         try {
             // Output is in json-lines format - use Regex to handle different newline characters
-            const outdatedDataStr = myOutput.match(/{"type":"table"(.*}})/)?.[0] || '';
+            const outdatedDataStr = outputData.match(/{"type":"table"(.*}})/)?.[0] || '';
             core.debug(`Output of parsing yarn outdated command: ${outdatedDataStr}`);
             const outdatedData = JSON.parse(outdatedDataStr);
             return outdatedData?.data?.body || [];
         }
         catch (err2) {
             const { message } = err2;
-            core.error(`Error running yarn outdated command: ${message}`);
+            core.error(`Error parsing results of yarn outdated command: ${message}`);
             throw err2;
         }
     }
