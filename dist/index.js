@@ -8853,12 +8853,12 @@ async function yarnOutdated(basePath) {
                 },
             },
         };
+        await exec.exec('yarn', args, options);
         // Handle errors thrown in outdated command
         if (errorData) {
             core.error(`Yarn outdated command emitted an error: ${errorData}`);
             throw new Error(errorData);
         }
-        await exec.exec('yarn', args, options);
         // If command doesn't throw, then there are no packages out of date
         return [];
     }

@@ -2,13 +2,13 @@ import * as core from '@actions/core';
 import fs from 'fs';
 import yaml from 'js-yaml';
 import getDependencyStats from './getDependencyStats';
-import { YarnDepdendencyInfoRow } from './yarnOutdated';
+import { YarnDependencyInfoRow } from './yarnOutdated';
 
 const mockCore = core as jest.Mocked<typeof core>;
 
 interface MockObj {
   inputs: Record<string, string | undefined>;
-  outdated?: YarnDepdendencyInfoRow[];
+  outdated?: YarnDependencyInfoRow[];
 }
 let mock: MockObj;
 
@@ -30,7 +30,7 @@ describe('getDependencyStats', () => {
       return mock.inputs[name] || '';
     });
 
-    const depConfig: YarnDepdendencyInfoRow = [
+    const depConfig: YarnDependencyInfoRow = [
       'some-dep',
       '0.0.1',
       '0.0.1',

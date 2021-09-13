@@ -1,13 +1,13 @@
 import * as core from '@actions/core';
 import fs from 'fs';
 import run from './run';
-import { YarnDepdendencyInfoRow } from './yarnOutdated';
+import { YarnDependencyInfoRow } from './yarnOutdated';
 import { StatsOutput } from './getDependencyStats';
 
 const mockCore = core as jest.Mocked<typeof core>;
 interface MockObj {
   inputs: Record<string, string | undefined>;
-  outdated?: YarnDepdendencyInfoRow[];
+  outdated?: YarnDependencyInfoRow[];
   depStats: StatsOutput;
 }
 const mock: MockObj = {
