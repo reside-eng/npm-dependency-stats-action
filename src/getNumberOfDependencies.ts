@@ -14,7 +14,8 @@ async function loadJsonFile(filePath: string): Promise<any> {
     return JSON.parse(fileBuff.toString());
   } catch (err) {
     core.error(`Error parsing json file "${filePath}"`);
-    throw new Error(err.message);
+    const { message } = err as Error;
+    throw new Error(message);
   }
 }
 

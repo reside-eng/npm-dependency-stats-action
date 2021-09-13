@@ -1,7 +1,7 @@
 import * as core from '@actions/core';
 import * as exec from '@actions/exec';
 
-export type YarnDepdendencyInfoRow = [
+export type YarnDependencyInfoRow = [
   string,
   string,
   string,
@@ -19,39 +19,46 @@ export type YarnDepdendencyInfoRow = [
  */
 export default async function yarnOutdated(
   basePath: string,
-): Promise<YarnDepdendencyInfoRow[]> {
+): Promise<YarnDependencyInfoRow[]> {
   const args = ['outdated', '--json'];
   if (basePath) {
     args.push('--cwd');
     args.push(basePath);
   }
-  let myOutput = '';
-  let myError = '';
+  let outputData = '';
+  let errorData = '';
   try {
     const options: exec.ExecOptions = {
       listeners: {
         stdout: (data: Buffer) => {
-          myOutput += data.toString();
+          outputData += data.toString();
         },
         stderr: (data: Buffer) => {
-          myError += data.toString();
+          errorData += data.toString();
         },
       },
     };
 
     await exec.exec('yarn', args, options);
+
+    // Handle errors thrown in outdated command
+    if (errorData) {
+      core.error(`Yarn outdated command emitted an error: ${errorData}`);
+      throw new Error(errorData);
+    }
     // If command doesn't throw, then there are no packages out of date
     return [];
   } catch (err) {
     try {
       // Output is in json-lines format - use Regex to handle different newline characters
       const outdatedDataStr =
-        myOutput.match(/{"type":"table"(.*}})/)?.[0] || '';
+        outputData.match(/{"type":"table"(.*}})/)?.[0] || '';
       core.debug(`Output of parsing yarn outdated command: ${outdatedDataStr}`);
       const outdatedData = JSON.parse(outdatedDataStr);
       return outdatedData?.data?.body || [];
     } catch (err2) {
-      core.error(`Error running yarn outdated command: ${err2.message}`);
+      const { message } = err2 as Error;
+      core.error(`Error parsing results of yarn outdated command: ${message}`);
       throw err2;
     }
   }

@@ -3,13 +3,13 @@ import yaml from 'js-yaml';
 import fs from 'fs';
 import semver from 'semver';
 import path from 'path';
-import yarnOutdated, { YarnDepdendencyInfoRow } from './yarnOutdated';
+import yarnOutdated, { YarnDependencyInfoRow } from './yarnOutdated';
 import getNumberOfDependencies from './getNumberOfDependencies';
 
 interface PackagesByOutVersion {
-  major: YarnDepdendencyInfoRow[];
-  minor: YarnDepdendencyInfoRow[];
-  patch: YarnDepdendencyInfoRow[];
+  major: YarnDependencyInfoRow[];
+  minor: YarnDependencyInfoRow[];
+  patch: YarnDependencyInfoRow[];
 }
 
 /**
@@ -19,10 +19,10 @@ interface PackagesByOutVersion {
  * @returns Object of packages sorted by out of date version
  */
 function groupPackagesByOutOfDateName(
-  packages: YarnDepdendencyInfoRow[],
+  packages: YarnDependencyInfoRow[],
 ): PackagesByOutVersion {
   return packages.reduce(
-    (acc: PackagesByOutVersion, packageInfo: YarnDepdendencyInfoRow) => {
+    (acc: PackagesByOutVersion, packageInfo: YarnDependencyInfoRow) => {
       // TODO: Support npm outdated format or convert to match this format
       const current = packageInfo[1];
       const latest = packageInfo[3];
@@ -123,7 +123,7 @@ function loadDependabotConfig(): DependabotConfig {
       );
       return {};
     }
-    return configFile;
+    return configFile as DependabotConfig;
   } catch (error) {
     core.warning(
       'Error parsing .github/dependabot.yml, confirm it is valid yaml in order for ignore settings to be picked up',
@@ -168,9 +168,9 @@ async function loadIgnoreFromDependabotConfig(
 
 export interface StatsOutput {
   dependencies: {
-    major: YarnDepdendencyInfoRow[];
-    minor: YarnDepdendencyInfoRow[];
-    patch: YarnDepdendencyInfoRow[];
+    major: YarnDependencyInfoRow[];
+    minor: YarnDependencyInfoRow[];
+    patch: YarnDependencyInfoRow[];
   };
   counts: {
     total: number;

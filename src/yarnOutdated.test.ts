@@ -42,12 +42,25 @@ describe('yarnOutdated', () => {
     expect(result[0][0]).toBe('@types/node');
   });
 
-  it('should handle error output from yarn outdated command', async () => {
+  it('should handle error thrown by yarn outdated command', async () => {
     const outdatedOutput = '{"error": "asdf"}';
     mockExec.exec.mockImplementation(
       async (cmd: string, args?: string[], options?: exec.ExecOptions) => {
         options?.listeners?.stderr?.(Buffer.from(outdatedOutput, 'utf-8'));
         throw new Error('test');
+      },
+    );
+    await expect(yarnOutdated('./test')).rejects.toThrow(
+      new Error('Unexpected end of JSON input'),
+    );
+  });
+
+  it('should handle error output from yarn outdated command', async () => {
+    const outdatedOutput = '{"error": "asdf"}';
+    mockExec.exec.mockImplementation(
+      async (cmd: string, args?: string[], options?: exec.ExecOptions) => {
+        options?.listeners?.stderr?.(Buffer.from(outdatedOutput, 'utf-8'));
+        return 1;
       },
     );
     await expect(yarnOutdated('./test')).rejects.toThrow(
