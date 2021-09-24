@@ -4,7 +4,7 @@ on: [pull_request]
 
 jobs:
   build:
-    name: Build and Test
+    name: build
     runs-on: ${{ matrix.os }}
     if: github.actor != 'dependabot[bot]'
     strategy:
