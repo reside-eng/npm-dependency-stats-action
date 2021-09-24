@@ -7,7 +7,7 @@ on:
 
 jobs:
   build:
-    name: Build and Verify
+    name: build
     runs-on: ${{ matrix.os }}
     if: github.actor == 'dependabot[bot]'
     strategy:
