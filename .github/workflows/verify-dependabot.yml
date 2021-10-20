@@ -15,12 +15,7 @@ jobs:
         os: [ubuntu-latest]
         node-version: [14.x]
     steps:
-      - name: Cancel Previous Runs
-        uses: styfle/cancel-workflow-action@0.9.1
-        with:
-          access_token: ${{ github.token }}
-
-      - name: Checkout Code
+      - name: Checkout code
         uses: actions/checkout@v2.3.5
         with:
           ref: refs/pull/${{ github.event.number }}/merge
@@ -29,27 +24,17 @@ jobs:
         uses: actions/setup-node@v2.4.1
         with:
           node-version: ${{ matrix.node-version }}
+          cache: 'yarn'
 
-      - name: Configure Package Manager
+      - name: Configure package manager
         run: |
-          echo Configuring NPM_READ_TOKEN globally for .npmrc
-          npm config set '//registry.npmjs.org/:_authToken' ${{ secrets.NPM_READ_TOKEN }}
+          echo Configuring NPM_TOKEN globally for .npmrc
+          npm config set '//registry.npmjs.org/:_authToken' ${{ env.NPM_TOKEN }}
           npm whoami
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_READ_TOKEN }}
 
-      - name: Get yarn cache directory path
-        id: yarn-cache-dir-path
-        run: echo "::set-output name=dir::$(yarn cache dir)"
-
-      - uses: actions/cache@v2.1.6
-        # Use this to check for `cache-hit` (`steps.yarn-cache.outputs.cache-hit != 'true'`)
-        id: yarn-cache
-        with:
-          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
-          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-yarn-
-
-      - name: Install Dependencies
+      - name: Install dependencies
         run: yarn install --frozen-lockfile
 
       - name: Lint
