@@ -770,9 +770,9 @@
     glob "7.2.0"
 
 "@side/eslint-config-jest@^0.3.11":
-  version "0.3.12"
-  resolved "https://registry.yarnpkg.com/@side/eslint-config-jest/-/eslint-config-jest-0.3.12.tgz#41bdd30ac2971de07f605c1fc489bfde394f7e40"
-  integrity sha512-2beSf3VFKcvRy0bYF3aLWjnqUaA8entJ3G6r8jU9sYGH/IZnXy13rlkzM0NeP7peU7l7nhnogsSFjuktOQB3pw==
+  version "0.3.13"
+  resolved "https://registry.yarnpkg.com/@side/eslint-config-jest/-/eslint-config-jest-0.3.13.tgz#ccaffbb403a3715d8e35d4328ed1c28ee531da43"
+  integrity sha512-ZjrOKEJzEv3h3PAplrzKyf1ujE6c1a5lP3ONJWiKjMBNJlo6muchdS7UXsvMOknnXQMd3Jn4MDdhOw82/LqLLA==
   dependencies:
     eslint-plugin-jest "25.2.2"
 
