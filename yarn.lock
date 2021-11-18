@@ -770,11 +770,11 @@
     glob "7.2.0"
 
 "@side/eslint-config-jest@^0.3.11":
-  version "0.3.14"
-  resolved "https://registry.yarnpkg.com/@side/eslint-config-jest/-/eslint-config-jest-0.3.14.tgz#08f7ea32e330a1630b3101eb8fe7a6f1bda0496e"
-  integrity sha512-9ZYqdrHVhysBDvye7FF8UbpjXb4g1q5/k8dNahUa2d2ClE7CGz1g4dsQgC16/kSL3D5OVf9PRdNuY6EAiCE5Sw==
+  version "0.3.15"
+  resolved "https://registry.yarnpkg.com/@side/eslint-config-jest/-/eslint-config-jest-0.3.15.tgz#7fe4b24abd74d9fd698f41e2863c55e5722db0c0"
+  integrity sha512-6mjL8m7wIBvedV2DS44oIqqgK59c7zPhaLBor+obzcpB2nuz26XOk21oADx4UovqzqywXKYC2ZE4GcCtZ4/6UA==
   dependencies:
-    eslint-plugin-jest "25.2.4"
+    eslint-plugin-jest "^25.2.4"
 
 "@side/eslint-config-prettier@0.4.6":
   version "0.4.6"
@@ -1961,7 +1961,7 @@ eslint-plugin-import@^2.22.1:
     resolve "^1.20.0"
     tsconfig-paths "^3.11.0"
 
-eslint-plugin-jest@25.2.4:
+eslint-plugin-jest@^25.2.4:
   version "25.2.4"
   resolved "https://registry.yarnpkg.com/eslint-plugin-jest/-/eslint-plugin-jest-25.2.4.tgz#bb9f6a0bd1fd524ffb0b8b7a159cd70a58a1a793"
   integrity sha512-HRyinpgmEdkVr7pNPaYPHCoGqEzpgk79X8pg/xCeoAdurbyQjntJQ4pTzHl7BiVEBlam/F1Qsn+Dk0HtJO7Aaw==
