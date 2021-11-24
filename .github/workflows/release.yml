@@ -15,7 +15,7 @@ env:
   NODE_VERSION: 14.x
 
 jobs:
-  build:
+  publish:
     name: publish
     runs-on: ubuntu-latest
     steps:
