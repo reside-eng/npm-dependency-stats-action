@@ -38,7 +38,8 @@ jobs:
         run: yarn test --coverage --coverageReporters="json-summary"
 
       - name: Comment + Report Coverage
-        uses: reside-eng/code-coverage-action@v1
+        # TODO: Switch to version once publishing is fixed
+        uses: reside-eng/code-coverage-action@master
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
