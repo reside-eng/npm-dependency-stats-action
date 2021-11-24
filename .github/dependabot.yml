@@ -22,3 +22,6 @@ updates:
       - "reside-eng/platform"
     reviewers:
       - "reside-eng/platform"
+    commit-message:
+      prefix: chore
+      include: scope

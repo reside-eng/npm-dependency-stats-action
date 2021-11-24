@@ -2,23 +2,22 @@ name: Verify
 
 on: [pull_request]
 
+env:
+  NODE_VERSION: 14.x
+
 jobs:
   build:
     name: build
-    runs-on: ${{ matrix.os }}
+    runs-on: ubuntu-latest
     if: github.actor != 'dependabot[bot]'
-    strategy:
-      matrix:
-        os: [ubuntu-latest]
-        node-version: [14.x]
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2.4.0
+      - name: Checkout Code
+        uses: actions/checkout@v2.3.4
 
-      - name: Use Node.js ${{ matrix.node-version }} on ${{ matrix.os }}
-        uses: actions/setup-node@v2.4.1
+      - name: Use Node.js ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v2.4.0
         with:
-          node-version: ${{ matrix.node-version }}
+          node-version: ${{ env.NODE_VERSION }}
           cache: 'yarn'
 
       - name: Configure package manager
@@ -36,10 +35,12 @@ jobs:
         run: yarn lint
 
       - name: Test
-        uses: raulanatol/jest-coverage-comment-action@v1.1.2
+        run: yarn test --coverage --coverageReporters="json-summary"
+
+      - name: Comment + Report Coverage
+        uses: reside-eng/code-coverage-action@v1
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          jest-command: yarn test --coverage --silent
 
       - name: Build
         run: yarn build

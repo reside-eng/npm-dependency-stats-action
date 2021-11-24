@@ -3,4 +3,10 @@ module.exports = {
   testEnvironment: 'node',
   verbose: true,
   collectCoverageFrom: ['src/**/*.ts'],
+  coverageThreshold: {
+    global: {
+      lines: 95,
+      statements: 95,
+    },
+  },
 };
