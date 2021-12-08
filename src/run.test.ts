@@ -1,6 +1,6 @@
 import * as core from '@actions/core';
 import fs from 'fs';
-import run from './run';
+import { run } from './run';
 import { YarnDependencyInfoRow } from './yarnOutdated';
 import { StatsOutput } from './getDependencyStats';
 

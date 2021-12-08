@@ -1,5 +1,5 @@
 import * as exec from '@actions/exec';
-import yarnOutdated from './yarnOutdated';
+import { yarnOutdated } from './yarnOutdated';
 
 jest.mock('@actions/exec');
 

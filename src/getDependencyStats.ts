@@ -3,8 +3,8 @@ import yaml from 'js-yaml';
 import fs from 'fs';
 import semver from 'semver';
 import path from 'path';
-import yarnOutdated, { YarnDependencyInfoRow } from './yarnOutdated';
-import getNumberOfDependencies from './getNumberOfDependencies';
+import { yarnOutdated, YarnDependencyInfoRow } from './yarnOutdated';
+import { getNumberOfDependencies } from './getNumberOfDependencies';
 
 interface PackagesByOutVersion {
   major: YarnDependencyInfoRow[];
@@ -192,7 +192,7 @@ export interface StatsOutput {
  *
  * @returns Object containing stats about out of date packages
  */
-export default async function getDepedencyStats(): Promise<StatsOutput> {
+export async function getDependencyStats(): Promise<StatsOutput> {
   const startWorkingDirectory = process.cwd();
   // seems the working directory should be absolute to work correctly
   // https://github.com/cypress-io/github-action/issues/211

@@ -10018,13 +10018,14 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.getDependencyStats = void 0;
 const core = __importStar(__nccwpck_require__(2186));
 const js_yaml_1 = __importDefault(__nccwpck_require__(1917));
 const fs_1 = __importDefault(__nccwpck_require__(7147));
 const semver_1 = __importDefault(__nccwpck_require__(1383));
 const path_1 = __importDefault(__nccwpck_require__(1017));
-const yarnOutdated_1 = __importDefault(__nccwpck_require__(622));
-const getNumberOfDependencies_1 = __importDefault(__nccwpck_require__(3647));
+const yarnOutdated_1 = __nccwpck_require__(622);
+const getNumberOfDependencies_1 = __nccwpck_require__(3647);
 /**
  * Sort packages by their out of date version (major, minor, patch)
  *
@@ -10138,7 +10139,7 @@ async function loadIgnoreFromDependabotConfig(cwdSetting) {
  *
  * @returns Object containing stats about out of date packages
  */
-async function getDepedencyStats() {
+async function getDependencyStats() {
     const startWorkingDirectory = process.cwd();
     // seems the working directory should be absolute to work correctly
     // https://github.com/cypress-io/github-action/issues/211
@@ -10148,14 +10149,14 @@ async function getDepedencyStats() {
         : startWorkingDirectory;
     core.debug(`working directory ${workingDirectory}`);
     // Use yarn to list outdated packages and parse into JSON
-    const outdatedDependencies = await (0, yarnOutdated_1.default)(workingDirectory);
+    const outdatedDependencies = await (0, yarnOutdated_1.yarnOutdated)(workingDirectory);
     // Get list of packages to ignore from dependabot config if it exists
     const ignoredPackages = await loadIgnoreFromDependabotConfig(workingDirectoryInput);
     // Filter out any packages which should be ignored
     const filtered = outdatedDependencies.filter(([packageName]) => !ignoredPackages.includes(packageName.toLowerCase()));
     // Sort packages by if they are out by major/minor/patch
     const sorted = groupPackagesByOutOfDateName(filtered);
-    const numDeps = await (0, getNumberOfDependencies_1.default)(workingDirectory);
+    const numDeps = await (0, getNumberOfDependencies_1.getNumberOfDependencies)(workingDirectory);
     // TODO: Add option to select just dev dependencies
     const majorsOutOfDate = sorted.major.length;
     const minorsOutOfDate = sorted.minor.length;
@@ -10195,7 +10196,7 @@ async function getDepedencyStats() {
         },
     };
 }
-exports["default"] = getDepedencyStats;
+exports.getDependencyStats = getDependencyStats;
 
 
 /***/ }),
@@ -10228,6 +10229,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.getNumberOfDependencies = void 0;
 const core = __importStar(__nccwpck_require__(2186));
 const fs_1 = __importDefault(__nccwpck_require__(7147));
 /**
@@ -10265,7 +10267,7 @@ async function getNumberOfDependencies(basePath) {
     const numDependencies = Object.keys(pkgFile?.dependencies || {}).length;
     return numDependencies + numDevDependencies;
 }
-exports["default"] = getNumberOfDependencies;
+exports.getNumberOfDependencies = getNumberOfDependencies;
 
 
 /***/ }),
@@ -10294,13 +10296,10 @@ var __importStar = (this && this.__importStar) || function (mod) {
     __setModuleDefault(result, mod);
     return result;
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 const core = __importStar(__nccwpck_require__(2186));
-const run_1 = __importDefault(__nccwpck_require__(7764));
-(0, run_1.default)().catch((err) => {
+const run_1 = __nccwpck_require__(7764);
+(0, run_1.run)().catch((err) => {
     core.error(err);
     process.exit(1);
 });
@@ -10336,16 +10335,17 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.run = void 0;
 const core = __importStar(__nccwpck_require__(2186));
 const fs_1 = __importDefault(__nccwpck_require__(7147));
 const path_1 = __importDefault(__nccwpck_require__(1017));
-const getDependencyStats_1 = __importDefault(__nccwpck_require__(7247));
+const getDependencyStats_1 = __nccwpck_require__(7247);
 /**
  * Run npm-dependency-stats action. All outputs are set
  * at this level
  */
 async function run() {
-    const depStats = await (0, getDependencyStats_1.default)();
+    const depStats = await (0, getDependencyStats_1.getDependencyStats)();
     const outputFileConfig = core.getInput('output-file');
     if (outputFileConfig) {
         fs_1.default.writeFileSync(path_1.default.resolve(outputFileConfig), JSON.stringify(depStats, null, 2));
@@ -10354,7 +10354,7 @@ async function run() {
     core.setOutput('counts', depStats.counts);
     core.setOutput('percents', depStats.percents);
 }
-exports["default"] = run;
+exports.run = run;
 
 
 /***/ }),
@@ -10384,6 +10384,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.yarnOutdated = void 0;
 const core = __importStar(__nccwpck_require__(2186));
 const exec = __importStar(__nccwpck_require__(1514));
 /**
@@ -10436,7 +10437,7 @@ async function yarnOutdated(basePath) {
         }
     }
 }
-exports["default"] = yarnOutdated;
+exports.yarnOutdated = yarnOutdated;
 
 
 /***/ }),

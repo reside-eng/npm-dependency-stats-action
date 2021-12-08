@@ -1,7 +1,7 @@
 import * as core from '@actions/core';
 import fs from 'fs';
 import yaml from 'js-yaml';
-import getDependencyStats from './getDependencyStats';
+import { getDependencyStats } from './getDependencyStats';
 import { YarnDependencyInfoRow } from './yarnOutdated';
 
 const mockCore = core as jest.Mocked<typeof core>;

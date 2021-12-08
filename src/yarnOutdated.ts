@@ -17,7 +17,7 @@ export type YarnDependencyInfoRow = [
  * @param {string} basePath - Base path of package.json
  * @returns Output of outdated command in JSON format
  */
-export default async function yarnOutdated(
+export async function yarnOutdated(
   basePath: string,
 ): Promise<YarnDependencyInfoRow[]> {
   const args = ['outdated', '--json'];
