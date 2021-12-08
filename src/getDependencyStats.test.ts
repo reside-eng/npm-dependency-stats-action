@@ -16,11 +16,11 @@ jest.mock('@actions/core');
 jest.mock('fs');
 jest.mock('./yarnOutdated', () => ({
   __esModule: true,
-  default: () => Promise.resolve(mock.outdated),
+  yarnOutdated: () => Promise.resolve(mock.outdated),
 }));
 jest.mock('./getNumberOfDependencies', () => ({
   __esModule: true,
-  default: () => Promise.resolve(mock.outdated?.length || 0),
+  getNumberOfDependencies: () => Promise.resolve(mock.outdated?.length || 0),
 }));
 
 describe('getDependencyStats', () => {
