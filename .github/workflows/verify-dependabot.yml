@@ -5,34 +5,25 @@ on:
     branches:
       - main
 
+env:
+  NODE_VERSION: 14.x
+
 jobs:
   build:
     name: build
     runs-on: ${{ matrix.os }}
     if: github.actor == 'dependabot[bot]'
-    strategy:
-      matrix:
-        os: [ubuntu-latest]
-        node-version: [14.x]
     steps:
       - name: Checkout code
         uses: actions/checkout@v2.4.0
         with:
           ref: refs/pull/${{ github.event.number }}/merge
 
-      - name: Use Node.js ${{ matrix.node-version }} on ${{ matrix.os }}
+      - name: Use Node.js ${{ env.NODE_VERSION }}
         uses: actions/setup-node@v2.5.0
         with:
-          node-version: ${{ matrix.node-version }}
+          node-version: ${{ env.NODE_VERSION }}
           cache: 'yarn'
-
-      - name: Configure package manager
-        run: |
-          echo Configuring NPM_TOKEN globally for .npmrc
-          npm config set '//registry.npmjs.org/:_authToken' ${{ env.NPM_TOKEN }}
-          npm whoami
-        env:
-          NPM_TOKEN: ${{ secrets.NPM_READ_TOKEN }}
 
       - name: Install dependencies
         run: yarn install --frozen-lockfile
@@ -41,10 +32,13 @@ jobs:
         run: yarn lint
 
       - name: Test
+        run: yarn test --coverage --silent
+
+      - name: Comment test coverage
         uses: raulanatol/jest-coverage-comment-action@v1.1.2
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          jest-command: yarn test --coverage --silent
+          use-existing-reports: true
 
       - name: Build
         run: yarn build
