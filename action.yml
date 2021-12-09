@@ -9,5 +9,5 @@ inputs:
     required: false
     description: 'Path for output json file'
 runs:
-  using: 'node12'
+  using: 'node16'
   main: 'dist/index.js'

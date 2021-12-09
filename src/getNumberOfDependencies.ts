@@ -35,7 +35,7 @@ interface PackageFile {
  * @param basePath - Base path of package.json
  * @returns Number of dependencies (both dev and prod dependencies)
  */
-export default async function getNumberOfDependencies(
+export async function getNumberOfDependencies(
   basePath: string,
 ): Promise<number> {
   const pkgPath = `${basePath}/package.json`;

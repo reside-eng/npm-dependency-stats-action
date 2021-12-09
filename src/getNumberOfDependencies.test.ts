@@ -1,5 +1,5 @@
 import fs from 'fs';
-import getNumberOfDependencies from './getNumberOfDependencies';
+import { getNumberOfDependencies } from './getNumberOfDependencies';
 
 jest.mock('@actions/core');
 

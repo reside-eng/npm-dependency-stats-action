@@ -1,13 +1,13 @@
 import * as core from '@actions/core';
 import fs from 'fs';
 import path from 'path';
-import getDependencyStats from './getDependencyStats';
+import { getDependencyStats } from './getDependencyStats';
 
 /**
  * Run npm-dependency-stats action. All outputs are set
  * at this level
  */
-export default async function run(): Promise<void> {
+export async function run(): Promise<void> {
   const depStats = await getDependencyStats();
   const outputFileConfig = core.getInput('output-file');
   if (outputFileConfig) {

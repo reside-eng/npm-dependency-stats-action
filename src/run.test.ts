@@ -1,6 +1,6 @@
 import * as core from '@actions/core';
 import fs from 'fs';
-import run from './run';
+import { run } from './run';
 import { YarnDependencyInfoRow } from './yarnOutdated';
 import { StatsOutput } from './getDependencyStats';
 
@@ -38,7 +38,7 @@ jest.mock('@actions/core');
 jest.mock('fs');
 jest.mock('./getDependencyStats', () => ({
   __esModule: true,
-  default: () => mock.depStats,
+  getDependencyStats: () => mock.depStats,
 }));
 
 describe('run', () => {
