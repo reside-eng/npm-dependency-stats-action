@@ -23,7 +23,7 @@
     "semver": "^7.3.5"
   },
   "devDependencies": {
-    "@commitlint/cli": "^15.0.0",
+    "@commitlint/cli": "^16.0.0",
     "@side/commitlint-config": "^0.1.9",
     "@side/eslint-config-base": "^0.13.0",
     "@side/eslint-config-jest": "^0.3.15",
