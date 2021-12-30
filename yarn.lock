@@ -743,12 +743,12 @@
     "@commitlint/config-conventional" "^16.0.0"
 
 "@side/eslint-config-base@^0.13.0":
-  version "0.13.0"
-  resolved "https://registry.yarnpkg.com/@side/eslint-config-base/-/eslint-config-base-0.13.0.tgz#13ab65eb9feaf080b7876746d0a37dac0ea1ea7c"
-  integrity sha512-CPhBw9e3JX79Q3xYSpG1qBQZyH70dCg+NgkteJR8Md20E/FwcahvrLyRcaCZHqCGV0rNuyrqu8tZe9QfATOA+A==
+  version "0.13.1"
+  resolved "https://registry.yarnpkg.com/@side/eslint-config-base/-/eslint-config-base-0.13.1.tgz#55c20e80809d608a7f5b9c65a9e44056b3797110"
+  integrity sha512-qaHJhqeHYNBaGsxz9gEP9cerbOWFnlQ9RL7azVsmUnM6B1CytNeB1UrJgIqsaprQCenuSlwKpF3pccDueCTnLA==
   dependencies:
     "@side/eslint-config-prettier" "0.4.7"
-    eslint-config-airbnb-base "^14.2.1"
+    eslint-config-airbnb-base "^15.0.0"
     eslint-plugin-import "^2.25.2"
     glob "^7.2.0"
 
@@ -1816,15 +1816,6 @@ escodegen@^2.0.0:
     optionator "^0.8.1"
   optionalDependencies:
     source-map "~0.6.1"
-
-eslint-config-airbnb-base@^14.2.1:
-  version "14.2.1"
-  resolved "https://registry.yarnpkg.com/eslint-config-airbnb-base/-/eslint-config-airbnb-base-14.2.1.tgz#8a2eb38455dc5a312550193b319cdaeef042cd1e"
-  integrity sha512-GOrQyDtVEc1Xy20U7vsB2yAoB4nBlfH5HZJeatRXHleO+OS5Ot+MWij4Dpltw4/DyIkqUfqz1epfhVR5XWWQPA==
-  dependencies:
-    confusing-browser-globals "^1.0.10"
-    object.assign "^4.1.2"
-    object.entries "^1.1.2"
 
 eslint-config-airbnb-base@^15.0.0:
   version "15.0.0"
@@ -3505,7 +3496,7 @@ object.assign@^4.1.2:
     has-symbols "^1.0.1"
     object-keys "^1.1.1"
 
-object.entries@^1.1.2, object.entries@^1.1.5:
+object.entries@^1.1.5:
   version "1.1.5"
   resolved "https://registry.yarnpkg.com/object.entries/-/object.entries-1.1.5.tgz#e1acdd17c4de2cd96d5a08487cfb9db84d881861"
   integrity sha512-TyxmjUoZggd4OrrU1W66FMDG6CuqJxsFvymeyXI51+vQLN67zYfZseptRge703kKQdo4uccgAKebXFcRCzk4+g==
