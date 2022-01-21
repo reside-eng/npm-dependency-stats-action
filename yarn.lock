@@ -926,11 +926,10 @@
     "@commitlint/config-conventional" "^16.0.0"
 
 "@side/eslint-config-base@^0.13.0":
-  version "0.13.1"
-  resolved "https://registry.yarnpkg.com/@side/eslint-config-base/-/eslint-config-base-0.13.1.tgz#55c20e80809d608a7f5b9c65a9e44056b3797110"
-  integrity sha512-qaHJhqeHYNBaGsxz9gEP9cerbOWFnlQ9RL7azVsmUnM6B1CytNeB1UrJgIqsaprQCenuSlwKpF3pccDueCTnLA==
+  version "0.13.3"
+  resolved "https://registry.yarnpkg.com/@side/eslint-config-base/-/eslint-config-base-0.13.3.tgz#e1fda7b953f3775470ef02db1c92f6ed329057cc"
+  integrity sha512-5tozQyisQ9NvU0mb9uXJbNOq9+oY2O0i9T+36bAD7iZUDIq+2/09bYxgXTfCZzuyym1vYQdgtve6TgIoh0nunA==
   dependencies:
-    "@side/eslint-config-prettier" "0.4.7"
     eslint-config-airbnb-base "^15.0.0"
     eslint-plugin-import "^2.25.2"
     glob "^7.2.0"
@@ -941,14 +940,6 @@
   integrity sha512-6mjL8m7wIBvedV2DS44oIqqgK59c7zPhaLBor+obzcpB2nuz26XOk21oADx4UovqzqywXKYC2ZE4GcCtZ4/6UA==
   dependencies:
     eslint-plugin-jest "^25.2.4"
-
-"@side/eslint-config-prettier@0.4.7":
-  version "0.4.7"
-  resolved "https://registry.yarnpkg.com/@side/eslint-config-prettier/-/eslint-config-prettier-0.4.7.tgz#779401d11307db12367582cea537c6a00e74ad27"
-  integrity sha512-kO9qF1n8ow9rO5tm5HTTFH4sOxhRC59lZVILzlwwubqO+fmNMvewmXrJVv31fE2gWMJhaagzh+ff9ieRDPEOtw==
-  dependencies:
-    eslint-config-prettier "^8.3.0"
-    eslint-plugin-prettier "^4.0.0"
 
 "@sinonjs/commons@^1.7.0":
   version "1.8.3"
