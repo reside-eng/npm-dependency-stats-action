@@ -43,10 +43,11 @@ jest.mock('./getDependencyStats', () => ({
 
 describe('run', () => {
   beforeEach(() => {
-    mockCore.getInput.mockImplementation((name: string): string => {
-      // console.log('name:', name);
-      return mock.inputs[name] || '';
-    });
+    mockCore.getInput.mockImplementation(
+      (name: string): string =>
+        // console.log('name:', name);
+        mock.inputs[name] || '',
+    );
   });
 
   afterEach(() => {

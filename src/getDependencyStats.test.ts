@@ -26,9 +26,9 @@ jest.mock('./getNumberOfDependencies', () => ({
 describe('getDependencyStats', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    mockCore.getInput.mockImplementation((name: string): string => {
-      return mock.inputs[name] || '';
-    });
+    mockCore.getInput.mockImplementation(
+      (name: string): string => mock.inputs[name] || '',
+    );
 
     const depConfig: YarnDependencyInfoRow = [
       'some-dep',
