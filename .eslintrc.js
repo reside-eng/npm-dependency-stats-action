@@ -2,7 +2,6 @@ module.exports = {
   root: true,
   extends: [
     '@side/base',
-    '@side/prettier',
     'plugin:@typescript-eslint/recommended',
     'prettier',
     'plugin:jsdoc/recommended',
