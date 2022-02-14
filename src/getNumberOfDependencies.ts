@@ -32,6 +32,7 @@ interface PackageFile {
 /**
  * Get number of dependencies listed in package file
  *
+ * @deprecated Use getNumberOfDependenciesByType instead
  * @param basePath - Base path of package.json
  * @returns Number of dependencies (both dev and prod dependencies)
  */
