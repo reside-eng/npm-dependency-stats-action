@@ -48,3 +48,26 @@ export async function getNumberOfDependencies(
   const numDependencies = Object.keys(pkgFile?.dependencies || {}).length;
   return numDependencies + numDevDependencies;
 }
+
+interface NumberOfDependenciesByType {
+  dependencies: number;
+  devDependencies: number;
+}
+
+/**
+ * @param basePath - Base path of package.json
+ * @returns Number of dependencies (both dev and prod dependencies)
+ */
+export async function getNumberOfDependenciesByType(
+  basePath: string,
+): Promise<NumberOfDependenciesByType> {
+  const pkgPath = `${basePath}/package.json`;
+  if (!fs.existsSync(pkgPath)) {
+    core.warning(`Package file does not exist at path ${basePath}`);
+    return { dependencies: 0, devDependencies: 0 };
+  }
+  const pkgFile: PackageFile = await loadJsonFile(pkgPath);
+  const numDevDependencies = Object.keys(pkgFile?.devDependencies || {}).length;
+  const numDependencies = Object.keys(pkgFile?.dependencies || {}).length;
+  return { dependencies: numDependencies, devDependencies: numDevDependencies };
+}

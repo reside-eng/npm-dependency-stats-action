@@ -3,8 +3,15 @@ import yaml from 'js-yaml';
 import fs from 'fs';
 import semver from 'semver';
 import path from 'path';
-import { yarnOutdated, YarnDependencyInfoRow } from './yarnOutdated';
-import { getNumberOfDependencies } from './getNumberOfDependencies';
+import {
+  yarnOutdated,
+  YarnDependencyInfoRow,
+  yarnOutdatedByType,
+} from './yarnOutdated';
+import {
+  getNumberOfDependencies,
+  getNumberOfDependenciesByType,
+} from './getNumberOfDependencies';
 
 interface PackagesByOutVersion {
   major: YarnDependencyInfoRow[];
@@ -187,36 +194,23 @@ export interface StatsOutput {
   };
 }
 
+interface StatsByDepType {
+  devDependencies?: StatsOutput;
+  dependencies?: StatsOutput;
+}
+
 /**
- * Get stats about dependencies which are outdated by at least 1 major version
- *
- * @returns Object containing stats about out of date packages
+ * @param numDeps
+ * @param outdatedDependencies
+ * @param messagePrefix
  */
-export async function getDependencyStats(): Promise<StatsOutput> {
-  const startWorkingDirectory = process.cwd();
-  // seems the working directory should be absolute to work correctly
-  // https://github.com/cypress-io/github-action/issues/211
-  const workingDirectoryInput = core.getInput('working-directory');
-  const workingDirectory = workingDirectoryInput
-    ? path.resolve(workingDirectoryInput)
-    : startWorkingDirectory;
-  core.debug(`working directory ${workingDirectory}`);
-  // Use yarn to list outdated packages and parse into JSON
-  const outdatedDependencies = await yarnOutdated(workingDirectory);
-
-  // Get list of packages to ignore from dependabot config if it exists
-  const ignoredPackages = await loadIgnoreFromDependabotConfig(
-    workingDirectoryInput,
-  );
-
-  // Filter out any packages which should be ignored
-  const filtered = outdatedDependencies.filter(
-    ([packageName]) => !ignoredPackages.includes(packageName.toLowerCase()),
-  );
-
+function calculate(
+  numDeps: number,
+  outdatedDependencies: YarnDependencyInfoRow[],
+  messagePrefix: string,
+) {
   // Sort packages by if they are out by major/minor/patch
-  const sorted = groupPackagesByOutOfDateName(filtered);
-  const numDeps = await getNumberOfDependencies(workingDirectory);
+  const sorted = groupPackagesByOutOfDateName(outdatedDependencies);
   // TODO: Add option to select just dev dependencies
   const majorsOutOfDate = sorted.major.length;
   const minorsOutOfDate = sorted.minor.length;
@@ -230,6 +224,7 @@ export async function getDependencyStats(): Promise<StatsOutput> {
     100
   ).toFixed(2);
   const messageLines = [
+    messagePrefix,
     `up to date: ${
       numDeps - (majorsOutOfDate + minorsOutOfDate + patchesOutOfDate)
     }/${numDeps} (${upToDatePercent} %)`,
@@ -258,6 +253,87 @@ export async function getDependencyStats(): Promise<StatsOutput> {
       major: majorPercentOutOfDate,
       minor: minorPercentOutOfDate,
       patch: patchPercentOutOfDate,
+    },
+  };
+}
+
+/**
+ * Get stats about dependencies which are outdated by at least 1 major version
+ *
+ * @param workingDirectory
+ * @param depFilter
+ * @returns Object containing stats about out of date packages
+ */
+export async function getDependencyStatsByType(
+  workingDirectory: string,
+): Promise<StatsByDepType> {
+  core.debug(`working directory ${workingDirectory}`);
+  // Use yarn to list outdated packages and parse into JSON
+  const {
+    dependencies: depedenciesOutOfDate,
+    devDependencies: devDependenciesOutOfDate,
+  } = await yarnOutdatedByType(workingDirectory);
+  const { dependencies: numDeps, devDependencies: numDevDeps } =
+    await getNumberOfDependenciesByType(workingDirectory);
+
+  // Get list of packages to ignore from dependabot config if it exists
+  // TODO: Drop support for ignoring based on dependency config
+
+  // Sort packages by if they are out by major/minor/patch
+  return {
+    dependencies: calculate(numDeps, depedenciesOutOfDate, 'Dependencies'),
+    devDependencies: calculate(
+      numDevDeps,
+      devDependenciesOutOfDate,
+      'Dev Dependencies',
+    ),
+  };
+}
+
+interface GlobalStatsOutput extends StatsOutput {
+  byType: {
+    devDependencies?: StatsOutput;
+    dependencies?: StatsOutput;
+  };
+}
+
+/**
+ * Get stats about dependencies which are outdated by at least 1 major version
+ *
+ * @returns Object containing stats about out of date packages
+ */
+export async function getDependencyStats(): Promise<GlobalStatsOutput> {
+  const startWorkingDirectory = process.cwd();
+  // seems the working directory should be absolute to work correctly
+  // https://github.com/cypress-io/github-action/issues/211
+  const workingDirectoryInput = core.getInput('working-directory');
+  const workingDirectory = workingDirectoryInput
+    ? path.resolve(workingDirectoryInput)
+    : startWorkingDirectory;
+  core.debug(`working directory ${workingDirectory}`);
+  // Use yarn to list outdated packages and parse into JSON
+  const { body: outdatedDependencies } = await yarnOutdated(workingDirectory);
+
+  // Get list of packages to ignore from dependabot config if it exists
+  // TODO: Drop support for ignoring based on dependency config
+  const ignoredPackages = await loadIgnoreFromDependabotConfig(
+    workingDirectoryInput,
+  );
+
+  // Filter out any packages which should be ignored
+  const filtered = outdatedDependencies.filter(
+    ([packageName]) => !ignoredPackages.includes(packageName.toLowerCase()),
+  );
+
+  const numDeps = await getNumberOfDependencies(workingDirectory);
+  const { dependencies, devDependencies } = await getDependencyStatsByType(
+    workingDirectory,
+  );
+  return {
+    ...calculate(numDeps, filtered, 'All dependencies (including dev)'),
+    byType: {
+      devDependencies,
+      dependencies,
     },
   };
 }

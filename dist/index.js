@@ -10018,7 +10018,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.getDependencyStats = void 0;
+exports.getDependencyStats = exports.getDependencyStatsByType = void 0;
 const core = __importStar(__nccwpck_require__(2186));
 const js_yaml_1 = __importDefault(__nccwpck_require__(1917));
 const fs_1 = __importDefault(__nccwpck_require__(7147));
@@ -10135,28 +10135,13 @@ async function loadIgnoreFromDependabotConfig(cwdSetting) {
     return settingsForPath.ignore.map((ignoreSetting) => ignoreSetting['dependency-name']);
 }
 /**
- * Get stats about dependencies which are outdated by at least 1 major version
- *
- * @returns Object containing stats about out of date packages
+ * @param numDeps
+ * @param outdatedDependencies
+ * @param messagePrefix
  */
-async function getDependencyStats() {
-    const startWorkingDirectory = process.cwd();
-    // seems the working directory should be absolute to work correctly
-    // https://github.com/cypress-io/github-action/issues/211
-    const workingDirectoryInput = core.getInput('working-directory');
-    const workingDirectory = workingDirectoryInput
-        ? path_1.default.resolve(workingDirectoryInput)
-        : startWorkingDirectory;
-    core.debug(`working directory ${workingDirectory}`);
-    // Use yarn to list outdated packages and parse into JSON
-    const outdatedDependencies = await (0, yarnOutdated_1.yarnOutdated)(workingDirectory);
-    // Get list of packages to ignore from dependabot config if it exists
-    const ignoredPackages = await loadIgnoreFromDependabotConfig(workingDirectoryInput);
-    // Filter out any packages which should be ignored
-    const filtered = outdatedDependencies.filter(([packageName]) => !ignoredPackages.includes(packageName.toLowerCase()));
+function calculate(numDeps, outdatedDependencies, messagePrefix) {
     // Sort packages by if they are out by major/minor/patch
-    const sorted = groupPackagesByOutOfDateName(filtered);
-    const numDeps = await (0, getNumberOfDependencies_1.getNumberOfDependencies)(workingDirectory);
+    const sorted = groupPackagesByOutOfDateName(outdatedDependencies);
     // TODO: Add option to select just dev dependencies
     const majorsOutOfDate = sorted.major.length;
     const minorsOutOfDate = sorted.minor.length;
@@ -10168,6 +10153,7 @@ async function getDependencyStats() {
         numDeps) *
         100).toFixed(2);
     const messageLines = [
+        messagePrefix,
         `up to date: ${numDeps - (majorsOutOfDate + minorsOutOfDate + patchesOutOfDate)}/${numDeps} (${upToDatePercent} %)`,
         `major behind: ${majorsOutOfDate}/${numDeps} (${majorPercentOutOfDate} %)`,
         `minor behind: ${minorsOutOfDate}/${numDeps} (${minorPercentOutOfDate} %)`,
@@ -10193,6 +10179,58 @@ async function getDependencyStats() {
             major: majorPercentOutOfDate,
             minor: minorPercentOutOfDate,
             patch: patchPercentOutOfDate,
+        },
+    };
+}
+/**
+ * Get stats about dependencies which are outdated by at least 1 major version
+ *
+ * @param workingDirectory
+ * @param depFilter
+ * @returns Object containing stats about out of date packages
+ */
+async function getDependencyStatsByType(workingDirectory) {
+    core.debug(`working directory ${workingDirectory}`);
+    // Use yarn to list outdated packages and parse into JSON
+    const { dependencies: depedenciesOutOfDate, devDependencies: devDependenciesOutOfDate, } = await (0, yarnOutdated_1.yarnOutdatedByType)(workingDirectory);
+    const { dependencies: numDeps, devDependencies: numDevDeps } = await (0, getNumberOfDependencies_1.getNumberOfDependenciesByType)(workingDirectory);
+    // Get list of packages to ignore from dependabot config if it exists
+    // TODO: Drop support for ignoring based on dependency config
+    // Sort packages by if they are out by major/minor/patch
+    return {
+        dependencies: calculate(numDeps, depedenciesOutOfDate, 'Dependencies'),
+        devDependencies: calculate(numDevDeps, devDependenciesOutOfDate, 'Dev Dependencies'),
+    };
+}
+exports.getDependencyStatsByType = getDependencyStatsByType;
+/**
+ * Get stats about dependencies which are outdated by at least 1 major version
+ *
+ * @returns Object containing stats about out of date packages
+ */
+async function getDependencyStats() {
+    const startWorkingDirectory = process.cwd();
+    // seems the working directory should be absolute to work correctly
+    // https://github.com/cypress-io/github-action/issues/211
+    const workingDirectoryInput = core.getInput('working-directory');
+    const workingDirectory = workingDirectoryInput
+        ? path_1.default.resolve(workingDirectoryInput)
+        : startWorkingDirectory;
+    core.debug(`working directory ${workingDirectory}`);
+    // Use yarn to list outdated packages and parse into JSON
+    const { body: outdatedDependencies } = await (0, yarnOutdated_1.yarnOutdated)(workingDirectory);
+    // Get list of packages to ignore from dependabot config if it exists
+    // TODO: Drop support for ignoring based on dependency config
+    const ignoredPackages = await loadIgnoreFromDependabotConfig(workingDirectoryInput);
+    // Filter out any packages which should be ignored
+    const filtered = outdatedDependencies.filter(([packageName]) => !ignoredPackages.includes(packageName.toLowerCase()));
+    const numDeps = await (0, getNumberOfDependencies_1.getNumberOfDependencies)(workingDirectory);
+    const { dependencies, devDependencies } = await getDependencyStatsByType(workingDirectory);
+    return {
+        ...calculate(numDeps, filtered, 'All dependencies (including dev)'),
+        byType: {
+            devDependencies,
+            dependencies,
         },
     };
 }
@@ -10229,7 +10267,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.getNumberOfDependencies = void 0;
+exports.getNumberOfDependenciesByType = exports.getNumberOfDependencies = void 0;
 const core = __importStar(__nccwpck_require__(2186));
 const fs_1 = __importDefault(__nccwpck_require__(7147));
 /**
@@ -10268,6 +10306,22 @@ async function getNumberOfDependencies(basePath) {
     return numDependencies + numDevDependencies;
 }
 exports.getNumberOfDependencies = getNumberOfDependencies;
+/**
+ * @param basePath - Base path of package.json
+ * @returns Number of dependencies (both dev and prod dependencies)
+ */
+async function getNumberOfDependenciesByType(basePath) {
+    const pkgPath = `${basePath}/package.json`;
+    if (!fs_1.default.existsSync(pkgPath)) {
+        core.warning(`Package file does not exist at path ${basePath}`);
+        return { dependencies: 0, devDependencies: 0 };
+    }
+    const pkgFile = await loadJsonFile(pkgPath);
+    const numDevDependencies = Object.keys(pkgFile?.devDependencies || {}).length;
+    const numDependencies = Object.keys(pkgFile?.dependencies || {}).length;
+    return { dependencies: numDependencies, devDependencies: numDevDependencies };
+}
+exports.getNumberOfDependenciesByType = getNumberOfDependenciesByType;
 
 
 /***/ }),
@@ -10384,14 +10438,14 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.yarnOutdated = void 0;
+exports.yarnOutdatedByType = exports.yarnOutdated = void 0;
 const core = __importStar(__nccwpck_require__(2186));
 const exec = __importStar(__nccwpck_require__(1514));
 /**
  * Get output of yarn outdated command parsed as JSON
  * Item format: [packageName, current, wanted, latest, depTypeListName]
  *
- * @param {string} basePath - Base path of package.json
+ * @param basePath - Base path of package.json
  * @returns Output of outdated command in JSON format
  */
 async function yarnOutdated(basePath) {
@@ -10420,7 +10474,7 @@ async function yarnOutdated(basePath) {
             throw new Error(errorData);
         }
         // If command doesn't throw, then there are no packages out of date
-        return [];
+        return { head: [], body: [] };
     }
     catch (err) {
         try {
@@ -10428,7 +10482,11 @@ async function yarnOutdated(basePath) {
             const outdatedDataStr = outputData.match(/{"type":"table"(.*}})/)?.[0] || '';
             core.debug(`Output of parsing yarn outdated command: ${outdatedDataStr}`);
             const outdatedData = JSON.parse(outdatedDataStr);
-            return outdatedData?.data?.body || [];
+            const { head = [], body = [] } = outdatedData?.data || {};
+            return {
+                head,
+                body,
+            };
         }
         catch (err2) {
             const { message } = err2;
@@ -10438,6 +10496,20 @@ async function yarnOutdated(basePath) {
     }
 }
 exports.yarnOutdated = yarnOutdated;
+/**
+ * @param basePath - Base path of package.json
+ * @returns Output of outdated command grouped by dependency type
+ */
+async function yarnOutdatedByType(basePath) {
+    const { head, body } = await yarnOutdated(basePath);
+    const depTypeIndex = head?.findIndex((val) => val === 'Package Type');
+    return body.reduce((acc, depRow) => {
+        const depType = depRow[depTypeIndex];
+        acc[depType].push(depRow);
+        return acc;
+    }, {});
+}
+exports.yarnOutdatedByType = yarnOutdatedByType;
 
 
 /***/ }),

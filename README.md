@@ -27,24 +27,20 @@ name: Check Outdated Dependencies
 on:
   push:
     branches:
-      - master
+      - main
 
 jobs:
   check:
     name: Check Dependencies
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [ubuntu-20.04]
-        node-version: [14.x]
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Use Node.js ${{ matrix.node-version }} on ${{ matrix.os }}
-        uses: actions/setup-node@v2.1.5
+      - name: Use Node.js
+        uses: actions/setup-node@v2
         with:
-          node-version: ${{ matrix.node-version }}
+          node-version: 16.x
 
       - name: Check Outdated
         id: dep-stats
@@ -80,19 +76,15 @@ on:
 jobs:
   check:
     name: Upload Dependency Stats
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [ubuntu-20.04]
-        node-version: [14.x]
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Use Node.js ${{ matrix.node-version }} on ${{ matrix.os }}
-        uses: actions/setup-node@v2.1.5
+      - name: Use Node.js
+        uses: actions/setup-node@v2
         with:
-          node-version: ${{ matrix.node-version }}
+          node-version: 16.x
 
       - name: Check Outdated
         id: dep-stats
@@ -124,7 +116,6 @@ jobs:
 ## Ideas
 
 - `ignore` input to ignore dependencies (instead of loading from dependabot config)
-- Setting to only check production dependencies (not include dev dependencies)
 - Use `npm outdated` if yarn is not being used
 - Output stats for multiple package levels in a single run
 

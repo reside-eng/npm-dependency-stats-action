@@ -1,25 +1,32 @@
 import * as core from '@actions/core';
 import * as exec from '@actions/exec';
 
+export type DepType = 'devDependencies' | 'dependencies';
+
 export type YarnDependencyInfoRow = [
   string,
   string,
   string,
   string,
-  string,
+  string, // Currently DepType - check dynamically against head to handle api change
   string,
 ];
+
+interface YarnOutdatedOutput {
+  head: YarnDependencyInfoRow | [];
+  body: YarnDependencyInfoRow[];
+}
 
 /**
  * Get output of yarn outdated command parsed as JSON
  * Item format: [packageName, current, wanted, latest, depTypeListName]
  *
- * @param {string} basePath - Base path of package.json
+ * @param basePath - Base path of package.json
  * @returns Output of outdated command in JSON format
  */
 export async function yarnOutdated(
   basePath: string,
-): Promise<YarnDependencyInfoRow[]> {
+): Promise<YarnOutdatedOutput> {
   const args = ['outdated', '--json'];
   if (basePath) {
     args.push('--cwd');
@@ -47,7 +54,7 @@ export async function yarnOutdated(
       throw new Error(errorData);
     }
     // If command doesn't throw, then there are no packages out of date
-    return [];
+    return { head: [], body: [] };
   } catch (err) {
     try {
       // Output is in json-lines format - use Regex to handle different newline characters
@@ -55,11 +62,36 @@ export async function yarnOutdated(
         outputData.match(/{"type":"table"(.*}})/)?.[0] || '';
       core.debug(`Output of parsing yarn outdated command: ${outdatedDataStr}`);
       const outdatedData = JSON.parse(outdatedDataStr);
-      return outdatedData?.data?.body || [];
+      const { head = [], body = [] } = outdatedData?.data || {};
+      return {
+        head,
+        body,
+      };
     } catch (err2) {
       const { message } = err2 as Error;
       core.error(`Error parsing results of yarn outdated command: ${message}`);
       throw err2;
     }
   }
+}
+
+interface YarnOutdatedByType {
+  devDependencies: YarnDependencyInfoRow[];
+  dependencies: YarnDependencyInfoRow[];
+}
+
+/**
+ * @param basePath - Base path of package.json
+ * @returns Output of outdated command grouped by dependency type
+ */
+export async function yarnOutdatedByType(
+  basePath: string,
+): Promise<YarnOutdatedByType> {
+  const { head, body } = await yarnOutdated(basePath);
+  const depTypeIndex = head?.findIndex((val: string) => val === 'Package Type');
+  return body.reduce((acc, depRow) => {
+    const depType = depRow[depTypeIndex] as DepType;
+    acc[depType].push(depRow);
+    return acc;
+  }, {} as YarnOutdatedByType);
 }
