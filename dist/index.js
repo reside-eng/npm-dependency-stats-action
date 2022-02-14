@@ -10192,13 +10192,13 @@ function calculate(numDeps, outdatedDependencies, messagePrefix) {
 async function getDependencyStatsByType(workingDirectory) {
     core.debug(`working directory ${workingDirectory}`);
     // Use yarn to list outdated packages and parse into JSON
-    const { dependencies: depedenciesOutOfDate, devDependencies: devDependenciesOutOfDate, } = await (0, yarnOutdated_1.yarnOutdatedByType)(workingDirectory);
+    const { dependencies: dependenciesOutOfDate, devDependencies: devDependenciesOutOfDate, } = await (0, yarnOutdated_1.yarnOutdatedByType)(workingDirectory);
     const { dependencies: numDeps, devDependencies: numDevDeps } = await (0, getNumberOfDependencies_1.getNumberOfDependenciesByType)(workingDirectory);
     // Get list of packages to ignore from dependabot config if it exists
     // TODO: Drop support for ignoring based on dependency config
     // Sort packages by if they are out by major/minor/patch
     return {
-        dependencies: calculate(numDeps, depedenciesOutOfDate, 'Dependencies'),
+        dependencies: calculate(numDeps, dependenciesOutOfDate, 'Dependencies'),
         devDependencies: calculate(numDevDeps, devDependenciesOutOfDate, 'Dev Dependencies'),
     };
 }
@@ -10225,6 +10225,7 @@ async function getDependencyStats() {
     // Filter out any packages which should be ignored
     const filtered = outdatedDependencies.filter(([packageName]) => !ignoredPackages.includes(packageName.toLowerCase()));
     const numDeps = await (0, getNumberOfDependencies_1.getNumberOfDependencies)(workingDirectory);
+    // const { dependencies: numDeps, devDependencies: numDevDeps } = await getNumberOfDependenciesByType(workingDirectory);
     const { dependencies, devDependencies } = await getDependencyStatsByType(workingDirectory);
     return {
         ...calculate(numDeps, filtered, 'All dependencies (including dev)'),
@@ -10508,7 +10509,7 @@ async function yarnOutdatedByType(basePath) {
         const depType = depRow[depTypeIndex];
         acc[depType].push(depRow);
         return acc;
-    }, {});
+    }, { dependencies: [], devDependencies: [] });
 }
 exports.yarnOutdatedByType = yarnOutdatedByType;
 

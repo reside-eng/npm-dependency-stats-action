@@ -270,7 +270,7 @@ export async function getDependencyStatsByType(
   core.debug(`working directory ${workingDirectory}`);
   // Use yarn to list outdated packages and parse into JSON
   const {
-    dependencies: depedenciesOutOfDate,
+    dependencies: dependenciesOutOfDate,
     devDependencies: devDependenciesOutOfDate,
   } = await yarnOutdatedByType(workingDirectory);
   const { dependencies: numDeps, devDependencies: numDevDeps } =
@@ -281,7 +281,7 @@ export async function getDependencyStatsByType(
 
   // Sort packages by if they are out by major/minor/patch
   return {
-    dependencies: calculate(numDeps, depedenciesOutOfDate, 'Dependencies'),
+    dependencies: calculate(numDeps, dependenciesOutOfDate, 'Dependencies'),
     devDependencies: calculate(
       numDevDeps,
       devDependenciesOutOfDate,
@@ -326,6 +326,7 @@ export async function getDependencyStats(): Promise<GlobalStatsOutput> {
   );
 
   const numDeps = await getNumberOfDependencies(workingDirectory);
+  // const { dependencies: numDeps, devDependencies: numDevDeps } = await getNumberOfDependenciesByType(workingDirectory);
   const { dependencies, devDependencies } = await getDependencyStatsByType(
     workingDirectory,
   );

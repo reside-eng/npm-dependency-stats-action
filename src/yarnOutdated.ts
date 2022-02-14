@@ -89,9 +89,12 @@ export async function yarnOutdatedByType(
 ): Promise<YarnOutdatedByType> {
   const { head, body } = await yarnOutdated(basePath);
   const depTypeIndex = head?.findIndex((val: string) => val === 'Package Type');
-  return body.reduce((acc, depRow) => {
-    const depType = depRow[depTypeIndex] as DepType;
-    acc[depType].push(depRow);
-    return acc;
-  }, {} as YarnOutdatedByType);
+  return body.reduce(
+    (acc, depRow) => {
+      const depType = depRow[depTypeIndex] as DepType;
+      acc[depType].push(depRow);
+      return acc;
+    },
+    { dependencies: [], devDependencies: [] } as YarnOutdatedByType,
+  );
 }
