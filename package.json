@@ -6,7 +6,7 @@
   "license": "MIT",
   "main": "dist/index.js",
   "engines": {
-    "node": ">=14"
+    "node": ">=16"
   },
   "scripts": {
     "prepare": "husky install",
