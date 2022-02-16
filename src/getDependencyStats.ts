@@ -1,6 +1,4 @@
 import * as core from '@actions/core';
-import yaml from 'js-yaml';
-import fs from 'fs';
 import semver from 'semver';
 import path from 'path';
 import {
@@ -12,6 +10,7 @@ import {
   getNumberOfDependencies,
   getNumberOfDependenciesByType,
 } from './getNumberOfDependencies';
+import { loadIgnoreFromDependabotConfig } from './utils/repo';
 
 interface PackagesByOutVersion {
   major: YarnDependencyInfoRow[];
@@ -84,95 +83,6 @@ function groupPackagesByOutOfDateName(
   );
 }
 
-interface DependabotIgnoreSetting {
-  ['dependency-name']: string;
-  versions?: string[];
-}
-
-interface DependabotUpdateSetting {
-  ['package-ecosystem']?: string;
-  directory?: string;
-  schedule?: {
-    interval?: string;
-  };
-  assignees?: string[];
-  reviewers?: string[];
-  ignore?: DependabotIgnoreSetting[];
-}
-
-interface DependabotConfig {
-  version?: number;
-  updates?: DependabotUpdateSetting[];
-}
-
-/**
- * @returns Dependabot config
- */
-function loadDependabotConfig(): DependabotConfig {
-  const configPath = `${process.cwd()}/.github/dependabot.yml`;
-  if (!fs.existsSync(configPath)) {
-    core.debug(
-      '.github/dependabot.yml not found at repo base, skipping search for ignore',
-    );
-    return {};
-  }
-  core.debug('.github/dependabot.yml found, loading contents');
-  try {
-    const configFileBuff = fs.readFileSync(configPath);
-    const configFile = yaml.load(configFileBuff.toString());
-    if (
-      !configFile ||
-      typeof configFile === 'string' ||
-      typeof configFile === 'number'
-    ) {
-      core.warning(
-        '.github/dependabot.yml is not a valid yaml object, skipping check for ignore',
-      );
-      return {};
-    }
-    return configFile as DependabotConfig;
-  } catch (error) {
-    core.warning(
-      'Error parsing .github/dependabot.yml, confirm it is valid yaml in order for ignore settings to be picked up',
-    );
-    return {};
-  }
-}
-
-/**
- * @param cwdSetting - Current working directory setting
- * @returns List of dependencies to ignore from dependabot config
- */
-async function loadIgnoreFromDependabotConfig(
-  cwdSetting: string,
-): Promise<string[]> {
-  const dependabotConfig = loadDependabotConfig();
-  core.debug(
-    'Searching dependabot config for ignore settings which match current working directory',
-  );
-  // Look for settings which match the current path
-  const settingsForPath = dependabotConfig?.updates?.find(
-    (updateSetting: DependabotUpdateSetting) => {
-      if (updateSetting?.['package-ecosystem'] === 'npm') {
-        //  Trim leading and trailing slashes from directory setting and cwdSetting
-        const directorySetting = updateSetting?.directory || '';
-        const cleanDirectorySetting = directorySetting.replace(/^\/|\/$/g, '');
-        return cwdSetting
-          ? cleanDirectorySetting === cwdSetting?.replace(/^\/|\/$/g, '')
-          : updateSetting?.directory === '/';
-      }
-      return false;
-    },
-  );
-  if (!settingsForPath?.ignore) {
-    return [];
-  }
-  return settingsForPath.ignore.map(
-    (ignoreSetting: DependabotIgnoreSetting) =>
-      ignoreSetting['dependency-name'],
-  );
-}
-
 export interface StatsOutput {
   dependencies: {
     major: YarnDependencyInfoRow[];
@@ -200,9 +110,10 @@ interface StatsByDepType {
 }
 
 /**
- * @param numDeps
- * @param outdatedDependencies
- * @param messagePrefix
+ * @param numDeps - Total number of dependencies (of a specific type or all)
+ * @param outdatedDependencies - List of outdated dependencies (of a specific type or all)
+ * @param messagePrefix - Prefix to add to debug message
+ * @returns Calculated dependency stats
  */
 function calculate(
   numDeps: number,
@@ -260,8 +171,7 @@ function calculate(
 /**
  * Get stats about dependencies which are outdated by at least 1 major version
  *
- * @param workingDirectory
- * @param depFilter
+ * @param workingDirectory - Current working directory to use (containing package.json)
  * @returns Object containing stats about out of date packages
  */
 export async function getDependencyStatsByType(
@@ -273,19 +183,22 @@ export async function getDependencyStatsByType(
     dependencies: dependenciesOutOfDate,
     devDependencies: devDependenciesOutOfDate,
   } = await yarnOutdatedByType(workingDirectory);
+
+  // Get total number of dependencies based on type
   const { dependencies: numDeps, devDependencies: numDevDeps } =
     await getNumberOfDependenciesByType(workingDirectory);
 
-  // Get list of packages to ignore from dependabot config if it exists
+  // TODO: Only filter out @types/node if it matches node version (defined by package engines)
+  const ignoredDevDeps = ['@types/node'];
+  // Filter out any packages which should be ignored
+  const filteredDevDeps = devDependenciesOutOfDate.filter(
+    ([packageName]) => !ignoredDevDeps.includes(packageName.toLowerCase()),
+  );
   // TODO: Drop support for ignoring based on dependency config
   // Sort packages by if they are out by major/minor/patch
   const results = {
     dependencies: calculate(numDeps, dependenciesOutOfDate, 'Dependencies'),
-    devDependencies: calculate(
-      numDevDeps,
-      devDependenciesOutOfDate,
-      'Dev Dependencies',
-    ),
+    devDependencies: calculate(numDevDeps, filteredDevDeps, 'Dev Dependencies'),
   };
   if (core.getInput('log-results') === 'true') {
     core.info(JSON.stringify(results));
@@ -318,7 +231,6 @@ export async function getDependencyStats(): Promise<GlobalStatsOutput> {
   const { body: outdatedDependencies } = await yarnOutdated(workingDirectory);
 
   // Get list of packages to ignore from dependabot config if it exists
-  // TODO: Drop support for ignoring based on dependency config
   const ignoredPackages = await loadIgnoreFromDependabotConfig(
     workingDirectoryInput,
   );

@@ -10020,12 +10020,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.getDependencyStats = exports.getDependencyStatsByType = void 0;
 const core = __importStar(__nccwpck_require__(2186));
-const js_yaml_1 = __importDefault(__nccwpck_require__(1917));
-const fs_1 = __importDefault(__nccwpck_require__(7147));
 const semver_1 = __importDefault(__nccwpck_require__(1383));
 const path_1 = __importDefault(__nccwpck_require__(1017));
 const yarnOutdated_1 = __nccwpck_require__(622);
 const getNumberOfDependencies_1 = __nccwpck_require__(3647);
+const repo_1 = __nccwpck_require__(9508);
 /**
  * Sort packages by their out of date version (major, minor, patch)
  *
@@ -10085,59 +10084,10 @@ function groupPackagesByOutOfDateName(packages) {
     });
 }
 /**
- * @returns Dependabot config
- */
-function loadDependabotConfig() {
-    const configPath = __nccwpck_require__.ab + "dependabot.yml";
-    if (!fs_1.default.existsSync(__nccwpck_require__.ab + "dependabot.yml")) {
-        core.debug('.github/dependabot.yml not found at repo base, skipping search for ignore');
-        return {};
-    }
-    core.debug('.github/dependabot.yml found, loading contents');
-    try {
-        const configFileBuff = fs_1.default.readFileSync(__nccwpck_require__.ab + "dependabot.yml");
-        const configFile = js_yaml_1.default.load(configFileBuff.toString());
-        if (!configFile ||
-            typeof configFile === 'string' ||
-            typeof configFile === 'number') {
-            core.warning('.github/dependabot.yml is not a valid yaml object, skipping check for ignore');
-            return {};
-        }
-        return configFile;
-    }
-    catch (error) {
-        core.warning('Error parsing .github/dependabot.yml, confirm it is valid yaml in order for ignore settings to be picked up');
-        return {};
-    }
-}
-/**
- * @param cwdSetting - Current working directory setting
- * @returns List of dependencies to ignore from dependabot config
- */
-async function loadIgnoreFromDependabotConfig(cwdSetting) {
-    const dependabotConfig = loadDependabotConfig();
-    core.debug('Searching dependabot config for ignore settings which match current working directory');
-    // Look for settings which match the current path
-    const settingsForPath = dependabotConfig?.updates?.find((updateSetting) => {
-        if (updateSetting?.['package-ecosystem'] === 'npm') {
-            //  Trim leading and trailing slashes from directory setting and cwdSetting
-            const directorySetting = updateSetting?.directory || '';
-            const cleanDirectorySetting = directorySetting.replace(/^\/|\/$/g, '');
-            return cwdSetting
-                ? cleanDirectorySetting === cwdSetting?.replace(/^\/|\/$/g, '')
-                : updateSetting?.directory === '/';
-        }
-        return false;
-    });
-    if (!settingsForPath?.ignore) {
-        return [];
-    }
-    return settingsForPath.ignore.map((ignoreSetting) => ignoreSetting['dependency-name']);
-}
-/**
- * @param numDeps
- * @param outdatedDependencies
- * @param messagePrefix
+ * @param numDeps - Total number of dependencies (of a specific type or all)
+ * @param outdatedDependencies - List of outdated dependencies (of a specific type or all)
+ * @param messagePrefix - Prefix to add to debug message
+ * @returns Calculated dependency stats
  */
 function calculate(numDeps, outdatedDependencies, messagePrefix) {
     // Sort packages by if they are out by major/minor/patch
@@ -10185,21 +10135,24 @@ function calculate(numDeps, outdatedDependencies, messagePrefix) {
 /**
  * Get stats about dependencies which are outdated by at least 1 major version
  *
- * @param workingDirectory
- * @param depFilter
+ * @param workingDirectory - Current working directory to use (containing package.json)
  * @returns Object containing stats about out of date packages
  */
 async function getDependencyStatsByType(workingDirectory) {
     core.debug(`working directory ${workingDirectory}`);
     // Use yarn to list outdated packages and parse into JSON
     const { dependencies: dependenciesOutOfDate, devDependencies: devDependenciesOutOfDate, } = await (0, yarnOutdated_1.yarnOutdatedByType)(workingDirectory);
+    // Get total number of dependencies based on type
     const { dependencies: numDeps, devDependencies: numDevDeps } = await (0, getNumberOfDependencies_1.getNumberOfDependenciesByType)(workingDirectory);
-    // Get list of packages to ignore from dependabot config if it exists
+    // TODO: Only filter out @types/node if it matches node version (defined by package engines)
+    const ignoredDevDeps = ['@types/node'];
+    // Filter out any packages which should be ignored
+    const filteredDevDeps = devDependenciesOutOfDate.filter(([packageName]) => !ignoredDevDeps.includes(packageName.toLowerCase()));
     // TODO: Drop support for ignoring based on dependency config
     // Sort packages by if they are out by major/minor/patch
     const results = {
         dependencies: calculate(numDeps, dependenciesOutOfDate, 'Dependencies'),
-        devDependencies: calculate(numDevDeps, devDependenciesOutOfDate, 'Dev Dependencies'),
+        devDependencies: calculate(numDevDeps, filteredDevDeps, 'Dev Dependencies'),
     };
     if (core.getInput('log-results') === 'true') {
         core.info(JSON.stringify(results));
@@ -10224,8 +10177,7 @@ async function getDependencyStats() {
     // Use yarn to list outdated packages and parse into JSON
     const { body: outdatedDependencies } = await (0, yarnOutdated_1.yarnOutdated)(workingDirectory);
     // Get list of packages to ignore from dependabot config if it exists
-    // TODO: Drop support for ignoring based on dependency config
-    const ignoredPackages = await loadIgnoreFromDependabotConfig(workingDirectoryInput);
+    const ignoredPackages = await (0, repo_1.loadIgnoreFromDependabotConfig)(workingDirectoryInput);
     // Filter out any packages which should be ignored
     const filtered = outdatedDependencies.filter(([packageName]) => !ignoredPackages.includes(packageName.toLowerCase()));
     const numDeps = await (0, getNumberOfDependencies_1.getNumberOfDependencies)(workingDirectory);
@@ -10245,54 +10197,13 @@ exports.getDependencyStats = getDependencyStats;
 /***/ }),
 
 /***/ 3647:
-/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
 
-var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
-}) : (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    o[k2] = m[k];
-}));
-var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
-    Object.defineProperty(o, "default", { enumerable: true, value: v });
-}) : function(o, v) {
-    o["default"] = v;
-});
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
-    __setModuleDefault(result, mod);
-    return result;
-};
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.getNumberOfDependenciesByType = exports.getNumberOfDependencies = void 0;
-const core = __importStar(__nccwpck_require__(2186));
-const fs_1 = __importDefault(__nccwpck_require__(7147));
-/**
- * Load and parse a JSON file from the file system
- *
- * @param filePath - File path
- * @returns Parsed JSON file contents
- */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-async function loadJsonFile(filePath) {
-    const fileBuff = await fs_1.default.promises.readFile(filePath);
-    try {
-        return JSON.parse(fileBuff.toString());
-    }
-    catch (err) {
-        core.error(`Error parsing json file "${filePath}"`);
-        const { message } = err;
-        throw new Error(message);
-    }
-}
+const repo_1 = __nccwpck_require__(9508);
 /**
  * Get number of dependencies listed in package file
  *
@@ -10301,12 +10212,7 @@ async function loadJsonFile(filePath) {
  * @returns Number of dependencies (both dev and prod dependencies)
  */
 async function getNumberOfDependencies(basePath) {
-    const pkgPath = `${basePath}/package.json`;
-    if (!fs_1.default.existsSync(pkgPath)) {
-        core.warning(`Package file does not exist at path ${basePath}`);
-        return 0;
-    }
-    const pkgFile = await loadJsonFile(pkgPath);
+    const pkgFile = await (0, repo_1.getRepoPackageFile)(basePath);
     const numDevDependencies = Object.keys(pkgFile?.devDependencies || {}).length;
     const numDependencies = Object.keys(pkgFile?.dependencies || {}).length;
     return numDependencies + numDevDependencies;
@@ -10317,12 +10223,7 @@ exports.getNumberOfDependencies = getNumberOfDependencies;
  * @returns Number of dependencies (both dev and prod dependencies)
  */
 async function getNumberOfDependenciesByType(basePath) {
-    const pkgPath = `${basePath}/package.json`;
-    if (!fs_1.default.existsSync(pkgPath)) {
-        core.warning(`Package file does not exist at path ${basePath}`);
-        return { dependencies: 0, devDependencies: 0 };
-    }
-    const pkgFile = await loadJsonFile(pkgPath);
+    const pkgFile = await (0, repo_1.getRepoPackageFile)(basePath);
     const numDevDependencies = Object.keys(pkgFile?.devDependencies || {}).length;
     const numDependencies = Object.keys(pkgFile?.dependencies || {}).length;
     return { dependencies: numDependencies, devDependencies: numDevDependencies };
@@ -10415,6 +10316,124 @@ async function run() {
     core.setOutput('percents', depStats.percents);
 }
 exports.run = run;
+
+
+/***/ }),
+
+/***/ 9508:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.loadIgnoreFromDependabotConfig = exports.getRepoPackageFile = exports.loadJsonFile = void 0;
+const core = __importStar(__nccwpck_require__(2186));
+const js_yaml_1 = __importDefault(__nccwpck_require__(1917));
+const fs_1 = __nccwpck_require__(7147);
+/**
+ * Load and parse a JSON file from the file system
+ *
+ * @param filePath - File path
+ * @returns Parsed JSON file contents
+ */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+async function loadJsonFile(filePath) {
+    const fileBuff = await fs_1.promises.readFile(filePath);
+    try {
+        return JSON.parse(fileBuff.toString());
+    }
+    catch (err) {
+        core.error(`Error parsing json file "${filePath}"`);
+        const { message } = err;
+        throw new Error(message);
+    }
+}
+exports.loadJsonFile = loadJsonFile;
+/**
+ * @param basePath
+ */
+async function getRepoPackageFile(basePath) {
+    const pkgPath = `${basePath}/package.json`;
+    if (!(0, fs_1.existsSync)(pkgPath)) {
+        core.warning(`Package file does not exist at path ${basePath}`);
+        return {};
+    }
+    return loadJsonFile(pkgPath);
+}
+exports.getRepoPackageFile = getRepoPackageFile;
+/**
+ * @returns Dependabot config
+ */
+function loadDependabotConfig() {
+    const configPath = __nccwpck_require__.ab + "dependabot.yml";
+    if (!(0, fs_1.existsSync)(__nccwpck_require__.ab + "dependabot.yml")) {
+        core.debug('.github/dependabot.yml not found at repo base, skipping search for ignore');
+        return {};
+    }
+    core.debug('.github/dependabot.yml found, loading contents');
+    try {
+        const configFileBuff = (0, fs_1.readFileSync)(__nccwpck_require__.ab + "dependabot.yml");
+        const configFile = js_yaml_1.default.load(configFileBuff.toString());
+        if (!configFile ||
+            typeof configFile === 'string' ||
+            typeof configFile === 'number') {
+            core.warning('.github/dependabot.yml is not a valid yaml object, skipping check for ignore');
+            return {};
+        }
+        return configFile;
+    }
+    catch (error) {
+        core.warning('Error parsing .github/dependabot.yml, confirm it is valid yaml in order for ignore settings to be picked up');
+        return {};
+    }
+}
+/**
+ * @param cwdSetting - Current working directory setting
+ * @returns List of dependencies to ignore from dependabot config
+ */
+async function loadIgnoreFromDependabotConfig(cwdSetting) {
+    const dependabotConfig = loadDependabotConfig();
+    core.debug('Searching dependabot config for ignore settings which match current working directory');
+    // Look for settings which match the current path
+    const settingsForPath = dependabotConfig?.updates?.find((updateSetting) => {
+        if (updateSetting?.['package-ecosystem'] === 'npm') {
+            //  Trim leading and trailing slashes from directory setting and cwdSetting
+            const directorySetting = updateSetting?.directory || '';
+            const cleanDirectorySetting = directorySetting.replace(/^\/|\/$/g, '');
+            return cwdSetting
+                ? cleanDirectorySetting === cwdSetting?.replace(/^\/|\/$/g, '')
+                : updateSetting?.directory === '/';
+        }
+        return false;
+    });
+    if (!settingsForPath?.ignore) {
+        return [];
+    }
+    return settingsForPath.ignore.map((ignoreSetting) => ignoreSetting['dependency-name']);
+}
+exports.loadIgnoreFromDependabotConfig = loadIgnoreFromDependabotConfig;
 
 
 /***/ }),
