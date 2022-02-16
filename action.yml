@@ -8,6 +8,10 @@ inputs:
   output-file:
     required: false
     description: 'Path for output json file'
+  log-results:
+    required: false
+    default: 'false'
+    description: 'Whether or not to log dependency info to Github Actions output'
 runs:
   using: 'node16'
   main: 'dist/index.js'

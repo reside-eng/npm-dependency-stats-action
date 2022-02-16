@@ -278,9 +278,8 @@ export async function getDependencyStatsByType(
 
   // Get list of packages to ignore from dependabot config if it exists
   // TODO: Drop support for ignoring based on dependency config
-
   // Sort packages by if they are out by major/minor/patch
-  return {
+  const results = {
     dependencies: calculate(numDeps, dependenciesOutOfDate, 'Dependencies'),
     devDependencies: calculate(
       numDevDeps,
@@ -288,6 +287,10 @@ export async function getDependencyStatsByType(
       'Dev Dependencies',
     ),
   };
+  if (core.getInput('log-results') === 'true') {
+    core.info(JSON.stringify(results));
+  }
+  return results;
 }
 
 interface GlobalStatsOutput extends StatsOutput {
