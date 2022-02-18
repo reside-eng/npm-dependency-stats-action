@@ -1,5 +1,6 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "allowedPostUpgradeCommands": ["^npm run build$"],
   "extends": [
     "github>reside-eng/renovate-config:action",
     ":reviewer(@reside-eng/platform-tools)"
