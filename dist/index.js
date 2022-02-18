@@ -10088,14 +10088,14 @@ function groupPackagesByOutOfDateName(packages) {
  * @returns Dependabot config
  */
 function loadDependabotConfig() {
-    const configPath = __nccwpck_require__.ab + "dependabot.yml";
-    if (!fs_1.default.existsSync(__nccwpck_require__.ab + "dependabot.yml")) {
+    const configPath = `${process.cwd()}/.github/dependabot.yml`;
+    if (!fs_1.default.existsSync(configPath)) {
         core.debug('.github/dependabot.yml not found at repo base, skipping search for ignore');
         return {};
     }
     core.debug('.github/dependabot.yml found, loading contents');
     try {
-        const configFileBuff = fs_1.default.readFileSync(__nccwpck_require__.ab + "dependabot.yml");
+        const configFileBuff = fs_1.default.readFileSync(configPath);
         const configFile = js_yaml_1.default.load(configFileBuff.toString());
         if (!configFile ||
             typeof configFile === 'string' ||
