@@ -28,4 +28,4 @@ jobs:
         env:
           LOG_LEVEL: 'debug'
           RENOVATE_AUTODISCOVER: true
-          RENOVATE_AUTODISCOVER_FILTER: '/npm-dependency-stats-action/.*/'
+          RENOVATE_AUTODISCOVER_FILTER: 'reside-eng/npm-dependency-stats-action'
