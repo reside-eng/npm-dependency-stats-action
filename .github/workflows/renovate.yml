@@ -5,10 +5,14 @@ name: Renovate
 # in order to support Github Actions
 
 on:
+  push:
+    branches:
+      - renovate-autodiscover
   schedule:
     # The "*" (#42, asterisk) character has special semantics in YAML, so this
     # string has to be quoted.
     - cron: '0/15 * * * *'
+
 jobs:
   renovate:
     runs-on: ubuntu-latest
@@ -23,3 +27,6 @@ jobs:
           token: ${{ secrets.RENOVATE_TOKEN }}
         env:
           LOG_LEVEL: 'debug'
+          RENOVATE_AUTODISCOVER: true
+          RENOVATE_AUTODISCOVER_FILTER: 'reside-eng/npm-dependency-stats-action'
+          RENOVATE_PRIVATE_KEY: ${{ secrets.RENOVATE_PRIVATE_KEY }}
