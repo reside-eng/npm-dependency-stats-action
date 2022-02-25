@@ -27,24 +27,20 @@ name: Check Outdated Dependencies
 on:
   push:
     branches:
-      - master
+      - main
 
 jobs:
   check:
     name: Check Dependencies
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [ubuntu-20.04]
-        node-version: [14.x]
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Use Node.js ${{ matrix.node-version }} on ${{ matrix.os }}
-        uses: actions/setup-node@v2.1.5
+      - name: Use Node.js
+        uses: actions/setup-node@v2
         with:
-          node-version: ${{ matrix.node-version }}
+          node-version: 16.x
 
       - name: Check Outdated
         id: dep-stats
@@ -80,19 +76,15 @@ on:
 jobs:
   check:
     name: Upload Dependency Stats
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [ubuntu-20.04]
-        node-version: [14.x]
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Use Node.js ${{ matrix.node-version }} on ${{ matrix.os }}
-        uses: actions/setup-node@v2.1.5
+      - name: Use Node.js
+        uses: actions/setup-node@v2
         with:
-          node-version: ${{ matrix.node-version }}
+          node-version: 16.x
 
       - name: Check Outdated
         id: dep-stats
@@ -124,21 +116,20 @@ jobs:
 ## Ideas
 
 - `ignore` input to ignore dependencies (instead of loading from dependabot config)
-- Setting to only check production dependencies (not include dev dependencies)
 - Use `npm outdated` if yarn is not being used
 - Output stats for multiple package levels in a single run
 
 ## FAQ
 
-1. Why is the `dist` folder included in the repo?
-   This is a built version of the action which is necessary to have in place for Github Actions to be able to use the action since the action's source code is written in Typescript (Actions runs Node)
+1. Why is the `dist` folder included on major version branches?
+   This is a built version of the action which is necessary to have in place for Github Actions to be able to use the action since the action's source code is written in Typescript (Actions runs Node). When using an exact version Github will pick up from releases, but using a major version point to the major version branch.
 
 [npm-image]: https://img.shields.io/npm/v/@side/npm-dependency-stats-action.svg?style=flat-square
 [npm-url]: https://npmjs.org/package/@side/npm-dependency-stats-action
 [build-status-image]: https://img.shields.io/github/workflow/status/reside-eng/npm-dependency-stats-action/Publish?style=flat-square
 [build-status-url]: https://github.com/reside-eng/npm-dependency-stats-action/actions
-[coverage-image]: https://img.shields.io/codecov/c/github/reside-eng/npm-dependency-stats-action.svg?style=flat-square
-[coverage-url]: https://codecov.io/gh/reside-eng/npm-dependency-stats-action
+[coverage-image]: https://img.shields.io/coveralls/github/reside-eng/npm-dependency-stats-action.svg?style=flat-square
+[coverage-url]: https://coveralls.io/github/reside-eng/verify-git-tag-action?branch=main
 [license-image]: https://img.shields.io/npm/l/@side/npm-dependency-stats-action.svg?style=flat-square
 [license-url]: https://github.com/reside-eng/npm-dependency-stats-action/blob/main/LICENSE
 [code-style-image]: https://img.shields.io/badge/code%20style-airbnb-blue.svg?style=flat-square

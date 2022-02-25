@@ -6,7 +6,7 @@
   "license": "MIT",
   "main": "dist/index.js",
   "engines": {
-    "node": ">=14"
+    "node": ">=16"
   },
   "scripts": {
     "prepare": "husky install",
@@ -17,10 +17,10 @@
     "format:check": "prettier --check ."
   },
   "dependencies": {
-    "@actions/core": "^1.6.0",
-    "@actions/exec": "^1.1.0",
-    "js-yaml": "^4.1.0",
-    "semver": "^7.3.5"
+    "@actions/core": "1.6.0",
+    "@actions/exec": "1.1.0",
+    "js-yaml": "4.1.0",
+    "semver": "7.3.5"
   },
   "devDependencies": {
     "@commitlint/cli": "16.2.1",

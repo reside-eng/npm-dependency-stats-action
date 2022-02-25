@@ -12,15 +12,35 @@ interface MockObj {
 }
 let mock: MockObj;
 
+const outdatedHead = [
+  'Package',
+  'Current',
+  'Wanted',
+  'Latest',
+  'Package Type',
+  'URL',
+];
+
 jest.mock('@actions/core');
 jest.mock('fs');
 jest.mock('./yarnOutdated', () => ({
   __esModule: true,
-  yarnOutdated: () => Promise.resolve(mock.outdated),
+  yarnOutdated: () =>
+    Promise.resolve({ head: outdatedHead, body: mock.outdated }),
+  yarnOutdatedByType: () =>
+    Promise.resolve({
+      dependencies: mock.outdated,
+      devDependencies: mock.outdated,
+    }),
 }));
 jest.mock('./getNumberOfDependencies', () => ({
   __esModule: true,
   getNumberOfDependencies: () => Promise.resolve(mock.outdated?.length || 0),
+  getNumberOfDependenciesByType: () =>
+    Promise.resolve({
+      dependencies: mock.outdated?.length || 0,
+      devDependencies: mock.outdated?.length || 0,
+    }),
 }));
 
 describe('getDependencyStats', () => {
@@ -49,7 +69,7 @@ describe('getDependencyStats', () => {
 
   it('returns stats if all dependencies are up to date', async () => {
     const result = await getDependencyStats();
-    expect(result).toEqual({
+    expect(result).toMatchObject({
       counts: {
         total: 1,
         upToDate: 1,
@@ -81,7 +101,7 @@ describe('getDependencyStats', () => {
       [patchDepName, '1.0.0', '1.0.0', '1.0.1', 'dependencies', ''],
     ];
     const result = await getDependencyStats();
-    expect(result).toEqual({
+    expect(result).toMatchObject({
       counts: {
         total: 3,
         upToDate: 0,
@@ -108,7 +128,7 @@ describe('getDependencyStats', () => {
       ['some-dep', '0.0.1', '0.1.0', '0.1.0', 'dependencies', ''],
     ];
     const result = await getDependencyStats();
-    expect(result).toEqual({
+    expect(result).toMatchObject({
       counts: {
         total: 1,
         upToDate: 0,
@@ -135,7 +155,7 @@ describe('getDependencyStats', () => {
       ['some-dep', '0.0.1', '0.1.0', '0.1.0', 'dependencies', ''],
     ];
     const result = await getDependencyStats();
-    expect(result).toEqual({
+    expect(result).toMatchObject({
       counts: {
         total: 1,
         upToDate: 0,
@@ -162,7 +182,7 @@ describe('getDependencyStats', () => {
       ['some-dep', '0.0.1', '0.0.2', '0.0.2', 'dependencies', ''],
     ];
     const result = await getDependencyStats();
-    expect(result).toEqual({
+    expect(result).toMatchObject({
       counts: {
         total: 1,
         upToDate: 0,
@@ -189,7 +209,7 @@ describe('getDependencyStats', () => {
       ['some-dep', '0.2.0', '0.2.1', '0.2.1', 'dependencies', ''],
     ];
     const result = await getDependencyStats();
-    expect(result).toEqual({
+    expect(result).toMatchObject({
       counts: {
         total: 1,
         upToDate: 0,
@@ -217,7 +237,7 @@ describe('getDependencyStats', () => {
       ['some-exotic-dep', '0.0.1', 'exotic', 'exotic', 'dependencies', ''],
     ];
     const result = await getDependencyStats();
-    expect(result).toEqual({
+    expect(result).toMatchObject({
       counts: {
         total: 2,
         upToDate: 1,
@@ -251,7 +271,7 @@ describe('getDependencyStats', () => {
       ['up-to-date-dep-2', '3.0.0', '3.0.0', '3.0.0', 'dependencies', ''],
     ];
     const result = await getDependencyStats();
-    expect(result).toEqual({
+    expect(result).toMatchObject({
       counts: {
         total: 5,
         upToDate: 2,
@@ -294,7 +314,7 @@ describe('getDependencyStats', () => {
       ['some-other-dep', '0.1.0', '0.1.0', '0.1.0', 'dependencies', ''],
     ];
     const result = await getDependencyStats();
-    expect(result).toEqual({
+    expect(result).toMatchObject({
       counts: {
         total: 3,
         upToDate: 3,
@@ -336,7 +356,7 @@ describe('getDependencyStats', () => {
       ['some-other-dep', '0.1.0', '0.1.0', '0.1.0', 'dependencies', ''],
     ];
     const result = await getDependencyStats();
-    expect(result).toEqual({
+    expect(result).toMatchObject({
       counts: {
         total: 3,
         upToDate: 2,
@@ -368,7 +388,7 @@ describe('getDependencyStats', () => {
       ['some-other-dep', '0.1.0', '0.1.0', '0.1.0', 'dependencies', ''],
     ];
     const result = await getDependencyStats();
-    expect(result).toEqual({
+    expect(result).toMatchObject({
       counts: {
         total: 3,
         upToDate: 2,
@@ -400,7 +420,7 @@ describe('getDependencyStats', () => {
       ['some-other-dep', '0.1.0', '0.1.0', '0.1.0', 'dependencies', ''],
     ];
     const result = await getDependencyStats();
-    expect(result).toEqual({
+    expect(result).toMatchObject({
       counts: {
         total: 3,
         upToDate: 2,
