@@ -29,3 +29,4 @@ jobs:
           LOG_LEVEL: 'debug'
           RENOVATE_AUTODISCOVER: true
           RENOVATE_AUTODISCOVER_FILTER: 'reside-eng/npm-dependency-stats-action'
+          RENOVATE_PRIVATE_KEY: ${{ secrets.RENOVATE_PRIVATE_KEY }}
