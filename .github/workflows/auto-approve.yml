@@ -1,6 +1,9 @@
 name: Automerge (renovate)
 
 on:
+  push:
+    branches:
+      - autoapprove
   pull_request_target:
     branches:
       - main
