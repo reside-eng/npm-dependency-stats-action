@@ -5,13 +5,11 @@ name: Renovate
 # in order to support Github Actions
 
 on:
-  push:
-    branches:
-      - renovate-autodiscover
-  schedule:
-    # The "*" (#42, asterisk) character has special semantics in YAML, so this
-    # string has to be quoted.
-    - cron: '0/15 * * * *'
+  workflow_dispatch:
+  # schedule:
+  #   # The "*" (#42, asterisk) character has special semantics in YAML, so this
+  #   # string has to be quoted.
+  #   - cron: '0/15 * * * *'
 
 jobs:
   renovate:
