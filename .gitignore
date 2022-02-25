@@ -42,3 +42,6 @@ Thumbs.db
 # Ignore built ts files
 __tests__/runner/*
 lib/**/*
+
+# Ignore built files (added using force before push to major version branch)
+dist
