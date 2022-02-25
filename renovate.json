@@ -1,6 +1,5 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "autodiscoverFilter": "project/npm-dependency-stats-action",
   "extends": [
     "github>reside-eng/renovate-config:action",
     ":reviewer(@reside-eng/platform-tools)"
