@@ -27,3 +27,4 @@ jobs:
           RENOVATE_AUTODISCOVER: true
           RENOVATE_AUTODISCOVER_FILTER: 'reside-eng/npm-dependency-stats-action'
           RENOVATE_NPM_TOKEN: ${{ secrets.NPM_READ_TOKEN }}
+          RENOVATE_GIT_AUTHOR: 'renovate[bot]'
