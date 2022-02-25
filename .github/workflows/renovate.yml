@@ -6,10 +6,10 @@ name: Renovate
 
 on:
   workflow_dispatch:
-  # schedule:
-  #   # The "*" (#42, asterisk) character has special semantics in YAML, so this
-  #   # string has to be quoted.
-  #   - cron: '0/15 * * * *'
+  schedule:
+    # The "*" (#42, asterisk) character has special semantics in YAML, so this
+    # string has to be quoted.
+    - cron: '0 */8 * * *'
 
 jobs:
   renovate:
@@ -24,7 +24,6 @@ jobs:
           configurationFile: ./renovate.json
           token: ${{ secrets.RENOVATE_TOKEN }}
         env:
-          LOG_LEVEL: 'debug'
           RENOVATE_AUTODISCOVER: true
           RENOVATE_AUTODISCOVER_FILTER: 'reside-eng/npm-dependency-stats-action'
-          RENOVATE_PRIVATE_KEY: ${{ secrets.RENOVATE_PRIVATE_KEY }}
+          RENOVATE_NPM_TOKEN: ${{ secrets.NPM_READ_TOKEN }}
