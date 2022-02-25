@@ -3,7 +3,12 @@
   "allowedPostUpgradeCommands": ["^npm run build$"],
   "autodiscoverFilter": "project/npm-dependency-stats-action",
   "extends": [
-    "github>reside-eng/renovate-config:action#base-for-action-override",
+    "github>reside-eng/renovate-config:base-library#base-for-action-override",
     ":reviewer(@reside-eng/platform-tools)"
-  ]
+  ],
+  "postUpgradeTasks": {
+    "commands": ["npm run build"],
+    "fileFilters": ["dist/**"],
+    "executionMode": "update"
+  }
 }
