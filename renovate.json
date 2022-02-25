@@ -2,6 +2,9 @@
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "allowedPostUpgradeCommands": ["^npm run build$"],
   "autodiscoverFilter": "project/npm-dependency-stats-action",
+  "encrypted": {
+    "npmToken": "B4pssE5pQrT03VsYYBDL2bM3IkIz0iRSQHSq4U0Wu7k2mBuiLIBae96XYxQ54SUqjEimI6jtufODuOgWGOJFtkiKzzCMC1Ownnp6iNW2AJgnKDhRen7LzmosUoee2XVrGnIu4LbOAuMLwF23jkI36b1/fydKeARRV8IgBaRTV0owsQBH/WpqETA7k0d33WRV4kZELCI1mRRkg98VoZvkq7IP5Cmmtr4i4IquF3ZUAFJ+MD0Lw+3fMbjOZLk3PN4S6wx4C7qLJ5wbRr2H8aJHvqeQH18Jzgv8FKEy8I79yX1jeLdM7XdcZbtzZDMHKZDj5VPfhkVPFoGwZMeaSZhOZQ=="
+  },
   "extends": [
     "github>reside-eng/renovate-config:action",
     ":reviewer(@reside-eng/platform-tools)"
