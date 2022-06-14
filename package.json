@@ -11,7 +11,7 @@
   "scripts": {
     "prepare": "husky install",
     "lint": "eslint src/**/*.ts",
-    "build": "rimraf dist && ncc build src/index.ts --source-map --license licenses.txt",
+    "build": "rimraf dist && ncc build src/index.ts --license licenses.txt",
     "test": "yarn tsc && jest",
     "format": "prettier --write .",
     "format:check": "prettier --check ."
