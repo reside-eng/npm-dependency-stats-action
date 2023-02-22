@@ -40,7 +40,7 @@ jobs:
       - name: Use Node.js
         uses: actions/setup-node@v2
         with:
-          node-version: 16.x
+          node-version: 18.x
 
       - name: Check Outdated
         id: dep-stats
@@ -123,6 +123,10 @@ jobs:
 
 1. Why is the `dist` folder included on major version branches?
    This is a built version of the action which is necessary to have in place for Github Actions to be able to use the action since the action's source code is written in Typescript (Actions runs Node). When using an exact version Github will pick up from releases, but using a major version point to the major version branch.
+
+1. Why Node 16?
+
+This is the maximum version runtime supported by Github Actions
 
 [npm-image]: https://img.shields.io/npm/v/@side/npm-dependency-stats-action.svg?style=flat-square
 [npm-url]: https://npmjs.org/package/@side/npm-dependency-stats-action

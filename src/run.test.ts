@@ -35,7 +35,6 @@ const mock: MockObj = {
 };
 
 jest.mock('@actions/core');
-jest.mock('fs');
 jest.mock('./getDependencyStats', () => ({
   __esModule: true,
   getDependencyStats: () => mock.depStats,
