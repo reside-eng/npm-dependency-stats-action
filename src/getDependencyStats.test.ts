@@ -22,7 +22,6 @@ const outdatedHead = [
 ];
 
 jest.mock('@actions/core');
-jest.mock('fs');
 jest.mock('./yarnOutdated', () => ({
   __esModule: true,
   yarnOutdated: () =>
