@@ -20,7 +20,6 @@ interface PackagesByOutVersion {
 
 /**
  * Sort packages by their out of date version (major, minor, patch)
- *
  * @param {Array} packages - List of package settings from yarn outdated
  * @returns Object of packages sorted by out of date version
  */
@@ -170,7 +169,6 @@ function calculate(
 
 /**
  * Get stats about dependencies which are outdated by at least 1 major version
- *
  * @param workingDirectory - Current working directory to use (containing package.json)
  * @returns Object containing stats about out of date packages
  */
@@ -215,7 +213,6 @@ interface GlobalStatsOutput extends StatsOutput {
 
 /**
  * Get stats about dependencies which are outdated by at least 1 major version
- *
  * @returns Object containing stats about out of date packages
  */
 export async function getDependencyStats(): Promise<GlobalStatsOutput> {
@@ -231,6 +228,7 @@ export async function getDependencyStats(): Promise<GlobalStatsOutput> {
   const { body: outdatedDependencies } = await yarnOutdated(workingDirectory);
 
   // Get list of packages to ignore from dependabot config if it exists
+  // TODO: Load renovate conig here
   const ignoredPackages = await loadIgnoreFromDependabotConfig(
     workingDirectoryInput,
   );
