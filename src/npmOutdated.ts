@@ -1,8 +1,12 @@
 import * as core from '@actions/core';
 import * as exec from '@actions/exec';
-import { readFileSync } from 'fs';
+import { readFile } from 'fs/promises';
 
-export type DepType = 'devDependencies' | 'dependencies';
+// eslint-disable-next-line no-shadow
+enum DepTypes {
+  devDependencies = 'devDependencies',
+  dependencies = 'dependencies',
+}
 
 interface NpmOutdatedPackageOutput {
   current: string;
@@ -66,8 +70,13 @@ export async function npmOutdated(
 }
 
 interface NpmOutdatedByType {
-  devDependencies: NpmOutdatedOutput;
-  dependencies: NpmOutdatedOutput;
+  [DepTypes.devDependencies]: NpmOutdatedOutput;
+  [DepTypes.dependencies]: NpmOutdatedOutput;
+}
+
+interface PkgFile {
+  [DepTypes.devDependencies]: Record<string, string>;
+  [DepTypes.devDependencies]: Record<string, string>;
 }
 
 /**
@@ -78,17 +87,21 @@ export async function npmOutdatedByType(
   basePath: string,
 ): Promise<NpmOutdatedByType> {
   const outOfDatePackages = await npmOutdated(basePath);
-  const pkgFileBuf = readFileSync(`${basePath}/package.json`);
-  const pkgFile = JSON.parse(pkgFileBuf.toString()) as {
-    devDependencies: Record<string, string>;
-    dependencies: Record<string, string>;
-  };
+  const pkgFileBuf = await readFile(`${basePath}/package.json`);
+  const pkgFile = JSON.parse(pkgFileBuf.toString()) as PkgFile;
   return Object.entries(outOfDatePackages).reduce(
     (acc, [depName, depInfo]) => {
-      const isDevDep = Object.keys(pkgFile?.devDependencies).includes(depName);
-      acc[isDevDep ? 'devDependencies' : 'dependencies'].push(depInfo);
-      return acc;
+      const depType = Object.keys(pkgFile?.devDependencies).includes(depName)
+        ? DepTypes.devDependencies
+        : DepTypes.dependencies;
+      return {
+        ...acc,
+        [depType]: { ...acc[depType], [depName]: depInfo },
+      };
     },
-    { dependencies: {}, devDependencies: {} } as NpmOutdatedByType,
+    {
+      [DepTypes.dependencies]: {},
+      [DepTypes.devDependencies]: {},
+    } as NpmOutdatedByType,
   );
 }
