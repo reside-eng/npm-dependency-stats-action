@@ -8,7 +8,7 @@ enum DepTypes {
   dependencies = 'dependencies',
 }
 
-interface NpmOutdatedPackageOutput {
+export interface NpmOutdatedPackageOutput {
   current: string;
   latest: string;
   wanted: string;
@@ -16,9 +16,7 @@ interface NpmOutdatedPackageOutput {
   location: string;
 }
 
-interface NpmOutdatedOutput {
-  [k: string]: NpmOutdatedPackageOutput;
-}
+export type NpmOutdatedOutput = Record<string, NpmOutdatedPackageOutput>;
 
 /**
  * Get output of yarn outdated command parsed as JSON

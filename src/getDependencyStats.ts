@@ -2,20 +2,21 @@ import * as core from '@actions/core';
 import semver from 'semver';
 import path from 'path';
 import {
-  yarnOutdated,
-  YarnDependencyInfoRow,
-  yarnOutdatedByType,
-} from './yarnOutdated';
-import {
   getNumberOfDependencies,
   getNumberOfDependenciesByType,
 } from './getNumberOfDependencies';
 import { loadIgnoreFromDependabotConfig } from './utils/repo';
+import {
+  NpmOutdatedOutput,
+  NpmOutdatedPackageOutput,
+  npmOutdated,
+  npmOutdatedByType,
+} from './npmOutdated';
 
 interface PackagesByOutVersion {
-  major: YarnDependencyInfoRow[];
-  minor: YarnDependencyInfoRow[];
-  patch: YarnDependencyInfoRow[];
+  major: NpmOutdatedOutput;
+  minor: NpmOutdatedOutput;
+  patch: NpmOutdatedOutput;
 }
 
 /**
@@ -24,14 +25,13 @@ interface PackagesByOutVersion {
  * @returns Object of packages sorted by out of date version
  */
 function groupPackagesByOutOfDateName(
-  packages: YarnDependencyInfoRow[],
+  packages: NpmOutdatedOutput,
 ): PackagesByOutVersion {
-  return packages.reduce(
-    (acc: PackagesByOutVersion, packageInfo: YarnDependencyInfoRow) => {
+  return Object.entries(packages).reduce(
+    (acc: PackagesByOutVersion, [packageName, packageInfo]) => {
       // TODO: Support npm outdated format or convert to match this format
       const current = packageInfo[1];
       const latest = packageInfo[3];
-      const packageName = packageInfo[0];
 
       // Skip dependencies which have "exotic" version (can be caused by pointing to a github repo in package file)
       if (latest === 'exotic') {
@@ -50,26 +50,26 @@ function groupPackagesByOutOfDateName(
       const preMinor = preMajor && (currentMinor === 0 || latestMinor === 0);
 
       if (currentMajor !== latestMajor) {
-        acc.major.push(packageInfo);
+        acc.major[packageName] = packageInfo;
       } else if (currentMinor !== latestMinor) {
         if (preMajor) {
           // If the major version number is zero (0.x.x), treat a change of the
           // minor version number as a major change.
-          acc.major.push(packageInfo);
+          acc.major[packageName] = packageInfo;
         } else {
-          acc.minor.push(packageInfo);
+          acc.minor[packageName] = packageInfo;
         }
       } else if (semver.patch(current) !== semver.patch(latest)) {
         if (preMinor) {
           // If the major & minor version numbers are zero (0.0.x), treat a
           // change of the patch version number as a major change.
-          acc.major.push(packageInfo);
+          acc.major[packageName] = packageInfo;
         } else if (preMajor) {
           // If the major version number is zero (0.x.x), treat a change of the
           // patch version number as a minor change.
-          acc.minor.push(packageInfo);
+          acc.minor[packageName] = packageInfo;
         } else {
-          acc.patch.push(packageInfo);
+          acc.patch[packageName] = packageInfo;
         }
       }
       return acc;
@@ -180,7 +180,7 @@ export async function getDependencyStatsByType(
   const {
     dependencies: dependenciesOutOfDate,
     devDependencies: devDependenciesOutOfDate,
-  } = await yarnOutdatedByType(workingDirectory);
+  } = await npmOutdatedByType(workingDirectory);
 
   // Get total number of dependencies based on type
   const { dependencies: numDeps, devDependencies: numDevDeps } =
@@ -225,7 +225,7 @@ export async function getDependencyStats(): Promise<GlobalStatsOutput> {
     : startWorkingDirectory;
   core.debug(`working directory ${workingDirectory}`);
   // Use yarn to list outdated packages and parse into JSON
-  const { body: outdatedDependencies } = await yarnOutdated(workingDirectory);
+  const { body: outdatedDependencies } = await npmOutdated(workingDirectory);
 
   // Get list of packages to ignore from dependabot config if it exists
   // TODO: Load renovate conig here
@@ -234,7 +234,7 @@ export async function getDependencyStats(): Promise<GlobalStatsOutput> {
   );
 
   // Filter out any packages which should be ignored
-  const filtered = outdatedDependencies.filter(
+  const filtered = Object.entries(outdatedDependencies).filter(
     ([packageName]) => !ignoredPackages.includes(packageName.toLowerCase()),
   );
 
