@@ -1,21 +1,13 @@
 import * as core from '@actions/core';
 import semver from 'semver';
 import path from 'path';
-import {
-  yarnOutdated,
-  YarnDependencyInfoRow,
-  yarnOutdatedByType,
-} from './yarnOutdated';
-import {
-  getNumberOfDependencies,
-  getNumberOfDependenciesByType,
-} from './getNumberOfDependencies';
-import { loadIgnoreFromDependabotConfig } from './utils/repo';
+import { getNumberOfDependenciesByType } from './getNumberOfDependencies';
+import { NpmOutdatedOutput, npmOutdatedByType } from './npmOutdated';
 
 interface PackagesByOutVersion {
-  major: YarnDependencyInfoRow[];
-  minor: YarnDependencyInfoRow[];
-  patch: YarnDependencyInfoRow[];
+  major: NpmOutdatedOutput;
+  minor: NpmOutdatedOutput;
+  patch: NpmOutdatedOutput;
 }
 
 /**
@@ -24,15 +16,11 @@ interface PackagesByOutVersion {
  * @returns Object of packages sorted by out of date version
  */
 function groupPackagesByOutOfDateName(
-  packages: YarnDependencyInfoRow[],
+  packages: NpmOutdatedOutput,
 ): PackagesByOutVersion {
-  return packages.reduce(
-    (acc: PackagesByOutVersion, packageInfo: YarnDependencyInfoRow) => {
-      // TODO: Support npm outdated format or convert to match this format
-      const current = packageInfo[1];
-      const latest = packageInfo[3];
-      const packageName = packageInfo[0];
-
+  return Object.entries(packages).reduce(
+    (acc, [packageName, packageInfo]) => {
+      const { latest, current } = packageInfo;
       // Skip dependencies which have "exotic" version (can be caused by pointing to a github repo in package file)
       if (latest === 'exotic') {
         core.debug(
@@ -50,43 +38,43 @@ function groupPackagesByOutOfDateName(
       const preMinor = preMajor && (currentMinor === 0 || latestMinor === 0);
 
       if (currentMajor !== latestMajor) {
-        acc.major.push(packageInfo);
+        acc.major[packageName] = packageInfo;
       } else if (currentMinor !== latestMinor) {
         if (preMajor) {
           // If the major version number is zero (0.x.x), treat a change of the
           // minor version number as a major change.
-          acc.major.push(packageInfo);
+          acc.major[packageName] = packageInfo;
         } else {
-          acc.minor.push(packageInfo);
+          acc.minor[packageName] = packageInfo;
         }
       } else if (semver.patch(current) !== semver.patch(latest)) {
         if (preMinor) {
           // If the major & minor version numbers are zero (0.0.x), treat a
           // change of the patch version number as a major change.
-          acc.major.push(packageInfo);
+          acc.major[packageName] = packageInfo;
         } else if (preMajor) {
           // If the major version number is zero (0.x.x), treat a change of the
           // patch version number as a minor change.
-          acc.minor.push(packageInfo);
+          acc.minor[packageName] = packageInfo;
         } else {
-          acc.patch.push(packageInfo);
+          acc.patch[packageName] = packageInfo;
         }
       }
       return acc;
     },
     {
-      major: [],
-      minor: [],
-      patch: [],
-    },
+      minor: {} as NpmOutdatedOutput,
+      major: {} as NpmOutdatedOutput,
+      patch: {} as NpmOutdatedOutput,
+    } as PackagesByOutVersion,
   );
 }
 
 export interface StatsOutput {
   dependencies: {
-    major: YarnDependencyInfoRow[];
-    minor: YarnDependencyInfoRow[];
-    patch: YarnDependencyInfoRow[];
+    major: NpmOutdatedOutput;
+    minor: NpmOutdatedOutput;
+    patch: NpmOutdatedOutput;
   };
   counts: {
     total: number;
@@ -103,11 +91,6 @@ export interface StatsOutput {
   };
 }
 
-interface StatsByDepType {
-  devDependencies?: StatsOutput;
-  dependencies?: StatsOutput;
-}
-
 /**
  * @param numDeps - Total number of dependencies (of a specific type or all)
  * @param outdatedDependencies - List of outdated dependencies (of a specific type or all)
@@ -116,15 +99,15 @@ interface StatsByDepType {
  */
 function calculate(
   numDeps: number,
-  outdatedDependencies: YarnDependencyInfoRow[],
+  outdatedDependencies: NpmOutdatedOutput,
   messagePrefix: string,
 ) {
   // Sort packages by if they are out by major/minor/patch
   const sorted = groupPackagesByOutOfDateName(outdatedDependencies);
   // TODO: Add option to select just dev dependencies
-  const majorsOutOfDate = sorted.major.length;
-  const minorsOutOfDate = sorted.minor.length;
-  const patchesOutOfDate = sorted.patch.length;
+  const majorsOutOfDate = Object.keys(sorted.major).length;
+  const minorsOutOfDate = Object.keys(sorted.minor).length;
+  const patchesOutOfDate = Object.keys(sorted.patch).length;
   const majorPercentOutOfDate = ((majorsOutOfDate / numDeps) * 100).toFixed(2);
   const minorPercentOutOfDate = ((minorsOutOfDate / numDeps) * 100).toFixed(2);
   const patchPercentOutOfDate = ((patchesOutOfDate / numDeps) * 100).toFixed(2);
@@ -153,7 +136,7 @@ function calculate(
     counts: {
       total: numDeps,
       upToDate:
-        numDeps - (majorsOutOfDate + minorsOutOfDate + patchesOutOfDate),
+        numDeps - (majorsOutOfDate + minorsOutOfDate + patchesOutOfDate) || 0,
       major: majorsOutOfDate,
       minor: minorsOutOfDate,
       patch: patchesOutOfDate,
@@ -165,43 +148,6 @@ function calculate(
       patch: patchPercentOutOfDate,
     },
   };
-}
-
-/**
- * Get stats about dependencies which are outdated by at least 1 major version
- * @param workingDirectory - Current working directory to use (containing package.json)
- * @returns Object containing stats about out of date packages
- */
-export async function getDependencyStatsByType(
-  workingDirectory: string,
-): Promise<StatsByDepType> {
-  core.debug(`working directory ${workingDirectory}`);
-  // Use yarn to list outdated packages and parse into JSON
-  const {
-    dependencies: dependenciesOutOfDate,
-    devDependencies: devDependenciesOutOfDate,
-  } = await yarnOutdatedByType(workingDirectory);
-
-  // Get total number of dependencies based on type
-  const { dependencies: numDeps, devDependencies: numDevDeps } =
-    await getNumberOfDependenciesByType(workingDirectory);
-
-  // TODO: Only filter out @types/node if it matches node version (defined by package engines)
-  const ignoredDevDeps = ['@types/node'];
-  // Filter out any packages which should be ignored
-  const filteredDevDeps = devDependenciesOutOfDate.filter(
-    ([packageName]) => !ignoredDevDeps.includes(packageName.toLowerCase()),
-  );
-  // TODO: Drop support for ignoring based on dependency config
-  // Sort packages by if they are out by major/minor/patch
-  const results = {
-    dependencies: calculate(numDeps, dependenciesOutOfDate, 'Dependencies'),
-    devDependencies: calculate(numDevDeps, filteredDevDeps, 'Dev Dependencies'),
-  };
-  if (core.getInput('log-results') === 'true') {
-    core.info(JSON.stringify(results));
-  }
-  return results;
 }
 
 interface GlobalStatsOutput extends StatsOutput {
@@ -224,30 +170,47 @@ export async function getDependencyStats(): Promise<GlobalStatsOutput> {
     ? path.resolve(workingDirectoryInput)
     : startWorkingDirectory;
   core.debug(`working directory ${workingDirectory}`);
-  // Use yarn to list outdated packages and parse into JSON
-  const { body: outdatedDependencies } = await yarnOutdated(workingDirectory);
+  core.debug(`working directory ${workingDirectory}`);
+  const {
+    dependencies: dependenciesOutOfDate,
+    devDependencies: devDependenciesOutOfDate,
+  } = await npmOutdatedByType(workingDirectory);
 
-  // Get list of packages to ignore from dependabot config if it exists
-  // TODO: Load renovate conig here
-  const ignoredPackages = await loadIgnoreFromDependabotConfig(
-    workingDirectoryInput,
-  );
+  // Get total number of dependencies based on type
+  const { dependencies: numDeps, devDependencies: numDevDeps } =
+    await getNumberOfDependenciesByType(workingDirectory);
 
+  // TODO: Add ability to load renovate config here to override calculations
+  // TODO: Only filter out @types/node if it matches node version (defined by package engines)
+  const ignoredDevDeps = ['@types/node'];
   // Filter out any packages which should be ignored
-  const filtered = outdatedDependencies.filter(
-    ([packageName]) => !ignoredPackages.includes(packageName.toLowerCase()),
+  const filteredDevDeps = Object.fromEntries(
+    Object.entries(devDependenciesOutOfDate || {}).filter(
+      ([packageName]) => !ignoredDevDeps.includes(packageName.toLowerCase()),
+    ),
   );
 
-  const numDeps = await getNumberOfDependencies(workingDirectory);
-  // const { dependencies: numDeps, devDependencies: numDevDeps } = await getNumberOfDependenciesByType(workingDirectory);
-  const { dependencies, devDependencies } = await getDependencyStatsByType(
-    workingDirectory,
-  );
+  // Sort packages by if they are out by major/minor/patch
+  const results = {
+    dependencies: dependenciesOutOfDate
+      ? calculate(numDeps, dependenciesOutOfDate, 'Dependencies')
+      : undefined,
+    devDependencies: filteredDevDeps
+      ? calculate(numDevDeps, filteredDevDeps, 'Dev Dependencies')
+      : undefined,
+  };
+  if (core.getInput('log-results') === 'true') {
+    core.info(JSON.stringify(results));
+  }
   return {
-    ...calculate(numDeps, filtered, 'All dependencies (including dev)'),
-    byType: {
-      devDependencies,
-      dependencies,
-    },
+    ...calculate(
+      (numDeps || 0) + (numDevDeps || 0),
+      {
+        ...dependenciesOutOfDate,
+        ...devDependenciesOutOfDate,
+      } as NpmOutdatedOutput,
+      'All dependencies (including dev)',
+    ),
+    byType: results,
   };
 }

@@ -1,14 +1,8 @@
 import * as core from '@actions/core';
 import * as exec from '@actions/exec';
-import { readFile } from 'fs/promises';
+import { DepTypes, getRepoPackageFile } from './utils/repo';
 
-// eslint-disable-next-line no-shadow
-enum DepTypes {
-  devDependencies = 'devDependencies',
-  dependencies = 'dependencies',
-}
-
-interface NpmOutdatedPackageOutput {
+export interface NpmOutdatedPackageOutput {
   current: string;
   latest: string;
   wanted: string;
@@ -16,9 +10,7 @@ interface NpmOutdatedPackageOutput {
   location: string;
 }
 
-interface NpmOutdatedOutput {
-  [k: string]: NpmOutdatedPackageOutput;
-}
+export type NpmOutdatedOutput = Record<string, NpmOutdatedPackageOutput>;
 
 /**
  * Get output of yarn outdated command parsed as JSON
@@ -26,9 +18,7 @@ interface NpmOutdatedOutput {
  * @param basePath - Base path of package.json
  * @returns Output of outdated command in JSON format
  */
-export async function npmOutdated(
-  basePath: string,
-): Promise<NpmOutdatedOutput> {
+async function npmOutdated(basePath: string): Promise<NpmOutdatedOutput> {
   const args = ['outdated', '--json'];
   if (basePath) {
     args.push('--prefix');
@@ -69,14 +59,9 @@ export async function npmOutdated(
   }
 }
 
-interface NpmOutdatedByType {
-  [DepTypes.devDependencies]: NpmOutdatedOutput;
-  [DepTypes.dependencies]: NpmOutdatedOutput;
-}
-
-interface PkgFile {
-  [DepTypes.devDependencies]: Record<string, string>;
-  [DepTypes.devDependencies]: Record<string, string>;
+export interface NpmOutdatedByType {
+  [DepTypes.devDependencies]?: NpmOutdatedOutput;
+  [DepTypes.dependencies]?: NpmOutdatedOutput;
 }
 
 /**
@@ -87,21 +72,15 @@ export async function npmOutdatedByType(
   basePath: string,
 ): Promise<NpmOutdatedByType> {
   const outOfDatePackages = await npmOutdated(basePath);
-  const pkgFileBuf = await readFile(`${basePath}/package.json`);
-  const pkgFile = JSON.parse(pkgFileBuf.toString()) as PkgFile;
-  return Object.entries(outOfDatePackages).reduce(
-    (acc, [depName, depInfo]) => {
-      const depType = Object.keys(pkgFile?.devDependencies).includes(depName)
-        ? DepTypes.devDependencies
-        : DepTypes.dependencies;
-      return {
-        ...acc,
-        [depType]: { ...acc[depType], [depName]: depInfo },
-      };
-    },
-    {
-      [DepTypes.dependencies]: {},
-      [DepTypes.devDependencies]: {},
-    } as NpmOutdatedByType,
-  );
+  const pkgFile = await getRepoPackageFile(basePath);
+  const devDepNames = Object.keys(pkgFile?.devDependencies || {});
+  return Object.entries(outOfDatePackages).reduce((acc, [depName, depInfo]) => {
+    const depType = devDepNames.includes(depName)
+      ? DepTypes.devDependencies
+      : DepTypes.dependencies;
+    return {
+      ...acc,
+      [depType]: { ...acc[depType], [depName]: depInfo },
+    };
+  }, {} as NpmOutdatedByType);
 }

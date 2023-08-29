@@ -45,3 +45,11 @@ lib/**/*
 
 # Ignore built files (added using force before push to major version branch)
 dist
+
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/sdks
+!.yarn/versions

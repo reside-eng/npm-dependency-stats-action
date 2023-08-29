@@ -20,6 +20,8 @@ module.exports = {
     'jsdoc/require-returns-type': 0,
     'jsdoc/require-param-type': 0,
     quotes: ['error', 'single', { avoidEscape: true }],
+    'no-shadow': 'off',
+    '@typescript-eslint/no-shadow': 'error',
     // Override airbnb extensions settings
     // TODO: Move this to lint-config base
     // Ensure consistent use of file extension within the import path
