@@ -19,7 +19,6 @@ export async function loadJsonFile(filePath: string): Promise<any> {
   }
 }
 
-// eslint-disable-next-line no-shadow
 export enum DepTypes {
   devDependencies = 'devDependencies',
   dependencies = 'dependencies',
