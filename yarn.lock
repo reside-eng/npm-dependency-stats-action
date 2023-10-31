@@ -1183,7 +1183,7 @@ __metadata:
     "@side/prettier-config": 1.0.0
     "@tsconfig/node16": 16.1.1
     "@types/jest": 29.5.7
-    "@types/node": 16.18.59
+    "@types/node": 16.18.60
     "@types/semver": 7.5.4
     "@typescript-eslint/eslint-plugin": 6.9.1
     "@typescript-eslint/parser": 6.9.1
@@ -1388,10 +1388,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:16.18.59":
-  version: 16.18.59
-  resolution: "@types/node@npm:16.18.59"
-  checksum: 70f28744d239c48db056ff6355d2eb99305db54d1f9377b3f4458e92ffb4da8962a0c67665452d5f430cea2286ced256dac8f769660007aedd3676cf03ff28ad
+"@types/node@npm:16.18.60":
+  version: 16.18.60
+  resolution: "@types/node@npm:16.18.60"
+  checksum: aa0c81c3f20e663584bf17a5968e54c419277af7982ef41f9d83edd1b7ab4c8af2583a3c8a9e1cf659c6307e6f787e1be20522855121371f5a46d1d54f8a70e3
   languageName: node
   linkType: hard
 
