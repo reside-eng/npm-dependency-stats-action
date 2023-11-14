@@ -62,5 +62,5 @@
     "url": "https://github.com/reside-eng/npm-dependency-stats-action.git"
   },
   "prettier": "@side/prettier-config",
-  "packageManager": "yarn@3.6.4"
+  "packageManager": "yarn@3.7.0"
 }
