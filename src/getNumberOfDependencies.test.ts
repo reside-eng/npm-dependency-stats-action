@@ -41,7 +41,7 @@ describe('getNumberOfDependenciesByType', () => {
     await expect(getNumberOfDependenciesByType('./asdf')).rejects.toThrow(
       expect.objectContaining({
         message: expect.stringMatching(
-          'Unexpected token { in JSON at position 2',
+          "Expected property name or '}' in JSON at position 2",
         ),
       }),
     );

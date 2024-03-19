@@ -1,10 +1,9 @@
 {
-  "extends": "@tsconfig/node16/tsconfig.json",
+  "extends": "@tsconfig/node20/tsconfig.json",
   "compilerOptions": {
     "outDir": "./dist",
     "rootDir": "./src",
-    "noImplicitAny": true,
-    "moduleResolution": "node"
+    "noImplicitAny": true
   },
   "exclude": ["node_modules", "**/*.test.ts"],
   "include": ["src"]

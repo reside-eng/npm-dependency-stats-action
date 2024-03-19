@@ -13,5 +13,5 @@ inputs:
     default: 'false'
     description: 'Whether or not to log dependency info to Github Actions output'
 runs:
-  using: 'node16'
+  using: 'node20'
   main: 'dist/index.js'

@@ -15,7 +15,7 @@ concurrency:
   group: release-${{ github.ref }}
 
 env:
-  NODE_VERSION: 16.x
+  NODE_VERSION: 20.x
 
 jobs:
   publish:
@@ -23,10 +23,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3.6.0
+        uses: actions/checkout@v4
 
       - name: Use Node.js ${{ env.NODE_VERSION }}
-        uses: actions/setup-node@v4.0.2
+        uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'yarn'
@@ -35,12 +35,13 @@ jobs:
         run: |
           echo Configuring NPM_TOKEN globally for .npmrc
           npm config set '//registry.npmjs.org/:_authToken' ${{ env.NPM_TOKEN }}
+          yarn config set npmAuthToken ${{ env.NPM_TOKEN }}
           npm whoami
         env:
           NPM_TOKEN: ${{ secrets.NPM_PUBLISH_TOKEN }}
 
       - name: Install dependencies
-        run: yarn install --frozen-lockfile
+        run: yarn install --immutable
 
       - name: Verify formatting
         run: yarn format:check
@@ -101,7 +102,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v3.6.0
+        uses: actions/checkout@v4
 
       - uses: technote-space/workflow-conclusion-action@v3.0.3
 
