@@ -3,7 +3,7 @@ name: Verify
 on: [pull_request]
 
 env:
-  NODE_VERSION: 16.x
+  NODE_VERSION: 20.x
 
 jobs:
   build:
@@ -11,16 +11,16 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3.6.0
+        uses: actions/checkout@v4
 
       - name: Use Node.js ${{ env.NODE_VERSION }}
-        uses: actions/setup-node@v4.0.2
+        uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'yarn'
 
       - name: Install dependencies
-        run: yarn install --frozen-lockfile
+        run: yarn install --immutable
 
       - name: Verify formatting
         run: yarn format:check
@@ -46,7 +46,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v3.6.0
+        uses: actions/checkout@v4
 
       - uses: technote-space/workflow-conclusion-action@v3.0.3
 
