@@ -5,13 +5,13 @@ __metadata:
   version: 8
   cacheKey: 10
 
-"@actions/core@npm:1.10.0":
-  version: 1.10.0
-  resolution: "@actions/core@npm:1.10.0"
+"@actions/core@npm:1.10.1":
+  version: 1.10.1
+  resolution: "@actions/core@npm:1.10.1"
   dependencies:
     "@actions/http-client": "npm:^2.0.1"
     uuid: "npm:^8.3.2"
-  checksum: 10/40f94a994da7b041ed35119abef9bbd19f56a75fdca08b0b7fd4af3da2c69873de5a751cf956cf1437515f4e9cf7ee94204a0c885788f6d0986841ee972ecb29
+  checksum: 10/d32af783ecb07f25a0f190112ee8e749a4c4cb88327d6df756ea1dcee146ab413c0e651a9c949294f8202ced1436c049d7b469485431a5cc4491d66926ec8323
   languageName: node
   linkType: hard
 
@@ -1148,7 +1148,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@side/npm-dependency-stats-action@workspace:."
   dependencies:
-    "@actions/core": "npm:1.10.0"
+    "@actions/core": "npm:1.10.1"
     "@actions/exec": "npm:1.1.1"
     "@commitlint/cli": "npm:19.3.0"
     "@side/commitlint-config": "npm:1.0.2"
@@ -1175,7 +1175,7 @@ __metadata:
     lint-staged: "npm:15.2.5"
     prettier: "npm:3.2.5"
     rimraf: "npm:5.0.7"
-    semver: "npm:7.3.8"
+    semver: "npm:7.6.2"
     typescript: "npm:5.4.5"
   languageName: unknown
   linkType: soft
@@ -4985,15 +4985,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"lru-cache@npm:^6.0.0":
-  version: 6.0.0
-  resolution: "lru-cache@npm:6.0.0"
-  dependencies:
-    yallist: "npm:^4.0.0"
-  checksum: 10/fc1fe2ee205f7c8855fa0f34c1ab0bcf14b6229e35579ec1fd1079f31d6fc8ef8eb6fd17f2f4d99788d7e339f50e047555551ebd5e434dda503696e7c6591825
-  languageName: node
-  linkType: hard
-
 "make-dir@npm:^4.0.0":
   version: 4.0.0
   resolution: "make-dir@npm:4.0.0"
@@ -5873,14 +5864,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"semver@npm:7.3.8":
-  version: 7.3.8
-  resolution: "semver@npm:7.3.8"
-  dependencies:
-    lru-cache: "npm:^6.0.0"
+"semver@npm:7.6.2, semver@npm:^7.3.5, semver@npm:^7.3.7, semver@npm:^7.5.3, semver@npm:^7.5.4, semver@npm:^7.6.0, semver@npm:^7.6.2":
+  version: 7.6.2
+  resolution: "semver@npm:7.6.2"
   bin:
     semver: bin/semver.js
-  checksum: 10/c8c04a4d41d30cffa7277904e0ad6998623dd61e36bca9578b0128d8c683b705a3924beada55eae7fa004fb30a9359a53a4ead2b68468d778b602f3b1a28f8e3
+  checksum: 10/296b17d027f57a87ef645e9c725bff4865a38dfc9caf29b26aa084b85820972fbe7372caea1ba6857162fa990702c6d9c1d82297cecb72d56c78ab29070d2ca2
   languageName: node
   linkType: hard
 
@@ -5890,15 +5879,6 @@ __metadata:
   bin:
     semver: bin/semver.js
   checksum: 10/1ef3a85bd02a760c6ef76a45b8c1ce18226de40831e02a00bad78485390b98b6ccaa31046245fc63bba4a47a6a592b6c7eedc65cc47126e60489f9cc1ce3ed7e
-  languageName: node
-  linkType: hard
-
-"semver@npm:^7.3.5, semver@npm:^7.3.7, semver@npm:^7.5.3, semver@npm:^7.5.4, semver@npm:^7.6.0, semver@npm:^7.6.2":
-  version: 7.6.2
-  resolution: "semver@npm:7.6.2"
-  bin:
-    semver: bin/semver.js
-  checksum: 10/296b17d027f57a87ef645e9c725bff4865a38dfc9caf29b26aa084b85820972fbe7372caea1ba6857162fa990702c6d9c1d82297cecb72d56c78ab29070d2ca2
   languageName: node
   linkType: hard
 
