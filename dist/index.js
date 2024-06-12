@@ -29345,10 +29345,12 @@ function groupPackagesByOutOfDateName(packages) {
             core.debug(`Skipping check of ${packageName} since it's latest version is "exotic" (i.e. not found in package registry)`);
             return acc;
         }
+        core.info(JSON.stringify("Debug 5.0.1"));
         const currentMajor = semver_1.default.major(current);
         const latestMajor = semver_1.default.major(latest);
         const currentMinor = semver_1.default.minor(current);
         const latestMinor = semver_1.default.minor(latest);
+        core.info(JSON.stringify("Debug 5.0.2"));
         const preMajor = currentMajor === 0 || latestMajor === 0;
         const preMinor = preMajor && (currentMinor === 0 || latestMinor === 0);
         if (currentMajor !== latestMajor) {
@@ -29379,6 +29381,7 @@ function groupPackagesByOutOfDateName(packages) {
                 acc.patch[packageName] = packageInfo;
             }
         }
+        core.info(JSON.stringify("Debug 5.0.3"));
         return acc;
     }, {
         minor: {},
