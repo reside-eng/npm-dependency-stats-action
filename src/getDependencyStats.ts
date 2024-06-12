@@ -102,6 +102,7 @@ function calculate(
   outdatedDependencies: NpmOutdatedOutput,
   messagePrefix: string,
 ) {
+  core.info(JSON.stringify("Debug 5.0"));
   // Sort packages by if they are out by major/minor/patch
   const sorted = groupPackagesByOutOfDateName(outdatedDependencies);
 

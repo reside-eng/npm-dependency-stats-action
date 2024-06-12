@@ -29393,6 +29393,7 @@ function groupPackagesByOutOfDateName(packages) {
  * @returns Calculated dependency stats
  */
 function calculate(numDeps, outdatedDependencies, messagePrefix) {
+    core.info(JSON.stringify("Debug 5.0"));
     // Sort packages by if they are out by major/minor/patch
     const sorted = groupPackagesByOutOfDateName(outdatedDependencies);
     core.info(JSON.stringify("Debug 5.1"));
