@@ -29,10 +29,14 @@ function groupPackagesByOutOfDateName(
         return acc;
       }
 
+      core.info(JSON.stringify("Debug 5.0.1"));
+
       const currentMajor = semver.major(current);
       const latestMajor = semver.major(latest);
       const currentMinor = semver.minor(current);
       const latestMinor = semver.minor(latest);
+
+      core.info(JSON.stringify("Debug 5.0.2"));
 
       const preMajor = currentMajor === 0 || latestMajor === 0;
       const preMinor = preMajor && (currentMinor === 0 || latestMinor === 0);
@@ -60,6 +64,7 @@ function groupPackagesByOutOfDateName(
           acc.patch[packageName] = packageInfo;
         }
       }
+      core.info(JSON.stringify("Debug 5.0.3"));
       return acc;
     },
     {
