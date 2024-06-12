@@ -9,6 +9,7 @@ import { getDependencyStats } from './getDependencyStats';
  */
 export async function run(): Promise<void> {
   const depStats = await getDependencyStats();
+  core.info(JSON.stringify("Debug 7"));
   const outputFileConfig = core.getInput('output-file');
   if (outputFileConfig) {
     fs.writeFileSync(

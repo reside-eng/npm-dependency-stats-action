@@ -176,6 +176,8 @@ export async function getDependencyStats(): Promise<GlobalStatsOutput> {
     devDependencies: devDependenciesOutOfDate,
   } = await npmOutdatedByType(workingDirectory);
 
+  core.info(JSON.stringify("Debug 4"));
+
   // Get total number of dependencies based on type
   const { dependencies: numDeps, devDependencies: numDevDeps } =
     await getNumberOfDependenciesByType(workingDirectory);
@@ -190,6 +192,8 @@ export async function getDependencyStats(): Promise<GlobalStatsOutput> {
     ),
   );
 
+  core.info(JSON.stringify("Debug 5"));
+
   // Sort packages by if they are out by major/minor/patch
   const results = {
     dependencies: dependenciesOutOfDate
@@ -202,6 +206,9 @@ export async function getDependencyStats(): Promise<GlobalStatsOutput> {
   if (core.getInput('log-results') === 'true') {
     core.info(JSON.stringify(results));
   }
+
+  core.info(JSON.stringify("Debug 6"));
+  
   return {
     ...calculate(
       (numDeps || 0) + (numDevDeps || 0),
