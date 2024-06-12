@@ -29645,6 +29645,8 @@ async function npmOutdated(basePath) {
  */
 async function npmOutdatedByType(basePath) {
     const outOfDatePackages = await npmOutdated(basePath);
+    core.info(JSON.stringify("outOfDatePackages"));
+    core.info(JSON.stringify(outOfDatePackages));
     core.info(JSON.stringify("Debug 2"));
     const pkgFile = await (0, repo_1.getRepoPackageFile)(basePath);
     const devDepNames = Object.keys(pkgFile?.devDependencies || {});

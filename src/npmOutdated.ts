@@ -72,6 +72,8 @@ export async function npmOutdatedByType(
   basePath: string,
 ): Promise<NpmOutdatedByType> {
   const outOfDatePackages = await npmOutdated(basePath);
+  core.info(JSON.stringify("outOfDatePackages"));
+  core.info(JSON.stringify(outOfDatePackages));
   core.info(JSON.stringify("Debug 2"));
   const pkgFile = await getRepoPackageFile(basePath);
   const devDepNames = Object.keys(pkgFile?.devDependencies || {});
