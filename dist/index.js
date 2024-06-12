@@ -29395,6 +29395,7 @@ function groupPackagesByOutOfDateName(packages) {
 function calculate(numDeps, outdatedDependencies, messagePrefix) {
     // Sort packages by if they are out by major/minor/patch
     const sorted = groupPackagesByOutOfDateName(outdatedDependencies);
+    core.info(JSON.stringify("Debug 5.1"));
     // TODO: Add option to select just dev dependencies
     const majorsOutOfDate = Object.keys(sorted.major).length;
     const minorsOutOfDate = Object.keys(sorted.minor).length;
@@ -29402,9 +29403,11 @@ function calculate(numDeps, outdatedDependencies, messagePrefix) {
     const majorPercentOutOfDate = ((majorsOutOfDate / numDeps) * 100).toFixed(2);
     const minorPercentOutOfDate = ((minorsOutOfDate / numDeps) * 100).toFixed(2);
     const patchPercentOutOfDate = ((patchesOutOfDate / numDeps) * 100).toFixed(2);
+    core.info(JSON.stringify("Debug 5.2"));
     const upToDatePercent = (((numDeps - (majorsOutOfDate + minorsOutOfDate + patchesOutOfDate)) /
         numDeps) *
         100).toFixed(2);
+    core.info(JSON.stringify("Debug 5.3"));
     const messageLines = [
         messagePrefix,
         `up to date: ${numDeps - (majorsOutOfDate + minorsOutOfDate + patchesOutOfDate)}/${numDeps} (${upToDatePercent} %)`,
@@ -29412,7 +29415,9 @@ function calculate(numDeps, outdatedDependencies, messagePrefix) {
         `minor behind: ${minorsOutOfDate}/${numDeps} (${minorPercentOutOfDate} %)`,
         `patch behind: ${patchesOutOfDate}/${numDeps} (${patchPercentOutOfDate} %)`,
     ];
+    core.info(JSON.stringify("Debug 5.4"));
     core.debug(messageLines.join('\n'));
+    core.info(JSON.stringify("Debug 5.5"));
     // TODO: output total number of dependencies as well as dev/non-dev
     return {
         dependencies: {
@@ -29468,6 +29473,7 @@ async function getDependencyStats() {
             ? calculate(numDevDeps, filteredDevDeps, 'Dev Dependencies')
             : undefined,
     };
+    core.info(JSON.stringify("Debug 5.6"));
     if (core.getInput('log-results') === 'true') {
         core.info(JSON.stringify(results));
     }
