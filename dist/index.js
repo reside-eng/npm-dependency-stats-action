@@ -29630,6 +29630,7 @@ async function npmOutdated(basePath) {
     catch (err) {
         try {
             core.debug(`Output of parsing npm outdated command: ${outputData}`);
+            core.info(`Output of parsing npm outdated command: ${outputData}`);
             return JSON.parse(outputData);
         }
         catch (err2) {

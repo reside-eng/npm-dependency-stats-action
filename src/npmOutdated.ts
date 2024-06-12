@@ -50,6 +50,7 @@ async function npmOutdated(basePath: string): Promise<NpmOutdatedOutput> {
   } catch (err) {
     try {
       core.debug(`Output of parsing npm outdated command: ${outputData}`);
+      core.info(`Output of parsing npm outdated command: ${outputData}`);
       return JSON.parse(outputData);
     } catch (err2) {
       const { message } = err2 as Error;
