@@ -4,8 +4,8 @@ import { DepTypes, getRepoPackageFile } from './utils/repo';
 
 export interface NpmOutdatedPackageOutput {
   current: string;
-  latest: string;
   wanted: string;
+  latest: string;
   dependent: string;
   location: string;
 }
