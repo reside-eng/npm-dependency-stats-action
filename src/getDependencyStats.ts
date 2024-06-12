@@ -31,6 +31,12 @@ function groupPackagesByOutOfDateName(
 
       core.info(JSON.stringify("Debug 5.0.1"));
 
+      core.info(JSON.stringify(`PackageName: ${packageName}`));
+
+      core.info(JSON.stringify(`Current: ${current}`));
+
+      core.info(JSON.stringify(`Lastest: ${latest}`));
+
       const currentMajor = semver.major(current);
       const latestMajor = semver.major(latest);
       const currentMinor = semver.minor(current);
