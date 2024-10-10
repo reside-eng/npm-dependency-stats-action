@@ -47,7 +47,7 @@ async function npmOutdated(basePath: string): Promise<NpmOutdatedOutput> {
     }
     // If command doesn't throw, then there are no packages out of date
     return {};
-  } catch (err) {
+  } catch {
     try {
       core.debug(`Output of parsing npm outdated command: ${outputData}`);
       return JSON.parse(outputData);
