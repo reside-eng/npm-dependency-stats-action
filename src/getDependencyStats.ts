@@ -108,14 +108,22 @@ function calculate(
   const majorsOutOfDate = Object.keys(sorted.major).length;
   const minorsOutOfDate = Object.keys(sorted.minor).length;
   const patchesOutOfDate = Object.keys(sorted.patch).length;
-  const majorPercentOutOfDate = ((majorsOutOfDate / numDeps) * 100).toFixed(2);
-  const minorPercentOutOfDate = ((minorsOutOfDate / numDeps) * 100).toFixed(2);
-  const patchPercentOutOfDate = ((patchesOutOfDate / numDeps) * 100).toFixed(2);
-  const upToDatePercent = (
-    ((numDeps - (majorsOutOfDate + minorsOutOfDate + patchesOutOfDate)) /
-      numDeps) *
-    100
-  ).toFixed(2);
+  const majorPercentOutOfDate = majorsOutOfDate
+    ? ((majorsOutOfDate / numDeps) * 100).toFixed(2)
+    : '0.00';
+  const minorPercentOutOfDate = minorsOutOfDate
+    ? ((minorsOutOfDate / numDeps) * 100).toFixed(2)
+    : '0.00';
+  const patchPercentOutOfDate = patchesOutOfDate
+    ? ((patchesOutOfDate / numDeps) * 100).toFixed(2)
+    : '0.00';
+  const upToDatePercent = numDeps
+    ? (
+        ((numDeps - (majorsOutOfDate + minorsOutOfDate + patchesOutOfDate)) /
+          numDeps) *
+        100
+      ).toFixed(2)
+    : '100.00';
   const messageLines = [
     messagePrefix,
     `up to date: ${
@@ -170,7 +178,6 @@ export async function getDependencyStats(): Promise<GlobalStatsOutput> {
     ? path.resolve(workingDirectoryInput)
     : startWorkingDirectory;
   core.debug(`working directory ${workingDirectory}`);
-  core.debug(`working directory ${workingDirectory}`);
   const {
     dependencies: dependenciesOutOfDate,
     devDependencies: devDependenciesOutOfDate,
@@ -192,12 +199,8 @@ export async function getDependencyStats(): Promise<GlobalStatsOutput> {
 
   // Sort packages by if they are out by major/minor/patch
   const results = {
-    dependencies: dependenciesOutOfDate
-      ? calculate(numDeps, dependenciesOutOfDate, 'Dependencies')
-      : undefined,
-    devDependencies: filteredDevDeps
-      ? calculate(numDevDeps, filteredDevDeps, 'Dev Dependencies')
-      : undefined,
+    dependencies: calculate(numDeps, dependenciesOutOfDate, 'Dependencies'),
+    devDependencies: calculate(numDevDeps, filteredDevDeps, 'Dev Dependencies'),
   };
   if (core.getInput('log-results') === 'true') {
     core.info(JSON.stringify(results));
