@@ -75,6 +75,48 @@ describe('getDependencyStats', () => {
         minor: {} as NpmOutdatedOutput,
         patch: {} as NpmOutdatedOutput,
       },
+      byType: {
+        dependencies: {
+          dependencies: {
+            major: {} as NpmOutdatedOutput,
+            minor: {} as NpmOutdatedOutput,
+            patch: {} as NpmOutdatedOutput,
+          },
+          counts: {
+            total: 1,
+            upToDate: 1,
+            major: 0,
+            minor: 0,
+            patch: 0,
+          },
+          percents: {
+            upToDate: '100.00',
+            major: '0.00',
+            minor: '0.00',
+            patch: '0.00',
+          },
+        },
+        devDependencies: {
+          dependencies: {
+            major: {} as NpmOutdatedOutput,
+            minor: {} as NpmOutdatedOutput,
+            patch: {} as NpmOutdatedOutput,
+          },
+          counts: {
+            total: 0,
+            upToDate: 0,
+            major: 0,
+            minor: 0,
+            patch: 0,
+          },
+          percents: {
+            upToDate: '100.00',
+            major: '0.00',
+            minor: '0.00',
+            patch: '0.00',
+          },
+        },
+      },
     });
   });
 

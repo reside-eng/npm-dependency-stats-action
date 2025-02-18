@@ -19,10 +19,12 @@ export async function loadJsonFile(filePath: string): Promise<any> {
   }
 }
 
-export enum DepTypes {
-  devDependencies = 'devDependencies',
-  dependencies = 'dependencies',
-}
+export const DepTypes = {
+  devDependencies: 'devDependencies',
+  dependencies: 'dependencies',
+} as const;
+
+export type DepType = (typeof DepTypes)[keyof typeof DepTypes];
 
 export interface PackageFile {
   [DepTypes.dependencies]?: Record<string, string>;
