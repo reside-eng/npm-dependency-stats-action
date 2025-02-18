@@ -1,6 +1,6 @@
 import * as core from '@actions/core';
 import * as exec from '@actions/exec';
-import { DepTypes, getRepoPackageFile } from './utils/repo';
+import { type DepType, DepTypes, getRepoPackageFile } from './utils/repo';
 
 export interface NpmOutdatedPackageOutput {
   current: string;
@@ -59,10 +59,7 @@ async function npmOutdated(basePath: string): Promise<NpmOutdatedOutput> {
   }
 }
 
-export interface NpmOutdatedByType {
-  [DepTypes.devDependencies]?: NpmOutdatedOutput;
-  [DepTypes.dependencies]?: NpmOutdatedOutput;
-}
+export type NpmOutdatedByType = Record<DepType, NpmOutdatedOutput>;
 
 /**
  * @param basePath - Base path of package.json
@@ -82,5 +79,5 @@ export async function npmOutdatedByType(
       ...acc,
       [depType]: { ...acc[depType], [depName]: depInfo },
     };
-  }, {} as NpmOutdatedByType);
+  }, { [DepTypes.dependencies]: {}, [DepTypes.devDependencies]: {} } as NpmOutdatedByType);
 }
