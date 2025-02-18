@@ -71,13 +71,19 @@ export async function npmOutdatedByType(
   const outOfDatePackages = await npmOutdated(basePath);
   const pkgFile = await getRepoPackageFile(basePath);
   const devDepNames = Object.keys(pkgFile?.devDependencies || {});
-  return Object.entries(outOfDatePackages).reduce((acc, [depName, depInfo]) => {
-    const depType = devDepNames.includes(depName)
-      ? DepTypes.devDependencies
-      : DepTypes.dependencies;
-    return {
-      ...acc,
-      [depType]: { ...acc[depType], [depName]: depInfo },
-    };
-  }, { [DepTypes.dependencies]: {}, [DepTypes.devDependencies]: {} } as NpmOutdatedByType);
+  return Object.entries(outOfDatePackages).reduce(
+    (acc, [depName, depInfo]) => {
+      const depType = devDepNames.includes(depName)
+        ? DepTypes.devDependencies
+        : DepTypes.dependencies;
+      return {
+        ...acc,
+        [depType]: { ...acc[depType], [depName]: depInfo },
+      };
+    },
+    {
+      [DepTypes.dependencies]: {},
+      [DepTypes.devDependencies]: {},
+    } as NpmOutdatedByType,
+  );
 }

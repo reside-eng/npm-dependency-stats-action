@@ -22,9 +22,9 @@ export async function loadJsonFile(filePath: string): Promise<any> {
 export const DepTypes = {
   devDependencies: 'devDependencies',
   dependencies: 'dependencies',
-} as const
+} as const;
 
-export type DepType = typeof DepTypes[keyof typeof DepTypes];
+export type DepType = (typeof DepTypes)[keyof typeof DepTypes];
 
 export interface PackageFile {
   [DepTypes.dependencies]?: Record<string, string>;
