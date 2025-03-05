@@ -8,6 +8,9 @@ inputs:
   output-file:
     required: false
     description: 'Path for output json file'
+  is-monorepo:
+    required: false
+    description: 'Whether or not repo is a monorepo'
   log-results:
     required: false
     default: 'false'
