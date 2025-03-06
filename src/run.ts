@@ -13,7 +13,9 @@ import {
 export async function run(): Promise<void> {
   const isMonorepoInput = core.getInput('is-monorepo');
   const outputFileConfig = core.getInput('output-file');
-
+  core.debug(
+    `Inputs: is-monorepo:${isMonorepoInput}, output-file:${outputFileConfig}`,
+  );
   // If package is a monorepo report on each subpackage
   if (isMonorepoInput === 'true') {
     const packagesFolder = `${process.cwd()}/packages`;
@@ -34,15 +36,13 @@ export async function run(): Promise<void> {
         dependenciesByName[packageFolder] = pkgDepStats.dependencies;
         countsByName[packageFolder] = pkgDepStats.counts;
         percentsByName[packageFolder] = pkgDepStats.percents;
-        if (outputFileConfig) {
-          core.info(
-            `Writing output to dep-stats/${packageFolder}/${outputFileConfig}`,
-          );
-          fs.writeFileSync(
-            `./dep-stats/${packageFolder}/${outputFileConfig}`,
-            JSON.stringify(pkgDepStats, null, 2),
-          );
-        }
+        core.info(
+          `Writing output to dep-stats/${packageFolder}/${outputFileConfig}`,
+        );
+        fs.writeFileSync(
+          `./dep-stats/${packageFolder}/${outputFileConfig}`,
+          JSON.stringify(pkgDepStats, null, 2),
+        );
       }),
     );
     core.setOutput('dependencies', dependenciesByName);

@@ -28653,6 +28653,7 @@ const getDependencyStats_1 = __nccwpck_require__(5359);
 async function run() {
     const isMonorepoInput = core.getInput('is-monorepo');
     const outputFileConfig = core.getInput('output-file');
+    core.debug(`Inputs: is-monorepo:${isMonorepoInput}, output-file:${outputFileConfig}`);
     // If package is a monorepo report on each subpackage
     if (isMonorepoInput === 'true') {
         const packagesFolder = `${process.cwd()}/packages`;
@@ -28667,10 +28668,8 @@ async function run() {
             dependenciesByName[packageFolder] = pkgDepStats.dependencies;
             countsByName[packageFolder] = pkgDepStats.counts;
             percentsByName[packageFolder] = pkgDepStats.percents;
-            if (outputFileConfig) {
-                core.info(`Writing output to dep-stats/${packageFolder}/${outputFileConfig}`);
-                fs_1.default.writeFileSync(`./dep-stats/${packageFolder}/${outputFileConfig}`, JSON.stringify(pkgDepStats, null, 2));
-            }
+            core.info(`Writing output to dep-stats/${packageFolder}/${outputFileConfig}`);
+            fs_1.default.writeFileSync(`./dep-stats/${packageFolder}/${outputFileConfig}`, JSON.stringify(pkgDepStats, null, 2));
         }));
         core.setOutput('dependencies', dependenciesByName);
         core.setOutput('counts', countsByName);
