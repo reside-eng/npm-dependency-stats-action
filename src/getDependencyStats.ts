@@ -20,7 +20,13 @@ function groupPackagesByOutOfDateName(
 ): PackagesByOutVersion {
   return Object.entries(packages).reduce(
     (acc, [packageName, packageInfo]) => {
-      const { latest, current } = packageInfo;
+      const { latest, current, wanted } = packageInfo;
+      core.debug(
+        `Checking if ${packageName} is out of date. ${JSON.stringify(packageInfo)}`,
+      );
+      // NOTE: Fallback to wanted version if current version is not found (i.e. monorepo with deps installed at root)
+      const toCheck = current ?? wanted;
+
       // Skip dependencies which have "exotic" version (can be caused by pointing to a github repo in package file)
       if (latest === 'exotic') {
         core.debug(
@@ -29,9 +35,9 @@ function groupPackagesByOutOfDateName(
         return acc;
       }
 
-      const currentMajor = semver.major(current);
+      const currentMajor = semver.major(toCheck);
       const latestMajor = semver.major(latest);
-      const currentMinor = semver.minor(current);
+      const currentMinor = semver.minor(toCheck);
       const latestMinor = semver.minor(latest);
 
       const preMajor = currentMajor === 0 || latestMajor === 0;
@@ -47,7 +53,7 @@ function groupPackagesByOutOfDateName(
         } else {
           acc.minor[packageName] = packageInfo;
         }
-      } else if (semver.patch(current) !== semver.patch(latest)) {
+      } else if (semver.patch(toCheck) !== semver.patch(latest)) {
         if (preMinor) {
           // If the major & minor version numbers are zero (0.0.x), treat a
           // change of the patch version number as a major change.

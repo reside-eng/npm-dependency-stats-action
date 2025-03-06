@@ -28258,15 +28258,18 @@ const npmOutdated_1 = __nccwpck_require__(8878);
  */
 function groupPackagesByOutOfDateName(packages) {
     return Object.entries(packages).reduce((acc, [packageName, packageInfo]) => {
-        const { latest, current } = packageInfo;
+        const { latest, current, wanted } = packageInfo;
+        core.debug(`Checking if ${packageName} is out of date. ${JSON.stringify(packageInfo)}`);
+        // NOTE: Fallback to wanted version if current version is not found (i.e. monorepo with deps installed at root)
+        const toCheck = current ?? wanted;
         // Skip dependencies which have "exotic" version (can be caused by pointing to a github repo in package file)
         if (latest === 'exotic') {
             core.debug(`Skipping check of ${packageName} since it's latest version is "exotic" (i.e. not found in package registry)`);
             return acc;
         }
-        const currentMajor = semver_1.default.major(current);
+        const currentMajor = semver_1.default.major(toCheck);
         const latestMajor = semver_1.default.major(latest);
-        const currentMinor = semver_1.default.minor(current);
+        const currentMinor = semver_1.default.minor(toCheck);
         const latestMinor = semver_1.default.minor(latest);
         const preMajor = currentMajor === 0 || latestMajor === 0;
         const preMinor = preMajor && (currentMinor === 0 || latestMinor === 0);
@@ -28283,7 +28286,7 @@ function groupPackagesByOutOfDateName(packages) {
                 acc.minor[packageName] = packageInfo;
             }
         }
-        else if (semver_1.default.patch(current) !== semver_1.default.patch(latest)) {
+        else if (semver_1.default.patch(toCheck) !== semver_1.default.patch(latest)) {
             if (preMinor) {
                 // If the major & minor version numbers are zero (0.0.x), treat a
                 // change of the patch version number as a major change.
@@ -28581,6 +28584,7 @@ async function npmOutdated(basePath) {
 async function npmOutdatedByType(basePath) {
     const outOfDatePackages = await npmOutdated(basePath);
     const pkgFile = await (0, repo_1.getRepoPackageFile)(basePath);
+    core.debug(`Package file loaded for path ${basePath}`);
     const devDepNames = Object.keys(pkgFile?.devDependencies || {});
     return Object.entries(outOfDatePackages).reduce((acc, [depName, depInfo]) => {
         const depType = devDepNames.includes(depName)
