@@ -166,17 +166,31 @@ export type GlobalStatsOutput = StatsOutput & {
 };
 
 /**
- * Get stats about dependencies which are outdated by at least 1 major version
- * @returns Object containing stats about out of date packages
+ *
+ * @param depPath
  */
-export async function getDependencyStats(): Promise<GlobalStatsOutput> {
+function getWorkingDirectory(depPath?: string): string {
+  if (depPath) {
+    return path.resolve(depPath);
+  }
   const startWorkingDirectory = process.cwd();
   // seems the working directory should be absolute to work correctly
   // https://github.com/cypress-io/github-action/issues/211
   const workingDirectoryInput = core.getInput('working-directory');
-  const workingDirectory = workingDirectoryInput
+  return workingDirectoryInput
     ? path.resolve(workingDirectoryInput)
     : startWorkingDirectory;
+}
+
+/**
+ * Get stats about dependencies which are outdated by at least 1 major version
+ * @param depPath
+ * @returns Object containing stats about out of date packages
+ */
+export async function getDependencyStats(
+  depPath?: string,
+): Promise<GlobalStatsOutput> {
+  const workingDirectory = getWorkingDirectory(depPath);
   core.debug(`working directory ${workingDirectory}`);
 
   const {
