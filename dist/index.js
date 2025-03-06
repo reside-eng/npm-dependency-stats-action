@@ -28668,9 +28668,8 @@ async function run() {
             countsByName[packageFolder] = pkgDepStats.counts;
             percentsByName[packageFolder] = pkgDepStats.percents;
             if (outputFileConfig) {
-                const outputPath = path_1.default.resolve(`dep-stats/${packageFolder}/${outputFileConfig}`);
-                core.info(`Writing output to ${outputPath}`);
-                fs_1.default.writeFileSync(outputPath, JSON.stringify(pkgDepStats, null, 2));
+                core.info(`Writing output to dep-stats/${packageFolder}/${outputFileConfig}`);
+                fs_1.default.writeFileSync(`./dep-stats/${packageFolder}/${outputFileConfig}`, JSON.stringify(pkgDepStats, null, 2));
             }
         }));
         core.setOutput('dependencies', dependenciesByName);

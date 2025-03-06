@@ -35,11 +35,13 @@ export async function run(): Promise<void> {
         countsByName[packageFolder] = pkgDepStats.counts;
         percentsByName[packageFolder] = pkgDepStats.percents;
         if (outputFileConfig) {
-          const outputPath = path.resolve(
-            `dep-stats/${packageFolder}/${outputFileConfig}`,
+          core.info(
+            `Writing output to dep-stats/${packageFolder}/${outputFileConfig}`,
           );
-          core.info(`Writing output to ${outputPath}`);
-          fs.writeFileSync(outputPath, JSON.stringify(pkgDepStats, null, 2));
+          fs.writeFileSync(
+            `./dep-stats/${packageFolder}/${outputFileConfig}`,
+            JSON.stringify(pkgDepStats, null, 2),
+          );
         }
       }),
     );
