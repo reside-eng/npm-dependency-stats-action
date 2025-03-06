@@ -27,6 +27,7 @@ export async function run(): Promise<void> {
     const percentsByName: Record<string, GlobalStatsOutput['percents']> = {};
     await Promise.allSettled(
       packageFolders.map(async (packageFolder) => {
+        core.info(`Getting deps stats for ${packageFolder}`);
         const pkgDepStats = await getDependencyStats(
           `${packagesFolder}/${packageFolder}`,
         );
