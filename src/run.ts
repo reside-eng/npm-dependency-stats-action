@@ -15,6 +15,7 @@ export async function run(): Promise<void> {
 
   // If package is a monorepo report on each subpackage
   if (isMonorepoInput === 'true') {
+    core.info('Monorepo detected - getting deps stats for each package');
     const packageFolders = fs.readdirSync(`${process.cwd()}/packages`);
     const dependenciesByName: Record<
       string,
@@ -44,6 +45,7 @@ export async function run(): Promise<void> {
     core.setOutput('counts', countsByName);
     core.setOutput('percents', percentsByName);
   } else {
+    core.info('Not monorepo');
     const depStats = await getDependencyStats();
     const outputFileConfig = core.getInput('output-file');
     if (outputFileConfig) {
