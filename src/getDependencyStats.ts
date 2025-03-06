@@ -2,13 +2,13 @@ import * as core from '@actions/core';
 import semver from 'semver';
 import path from 'path';
 import { getNumberOfDependenciesByType } from './getNumberOfDependencies';
-import { NpmOutdatedOutput, npmOutdatedByType } from './npmOutdated';
+import { type NpmOutdatedOutput, npmOutdatedByType } from './npmOutdated';
 
-interface PackagesByOutVersion {
+type PackagesByOutVersion = {
   major: NpmOutdatedOutput;
   minor: NpmOutdatedOutput;
   patch: NpmOutdatedOutput;
-}
+};
 
 /**
  * Sort packages by their out of date version (major, minor, patch)
@@ -20,7 +20,11 @@ function groupPackagesByOutOfDateName(
 ): PackagesByOutVersion {
   return Object.entries(packages).reduce(
     (acc, [packageName, packageInfo]) => {
-      const { latest, current } = packageInfo;
+      const { latest, current, wanted } = packageInfo;
+      core.debug(
+        `Checking if ${packageName} is out of date. ${JSON.stringify(packageInfo)}`,
+      );
+
       // Skip dependencies which have "exotic" version (can be caused by pointing to a github repo in package file)
       if (latest === 'exotic') {
         core.debug(
@@ -29,9 +33,20 @@ function groupPackagesByOutOfDateName(
         return acc;
       }
 
-      const currentMajor = semver.major(current);
+      // NOTE: Fallback to wanted version if current version is not found (i.e. monorepo with deps installed at root)
+      const toCheck = current ?? wanted;
+
+      // Skip dependencies (with warning) which have no current or latest version
+      if (!toCheck || !latest) {
+        core.warning(
+          `Skipping check of ${packageName} since it's ${toCheck ? 'latest' : 'current'} version is not found`,
+        );
+        return acc;
+      }
+
+      const currentMajor = semver.major(toCheck);
       const latestMajor = semver.major(latest);
-      const currentMinor = semver.minor(current);
+      const currentMinor = semver.minor(toCheck);
       const latestMinor = semver.minor(latest);
 
       const preMajor = currentMajor === 0 || latestMajor === 0;
@@ -47,7 +62,7 @@ function groupPackagesByOutOfDateName(
         } else {
           acc.minor[packageName] = packageInfo;
         }
-      } else if (semver.patch(current) !== semver.patch(latest)) {
+      } else if (semver.patch(toCheck) !== semver.patch(latest)) {
         if (preMinor) {
           // If the major & minor version numbers are zero (0.0.x), treat a
           // change of the patch version number as a major change.
@@ -70,7 +85,7 @@ function groupPackagesByOutOfDateName(
   );
 }
 
-export interface StatsOutput {
+export type StatsOutput = {
   dependencies: {
     major: NpmOutdatedOutput;
     minor: NpmOutdatedOutput;
@@ -89,7 +104,7 @@ export interface StatsOutput {
     minor: string;
     patch: string;
   };
-}
+};
 
 /**
  * @param numDeps - Total number of dependencies (of a specific type or all)
@@ -166,18 +181,33 @@ export type GlobalStatsOutput = StatsOutput & {
 };
 
 /**
- * Get stats about dependencies which are outdated by at least 1 major version
- * @returns Object containing stats about out of date packages
+ * Get working directory
+ * @param depPath - Path to dependencies
+ * @returns workding directory
  */
-export async function getDependencyStats(): Promise<GlobalStatsOutput> {
+function getWorkingDirectory(depPath?: string): string {
+  if (depPath) {
+    return path.resolve(depPath);
+  }
   const startWorkingDirectory = process.cwd();
   // seems the working directory should be absolute to work correctly
   // https://github.com/cypress-io/github-action/issues/211
   const workingDirectoryInput = core.getInput('working-directory');
-  const workingDirectory = workingDirectoryInput
+  return workingDirectoryInput
     ? path.resolve(workingDirectoryInput)
     : startWorkingDirectory;
-  core.debug(`working directory ${workingDirectory}`);
+}
+
+/**
+ * Get stats about dependencies which are outdated by at least 1 major version
+ * @param depPath - Path to dependencies
+ * @returns Object containing stats about out of date packages
+ */
+export async function getDependencyStats(
+  depPath?: string,
+): Promise<GlobalStatsOutput> {
+  const workingDirectory = getWorkingDirectory(depPath);
+  core.debug(`Getting dep stats for directory: ${workingDirectory}`);
 
   const {
     dependencies: dependenciesOutOfDate,

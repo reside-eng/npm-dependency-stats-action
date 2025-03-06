@@ -7,15 +7,15 @@ import { readFile } from 'fs/promises';
  * @param filePath - File path
  * @returns Parsed JSON file contents
  */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export async function loadJsonFile(filePath: string): Promise<any> {
+export async function loadJsonFile<T extends Record<string, unknown>>(
+  filePath: string,
+): Promise<T> {
   const fileBuff = await readFile(filePath);
   try {
-    return JSON.parse(fileBuff.toString());
+    return JSON.parse(fileBuff.toString()) as T;
   } catch (err) {
-    core.error(`Error parsing json file "${filePath}"`);
-    const { message } = err as Error;
-    throw new Error(message);
+    core.error(`Error parsing json file "${filePath}": ${err}`);
+    throw err;
   }
 }
 
@@ -26,14 +26,14 @@ export const DepTypes = {
 
 export type DepType = (typeof DepTypes)[keyof typeof DepTypes];
 
-export interface PackageFile {
+export type PackageFile = {
   [DepTypes.dependencies]?: Record<string, string>;
   [DepTypes.devDependencies]?: Record<string, string>;
   version?: string;
   engines?: {
     node?: string;
   };
-}
+};
 
 /**
  * Get package file of repo
@@ -48,5 +48,5 @@ export async function getRepoPackageFile(
     core.warning(`Package file does not exist at path ${basePath}`);
     return {};
   }
-  return loadJsonFile(pkgPath);
+  return loadJsonFile<PackageFile>(pkgPath);
 }
