@@ -3,11 +3,11 @@ import * as exec from '@actions/exec';
 import { type DepType, DepTypes, getRepoPackageFile } from './utils/repo';
 
 export type NpmOutdatedPackageOutput = {
-  current: string;
+  current?: string;
   latest: string;
   wanted: string;
   dependent: string;
-  location: string;
+  location?: string;
 };
 
 export type NpmOutdatedOutput = Record<string, NpmOutdatedPackageOutput>;

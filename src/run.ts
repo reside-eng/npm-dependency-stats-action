@@ -1,4 +1,3 @@
-import fsPromises from 'fs/promises';
 import fs from 'fs';
 import * as core from '@actions/core';
 import path from 'path';
@@ -51,7 +50,7 @@ export async function run(): Promise<void> {
           if (outputFileConfig) {
             const packageFolderPath = `${depstatsFolder}/${packageFolder}`;
             // Create output folder if it doesn't exist
-            await fsPromises.mkdir(packageFolderPath, { recursive: true });
+            fs.mkdirSync(packageFolderPath, { recursive: true });
             const outputPath = path.resolve(
               packageFolderPath,
               outputFileConfig,

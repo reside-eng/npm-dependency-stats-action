@@ -181,8 +181,9 @@ export type GlobalStatsOutput = StatsOutput & {
 };
 
 /**
- *
- * @param depPath
+ * Get working directory
+ * @param depPath - Path to dependencies
+ * @returns workding directory
  */
 function getWorkingDirectory(depPath?: string): string {
   if (depPath) {
@@ -199,7 +200,7 @@ function getWorkingDirectory(depPath?: string): string {
 
 /**
  * Get stats about dependencies which are outdated by at least 1 major version
- * @param depPath
+ * @param depPath - Path to dependencies
  * @returns Object containing stats about out of date packages
  */
 export async function getDependencyStats(
