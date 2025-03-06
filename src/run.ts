@@ -1,10 +1,13 @@
-import * as core from '@actions/core';
+import fsPromises from 'fs/promises';
 import fs from 'fs';
+import * as core from '@actions/core';
 import path from 'path';
 import {
   getDependencyStats,
   type GlobalStatsOutput,
 } from './getDependencyStats';
+
+const depstatsFolder = 'dep-stats';
 
 /**
  * Run npm-dependency-stats action. All outputs are set
@@ -16,14 +19,18 @@ export async function run(): Promise<void> {
   core.debug(
     `Inputs: is-monorepo:${isMonorepoInput}, output-file:${outputFileConfig}`,
   );
+
   // If package is a monorepo report on each subpackage
   if (isMonorepoInput === 'true') {
     const packagesFolder = `${process.cwd()}/packages`;
     core.debug('Monorepo detected - getting deps stats for each package');
+
+    // Exit with failure if no packages folder found
     if (!fs.existsSync(packagesFolder)) {
-      core.error('Monorepo detected, but no packages folder found');
+      core.setFailed('Monorepo detected, but no packages folder found');
       return;
     }
+
     const packageFolders = fs.readdirSync(packagesFolder);
     const dependenciesByName: Record<
       string,
@@ -42,9 +49,11 @@ export async function run(): Promise<void> {
           countsByName[packageFolder] = pkgDepStats.counts;
           percentsByName[packageFolder] = pkgDepStats.percents;
           if (outputFileConfig) {
+            const packageFolderPath = `${depstatsFolder}/${packageFolder}`;
+            // Create output folder if it doesn't exist
+            await fsPromises.mkdir(packageFolderPath, { recursive: true });
             const outputPath = path.resolve(
-              'dep-stats',
-              packageFolder,
+              packageFolderPath,
               outputFileConfig,
             );
             core.debug(`Writing output to ${outputPath}`);
@@ -58,6 +67,8 @@ export async function run(): Promise<void> {
         }
       }),
     );
+
+    // Set outputs
     core.setOutput('dependencies', dependenciesByName);
     core.setOutput('counts', countsByName);
     core.setOutput('percents', percentsByName);

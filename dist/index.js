@@ -28650,10 +28650,12 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.run = run;
-const core = __importStar(__nccwpck_require__(7484));
+const promises_1 = __importDefault(__nccwpck_require__(1943));
 const fs_1 = __importDefault(__nccwpck_require__(9896));
+const core = __importStar(__nccwpck_require__(7484));
 const path_1 = __importDefault(__nccwpck_require__(6928));
 const getDependencyStats_1 = __nccwpck_require__(5359);
+const depstatsFolder = 'dep-stats';
 /**
  * Run npm-dependency-stats action. All outputs are set
  * at this level
@@ -28666,8 +28668,9 @@ async function run() {
     if (isMonorepoInput === 'true') {
         const packagesFolder = `${process.cwd()}/packages`;
         core.debug('Monorepo detected - getting deps stats for each package');
+        // Exit with failure if no packages folder found
         if (!fs_1.default.existsSync(packagesFolder)) {
-            core.error('Monorepo detected, but no packages folder found');
+            core.setFailed('Monorepo detected, but no packages folder found');
             return;
         }
         const packageFolders = fs_1.default.readdirSync(packagesFolder);
@@ -28682,7 +28685,10 @@ async function run() {
                 countsByName[packageFolder] = pkgDepStats.counts;
                 percentsByName[packageFolder] = pkgDepStats.percents;
                 if (outputFileConfig) {
-                    const outputPath = path_1.default.resolve('dep-stats', packageFolder, outputFileConfig);
+                    const packageFolderPath = `${depstatsFolder}/${packageFolder}`;
+                    // Create output folder if it doesn't exist
+                    await promises_1.default.mkdir(packageFolderPath, { recursive: true });
+                    const outputPath = path_1.default.resolve(packageFolderPath, outputFileConfig);
                     core.debug(`Writing output to ${outputPath}`);
                     fs_1.default.writeFileSync(outputPath, JSON.stringify(pkgDepStats, null, 2));
                 }
@@ -28692,6 +28698,7 @@ async function run() {
                 core.error(`Error getting dependency stats for ${packageFolder}: ${error.message}`);
             }
         }));
+        // Set outputs
         core.setOutput('dependencies', dependenciesByName);
         core.setOutput('counts', countsByName);
         core.setOutput('percents', percentsByName);
