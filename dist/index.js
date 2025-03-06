@@ -28660,7 +28660,7 @@ async function run() {
         const countsByName = {};
         const percentsByName = {};
         await Promise.allSettled(packageFolders.map(async (packageFolder) => {
-            const pkgDepStats = await (0, getDependencyStats_1.getDependencyStats)();
+            const pkgDepStats = await (0, getDependencyStats_1.getDependencyStats)(`${process.cwd()}/packages/${packageFolder}`);
             dependenciesByName[packageFolder] = pkgDepStats.dependencies;
             countsByName[packageFolder] = pkgDepStats.counts;
             percentsByName[packageFolder] = pkgDepStats.percents;
