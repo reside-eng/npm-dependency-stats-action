@@ -24,13 +24,22 @@ function groupPackagesByOutOfDateName(
       core.debug(
         `Checking if ${packageName} is out of date. ${JSON.stringify(packageInfo)}`,
       );
-      // NOTE: Fallback to wanted version if current version is not found (i.e. monorepo with deps installed at root)
-      const toCheck = current ?? wanted;
 
       // Skip dependencies which have "exotic" version (can be caused by pointing to a github repo in package file)
       if (latest === 'exotic') {
         core.debug(
           `Skipping check of ${packageName} since it's latest version is "exotic" (i.e. not found in package registry)`,
+        );
+        return acc;
+      }
+
+      // NOTE: Fallback to wanted version if current version is not found (i.e. monorepo with deps installed at root)
+      const toCheck = current ?? wanted;
+
+      // Skip dependencies (with warning) which have no current or latest version
+      if (!toCheck || !latest) {
+        core.warning(
+          `Skipping check of ${packageName} since it's ${toCheck ? 'latest' : 'current'} version is not found`,
         );
         return acc;
       }
@@ -197,7 +206,7 @@ export async function getDependencyStats(
   depPath?: string,
 ): Promise<GlobalStatsOutput> {
   const workingDirectory = getWorkingDirectory(depPath);
-  core.debug(`working directory ${workingDirectory}`);
+  core.debug(`Getting dep stats for directory: ${workingDirectory}`);
 
   const {
     dependencies: dependenciesOutOfDate,

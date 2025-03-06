@@ -28260,11 +28260,16 @@ function groupPackagesByOutOfDateName(packages) {
     return Object.entries(packages).reduce((acc, [packageName, packageInfo]) => {
         const { latest, current, wanted } = packageInfo;
         core.debug(`Checking if ${packageName} is out of date. ${JSON.stringify(packageInfo)}`);
-        // NOTE: Fallback to wanted version if current version is not found (i.e. monorepo with deps installed at root)
-        const toCheck = current ?? wanted;
         // Skip dependencies which have "exotic" version (can be caused by pointing to a github repo in package file)
         if (latest === 'exotic') {
             core.debug(`Skipping check of ${packageName} since it's latest version is "exotic" (i.e. not found in package registry)`);
+            return acc;
+        }
+        // NOTE: Fallback to wanted version if current version is not found (i.e. monorepo with deps installed at root)
+        const toCheck = current ?? wanted;
+        // Skip dependencies (with warning) which have no current or latest version
+        if (!toCheck || !latest) {
+            core.warning(`Skipping check of ${packageName} since it's ${toCheck ? 'latest' : 'current'} version is not found`);
             return acc;
         }
         const currentMajor = semver_1.default.major(toCheck);
@@ -28388,7 +28393,7 @@ function getWorkingDirectory(depPath) {
  */
 async function getDependencyStats(depPath) {
     const workingDirectory = getWorkingDirectory(depPath);
-    core.debug(`working directory ${workingDirectory}`);
+    core.debug(`Getting dep stats for directory: ${workingDirectory}`);
     const { dependencies: dependenciesOutOfDate, devDependencies: devDependenciesOutOfDate, } = await (0, npmOutdated_1.npmOutdatedByType)(workingDirectory);
     // Get total number of dependencies based on type
     const { dependencies: numDeps, devDependencies: numDevDeps } = await (0, getNumberOfDependencies_1.getNumberOfDependenciesByType)(workingDirectory);
@@ -28584,7 +28589,6 @@ async function npmOutdated(basePath) {
 async function npmOutdatedByType(basePath) {
     const outOfDatePackages = await npmOutdated(basePath);
     const pkgFile = await (0, repo_1.getRepoPackageFile)(basePath);
-    core.debug(`Package file loaded for path ${basePath}`);
     const devDepNames = Object.keys(pkgFile?.devDependencies || {});
     return Object.entries(outOfDatePackages).reduce((acc, [depName, depInfo]) => {
         const depType = devDepNames.includes(depName)
@@ -28661,20 +28665,27 @@ async function run() {
     // If package is a monorepo report on each subpackage
     if (isMonorepoInput === 'true') {
         const packagesFolder = `${process.cwd()}/packages`;
-        core.info('Monorepo detected - getting deps stats for each package');
+        core.debug('Monorepo detected - getting deps stats for each package');
+        if (!fs_1.default.existsSync(packagesFolder)) {
+            core.error('Monorepo detected, but no packages folder found');
+            return;
+        }
         const packageFolders = fs_1.default.readdirSync(packagesFolder);
         const dependenciesByName = {};
         const countsByName = {};
         const percentsByName = {};
         await Promise.all(packageFolders.map(async (packageFolder) => {
-            core.info(`Getting deps stats for ${packageFolder}`);
+            core.debug(`Getting deps stats for ${packageFolder}`);
             try {
                 const pkgDepStats = await (0, getDependencyStats_1.getDependencyStats)(`${packagesFolder}/${packageFolder}`);
                 dependenciesByName[packageFolder] = pkgDepStats.dependencies;
                 countsByName[packageFolder] = pkgDepStats.counts;
                 percentsByName[packageFolder] = pkgDepStats.percents;
-                core.info(`Writing output to dep-stats/${packageFolder}/${outputFileConfig}`);
-                fs_1.default.writeFileSync(`./dep-stats/${packageFolder}/${outputFileConfig}`, JSON.stringify(pkgDepStats, null, 2));
+                if (outputFileConfig) {
+                    const outputPath = path_1.default.resolve('dep-stats', packageFolder, outputFileConfig);
+                    core.debug(`Writing output to ${outputPath}`);
+                    fs_1.default.writeFileSync(outputPath, JSON.stringify(pkgDepStats, null, 2));
+                }
             }
             catch (err) {
                 const error = err;
@@ -28686,11 +28697,10 @@ async function run() {
         core.setOutput('percents', percentsByName);
     }
     else {
-        core.info('Not monorepo');
         const depStats = await (0, getDependencyStats_1.getDependencyStats)();
         if (outputFileConfig) {
             const outputPath = path_1.default.resolve(outputFileConfig);
-            core.info(`Writing output to ${outputPath}`);
+            core.debug(`Writing output to ${outputPath}`);
             fs_1.default.writeFileSync(outputPath, JSON.stringify(depStats, null, 2));
         }
         core.setOutput('dependencies', depStats.dependencies);

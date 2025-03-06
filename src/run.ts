@@ -19,7 +19,11 @@ export async function run(): Promise<void> {
   // If package is a monorepo report on each subpackage
   if (isMonorepoInput === 'true') {
     const packagesFolder = `${process.cwd()}/packages`;
-    core.info('Monorepo detected - getting deps stats for each package');
+    core.debug('Monorepo detected - getting deps stats for each package');
+    if (!fs.existsSync(packagesFolder)) {
+      core.error('Monorepo detected, but no packages folder found');
+      return;
+    }
     const packageFolders = fs.readdirSync(packagesFolder);
     const dependenciesByName: Record<
       string,
@@ -29,7 +33,7 @@ export async function run(): Promise<void> {
     const percentsByName: Record<string, GlobalStatsOutput['percents']> = {};
     await Promise.all(
       packageFolders.map(async (packageFolder) => {
-        core.info(`Getting deps stats for ${packageFolder}`);
+        core.debug(`Getting deps stats for ${packageFolder}`);
         try {
           const pkgDepStats = await getDependencyStats(
             `${packagesFolder}/${packageFolder}`,
@@ -37,13 +41,15 @@ export async function run(): Promise<void> {
           dependenciesByName[packageFolder] = pkgDepStats.dependencies;
           countsByName[packageFolder] = pkgDepStats.counts;
           percentsByName[packageFolder] = pkgDepStats.percents;
-          core.info(
-            `Writing output to dep-stats/${packageFolder}/${outputFileConfig}`,
-          );
-          fs.writeFileSync(
-            `./dep-stats/${packageFolder}/${outputFileConfig}`,
-            JSON.stringify(pkgDepStats, null, 2),
-          );
+          if (outputFileConfig) {
+            const outputPath = path.resolve(
+              'dep-stats',
+              packageFolder,
+              outputFileConfig,
+            );
+            core.debug(`Writing output to ${outputPath}`);
+            fs.writeFileSync(outputPath, JSON.stringify(pkgDepStats, null, 2));
+          }
         } catch (err) {
           const error = err as Error;
           core.error(
@@ -56,11 +62,10 @@ export async function run(): Promise<void> {
     core.setOutput('counts', countsByName);
     core.setOutput('percents', percentsByName);
   } else {
-    core.info('Not monorepo');
     const depStats = await getDependencyStats();
     if (outputFileConfig) {
       const outputPath = path.resolve(outputFileConfig);
-      core.info(`Writing output to ${outputPath}`);
+      core.debug(`Writing output to ${outputPath}`);
       fs.writeFileSync(outputPath, JSON.stringify(depStats, null, 2));
     }
     core.setOutput('dependencies', depStats.dependencies);
