@@ -35,15 +35,6 @@ const mock: MockObj = {
 };
 
 jest.mock('@actions/core');
-// jest.mock('fs', () => ({
-//   existsSync: jest.fn(),
-//   readdirSync: jest.fn(),
-//   mkdirSync: jest.fn(),
-//   promises: {
-//     readFile: jest.fn(),
-//     writeFile: jest.fn(),
-//   }
-// }));
 jest.mock('./getDependencyStats', () => ({
   __esModule: true,
   getDependencyStats: () => mock.depStats,
