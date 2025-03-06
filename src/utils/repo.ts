@@ -14,9 +14,8 @@ export async function loadJsonFile<T extends Record<string, unknown>>(
   try {
     return JSON.parse(fileBuff.toString()) as T;
   } catch (err) {
-    core.error(`Error parsing json file "${filePath}"`);
-    const { message } = err as Error;
-    throw new Error(message);
+    core.error(`Error parsing json file "${filePath}": ${err}`);
+    throw err;
   }
 }
 

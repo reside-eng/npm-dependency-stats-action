@@ -28664,12 +28664,18 @@ async function run() {
         const percentsByName = {};
         await Promise.all(packageFolders.map(async (packageFolder) => {
             core.info(`Getting deps stats for ${packageFolder}`);
-            const pkgDepStats = await (0, getDependencyStats_1.getDependencyStats)(`${packagesFolder}/${packageFolder}`);
-            dependenciesByName[packageFolder] = pkgDepStats.dependencies;
-            countsByName[packageFolder] = pkgDepStats.counts;
-            percentsByName[packageFolder] = pkgDepStats.percents;
-            core.info(`Writing output to dep-stats/${packageFolder}/${outputFileConfig}`);
-            fs_1.default.writeFileSync(`./dep-stats/${packageFolder}/${outputFileConfig}`, JSON.stringify(pkgDepStats, null, 2));
+            try {
+                const pkgDepStats = await (0, getDependencyStats_1.getDependencyStats)(`${packagesFolder}/${packageFolder}`);
+                dependenciesByName[packageFolder] = pkgDepStats.dependencies;
+                countsByName[packageFolder] = pkgDepStats.counts;
+                percentsByName[packageFolder] = pkgDepStats.percents;
+                core.info(`Writing output to dep-stats/${packageFolder}/${outputFileConfig}`);
+                fs_1.default.writeFileSync(`./dep-stats/${packageFolder}/${outputFileConfig}`, JSON.stringify(pkgDepStats, null, 2));
+            }
+            catch (err) {
+                const error = err;
+                core.error(`Error getting dependency stats for ${packageFolder}: ${error.message}`);
+            }
         }));
         core.setOutput('dependencies', dependenciesByName);
         core.setOutput('counts', countsByName);
@@ -28748,9 +28754,8 @@ async function loadJsonFile(filePath) {
         return JSON.parse(fileBuff.toString());
     }
     catch (err) {
-        core.error(`Error parsing json file "${filePath}"`);
-        const { message } = err;
-        throw new Error(message);
+        core.error(`Error parsing json file "${filePath}": ${err}`);
+        throw err;
     }
 }
 exports.DepTypes = {

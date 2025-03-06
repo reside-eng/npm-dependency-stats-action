@@ -2,7 +2,7 @@ import * as core from '@actions/core';
 import semver from 'semver';
 import path from 'path';
 import { getNumberOfDependenciesByType } from './getNumberOfDependencies';
-import { NpmOutdatedOutput, npmOutdatedByType } from './npmOutdated';
+import { type NpmOutdatedOutput, npmOutdatedByType } from './npmOutdated';
 
 type PackagesByOutVersion = {
   major: NpmOutdatedOutput;

@@ -30,19 +30,26 @@ export async function run(): Promise<void> {
     await Promise.all(
       packageFolders.map(async (packageFolder) => {
         core.info(`Getting deps stats for ${packageFolder}`);
-        const pkgDepStats = await getDependencyStats(
-          `${packagesFolder}/${packageFolder}`,
-        );
-        dependenciesByName[packageFolder] = pkgDepStats.dependencies;
-        countsByName[packageFolder] = pkgDepStats.counts;
-        percentsByName[packageFolder] = pkgDepStats.percents;
-        core.info(
-          `Writing output to dep-stats/${packageFolder}/${outputFileConfig}`,
-        );
-        fs.writeFileSync(
-          `./dep-stats/${packageFolder}/${outputFileConfig}`,
-          JSON.stringify(pkgDepStats, null, 2),
-        );
+        try {
+          const pkgDepStats = await getDependencyStats(
+            `${packagesFolder}/${packageFolder}`,
+          );
+          dependenciesByName[packageFolder] = pkgDepStats.dependencies;
+          countsByName[packageFolder] = pkgDepStats.counts;
+          percentsByName[packageFolder] = pkgDepStats.percents;
+          core.info(
+            `Writing output to dep-stats/${packageFolder}/${outputFileConfig}`,
+          );
+          fs.writeFileSync(
+            `./dep-stats/${packageFolder}/${outputFileConfig}`,
+            JSON.stringify(pkgDepStats, null, 2),
+          );
+        } catch (err) {
+          const error = err as Error;
+          core.error(
+            `Error getting dependency stats for ${packageFolder}: ${error.message}`,
+          );
+        }
       }),
     );
     core.setOutput('dependencies', dependenciesByName);
