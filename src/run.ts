@@ -12,11 +12,13 @@ import {
  */
 export async function run(): Promise<void> {
   const isMonorepoInput = core.getInput('is-monorepo');
+  const outputFileConfig = core.getInput('output-file');
 
   // If package is a monorepo report on each subpackage
   if (isMonorepoInput === 'true') {
+    const packagesFolder = `${process.cwd()}/packages`;
     core.info('Monorepo detected - getting deps stats for each package');
-    const packageFolders = fs.readdirSync(`${process.cwd()}/packages`);
+    const packageFolders = fs.readdirSync(packagesFolder);
     const dependenciesByName: Record<
       string,
       GlobalStatsOutput['dependencies']
@@ -26,19 +28,16 @@ export async function run(): Promise<void> {
     await Promise.allSettled(
       packageFolders.map(async (packageFolder) => {
         const pkgDepStats = await getDependencyStats(
-          `${process.cwd()}/packages/${packageFolder}`,
+          `${packagesFolder}/${packageFolder}`,
         );
         dependenciesByName[packageFolder] = pkgDepStats.dependencies;
         countsByName[packageFolder] = pkgDepStats.counts;
         percentsByName[packageFolder] = pkgDepStats.percents;
-        const outputFileConfig = core.getInput('output-file');
         if (outputFileConfig) {
           const outputPath = path.resolve(
-            'dep-stats',
-            packageFolder,
-            outputFileConfig,
+            `dep-stats/${packageFolder}/${outputFileConfig}`,
           );
-          core.debug(`Writing output to ${outputPath}`);
+          core.info(`Writing output to ${outputPath}`);
           fs.writeFileSync(outputPath, JSON.stringify(pkgDepStats, null, 2));
         }
       }),
@@ -49,10 +48,9 @@ export async function run(): Promise<void> {
   } else {
     core.info('Not monorepo');
     const depStats = await getDependencyStats();
-    const outputFileConfig = core.getInput('output-file');
     if (outputFileConfig) {
       const outputPath = path.resolve(outputFileConfig);
-      core.debug(`Writing output to ${outputPath}`);
+      core.info(`Writing output to ${outputPath}`);
       fs.writeFileSync(outputPath, JSON.stringify(depStats, null, 2));
     }
     core.setOutput('dependencies', depStats.dependencies);

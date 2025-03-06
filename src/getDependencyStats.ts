@@ -4,11 +4,11 @@ import path from 'path';
 import { getNumberOfDependenciesByType } from './getNumberOfDependencies';
 import { NpmOutdatedOutput, npmOutdatedByType } from './npmOutdated';
 
-interface PackagesByOutVersion {
+type PackagesByOutVersion = {
   major: NpmOutdatedOutput;
   minor: NpmOutdatedOutput;
   patch: NpmOutdatedOutput;
-}
+};
 
 /**
  * Sort packages by their out of date version (major, minor, patch)
@@ -70,7 +70,7 @@ function groupPackagesByOutOfDateName(
   );
 }
 
-export interface StatsOutput {
+export type StatsOutput = {
   dependencies: {
     major: NpmOutdatedOutput;
     minor: NpmOutdatedOutput;
@@ -89,7 +89,7 @@ export interface StatsOutput {
     minor: string;
     patch: string;
   };
-}
+};
 
 /**
  * @param numDeps - Total number of dependencies (of a specific type or all)

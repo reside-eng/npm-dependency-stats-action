@@ -28652,22 +28652,23 @@ const getDependencyStats_1 = __nccwpck_require__(5359);
  */
 async function run() {
     const isMonorepoInput = core.getInput('is-monorepo');
+    const outputFileConfig = core.getInput('output-file');
     // If package is a monorepo report on each subpackage
     if (isMonorepoInput === 'true') {
+        const packagesFolder = `${process.cwd()}/packages`;
         core.info('Monorepo detected - getting deps stats for each package');
-        const packageFolders = fs_1.default.readdirSync(`${process.cwd()}/packages`);
+        const packageFolders = fs_1.default.readdirSync(packagesFolder);
         const dependenciesByName = {};
         const countsByName = {};
         const percentsByName = {};
         await Promise.allSettled(packageFolders.map(async (packageFolder) => {
-            const pkgDepStats = await (0, getDependencyStats_1.getDependencyStats)(`${process.cwd()}/packages/${packageFolder}`);
+            const pkgDepStats = await (0, getDependencyStats_1.getDependencyStats)(`${packagesFolder}/${packageFolder}`);
             dependenciesByName[packageFolder] = pkgDepStats.dependencies;
             countsByName[packageFolder] = pkgDepStats.counts;
             percentsByName[packageFolder] = pkgDepStats.percents;
-            const outputFileConfig = core.getInput('output-file');
             if (outputFileConfig) {
-                const outputPath = path_1.default.resolve('dep-stats', packageFolder, outputFileConfig);
-                core.debug(`Writing output to ${outputPath}`);
+                const outputPath = path_1.default.resolve(`dep-stats/${packageFolder}/${outputFileConfig}`);
+                core.info(`Writing output to ${outputPath}`);
                 fs_1.default.writeFileSync(outputPath, JSON.stringify(pkgDepStats, null, 2));
             }
         }));
@@ -28678,10 +28679,9 @@ async function run() {
     else {
         core.info('Not monorepo');
         const depStats = await (0, getDependencyStats_1.getDependencyStats)();
-        const outputFileConfig = core.getInput('output-file');
         if (outputFileConfig) {
             const outputPath = path_1.default.resolve(outputFileConfig);
-            core.debug(`Writing output to ${outputPath}`);
+            core.info(`Writing output to ${outputPath}`);
             fs_1.default.writeFileSync(outputPath, JSON.stringify(depStats, null, 2));
         }
         core.setOutput('dependencies', depStats.dependencies);
@@ -28743,7 +28743,6 @@ const promises_1 = __nccwpck_require__(1943);
  * @param filePath - File path
  * @returns Parsed JSON file contents
  */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 async function loadJsonFile(filePath) {
     const fileBuff = await (0, promises_1.readFile)(filePath);
     try {
