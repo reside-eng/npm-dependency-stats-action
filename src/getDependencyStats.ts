@@ -158,12 +158,12 @@ function calculate(
   };
 }
 
-interface GlobalStatsOutput extends StatsOutput {
+export type GlobalStatsOutput = StatsOutput & {
   byType: {
     devDependencies?: StatsOutput;
     dependencies?: StatsOutput;
   };
-}
+};
 
 /**
  * Get stats about dependencies which are outdated by at least 1 major version
@@ -178,6 +178,7 @@ export async function getDependencyStats(): Promise<GlobalStatsOutput> {
     ? path.resolve(workingDirectoryInput)
     : startWorkingDirectory;
   core.debug(`working directory ${workingDirectory}`);
+
   const {
     dependencies: dependenciesOutOfDate,
     devDependencies: devDependenciesOutOfDate,
