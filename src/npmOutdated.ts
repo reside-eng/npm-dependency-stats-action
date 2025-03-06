@@ -2,13 +2,13 @@ import * as core from '@actions/core';
 import * as exec from '@actions/exec';
 import { type DepType, DepTypes, getRepoPackageFile } from './utils/repo';
 
-export interface NpmOutdatedPackageOutput {
-  current: string;
+export type NpmOutdatedPackageOutput = {
+  current?: string;
   latest: string;
   wanted: string;
   dependent: string;
-  location: string;
-}
+  location?: string;
+};
 
 export type NpmOutdatedOutput = Record<string, NpmOutdatedPackageOutput>;
 

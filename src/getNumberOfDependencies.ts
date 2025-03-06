@@ -1,9 +1,9 @@
 import { DepTypes, getRepoPackageFile } from './utils/repo';
 
-interface NumberOfDependenciesByType {
+type NumberOfDependenciesByType = {
   [DepTypes.dependencies]: number;
   [DepTypes.devDependencies]: number;
-}
+};
 
 /**
  * @param basePath - Base path of package.json
