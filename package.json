@@ -28,7 +28,7 @@
     "@side/eslint-config-jest": "1.1.1",
     "@side/prettier-config": "1.1.0",
     "@swc/core": "1.11.21",
-    "@swc/jest": "0.2.37",
+    "@swc/jest": "0.2.38",
     "@tsconfig/node20": "20.1.5",
     "@types/jest": "29.5.14",
     "@types/node": "20.11.30",
