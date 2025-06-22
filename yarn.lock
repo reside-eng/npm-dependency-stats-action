@@ -621,16 +621,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@es-joy/jsdoccomment@npm:~0.51.1":
-  version: 0.51.1
-  resolution: "@es-joy/jsdoccomment@npm:0.51.1"
+"@es-joy/jsdoccomment@npm:~0.52.0":
+  version: 0.52.0
+  resolution: "@es-joy/jsdoccomment@npm:0.52.0"
   dependencies:
     "@types/estree": "npm:^1.0.8"
     "@typescript-eslint/types": "npm:^8.34.1"
     comment-parser: "npm:1.4.1"
     esquery: "npm:^1.6.0"
     jsdoc-type-pratt-parser: "npm:~4.1.0"
-  checksum: 10/738f8c4c5e58a456a6efb544beba951a8aa647044a1afd986213105e526885d728565309448749e9cf6d59333e053ca0377aefd92decda342c064adce580071f
+  checksum: 10/e0d349fcaca0fc27e53c685f20836fd7f2a8eeb04462a23dea73eff8cf620c49fd847cb32f86ae8767ae86c0576116451d16478d13d6f45d6ca3f0395b0df9b0
   languageName: node
   linkType: hard
 
@@ -1179,7 +1179,7 @@ __metadata:
     eslint-config-airbnb-base: "npm:15.0.0"
     eslint-config-prettier: "npm:10.1.5"
     eslint-plugin-import: "npm:2.32.0"
-    eslint-plugin-jsdoc: "npm:51.1.1"
+    eslint-plugin-jsdoc: "npm:51.1.2"
     eslint-plugin-prettier: "npm:5.5.0"
     husky: "npm:9.1.7"
     jest: "npm:29.7.0"
@@ -3109,11 +3109,11 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eslint-plugin-jsdoc@npm:51.1.1":
-  version: 51.1.1
-  resolution: "eslint-plugin-jsdoc@npm:51.1.1"
+"eslint-plugin-jsdoc@npm:51.1.2":
+  version: 51.1.2
+  resolution: "eslint-plugin-jsdoc@npm:51.1.2"
   dependencies:
-    "@es-joy/jsdoccomment": "npm:~0.51.1"
+    "@es-joy/jsdoccomment": "npm:~0.52.0"
     are-docs-informative: "npm:^0.0.2"
     comment-parser: "npm:1.4.1"
     debug: "npm:^4.4.1"
@@ -3125,7 +3125,7 @@ __metadata:
     spdx-expression-parse: "npm:^4.0.0"
   peerDependencies:
     eslint: ^7.0.0 || ^8.0.0 || ^9.0.0
-  checksum: 10/45fa66c9d284e761fdb51b32a02d0079fa63d8fe9436133fdd3090ae2bcc2b6df7e073ca78812b98ade8c1188311ced7a25e7918acbe829aa770d1b683b21111
+  checksum: 10/99872e75414ce17421ce4d8044de156f7ba27de4c4daae21ee16e15f6154df418b1d9afe8d4908bf05b202e935d67c97a6a0efca52c1bfd3987c23fe713d839e
   languageName: node
   linkType: hard
 
