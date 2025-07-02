@@ -1462,7 +1462,7 @@ __metadata:
     eslint-config-airbnb-base: "npm:15.0.0"
     eslint-config-prettier: "npm:10.1.5"
     eslint-plugin-import: "npm:2.32.0"
-    eslint-plugin-jsdoc: "npm:51.3.1"
+    eslint-plugin-jsdoc: "npm:51.3.2"
     eslint-plugin-prettier: "npm:5.5.1"
     husky: "npm:9.1.7"
     jest: "npm:30.0.3"
@@ -3516,9 +3516,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eslint-plugin-jsdoc@npm:51.3.1":
-  version: 51.3.1
-  resolution: "eslint-plugin-jsdoc@npm:51.3.1"
+"eslint-plugin-jsdoc@npm:51.3.2":
+  version: 51.3.2
+  resolution: "eslint-plugin-jsdoc@npm:51.3.2"
   dependencies:
     "@es-joy/jsdoccomment": "npm:~0.52.0"
     are-docs-informative: "npm:^0.0.2"
@@ -3532,7 +3532,7 @@ __metadata:
     spdx-expression-parse: "npm:^4.0.0"
   peerDependencies:
     eslint: ^7.0.0 || ^8.0.0 || ^9.0.0
-  checksum: 10/4bc6cddffb6b3cdaa3b055c3ebb18d021a1c86e3b8f6e44fcd6340fb49ba18f075e145a09fb505162c37fae927529d3f840317a5116171a7a2d086eabc0058dc
+  checksum: 10/0925f7b173e8a5e0f052cf21f5c8fff94c890f5067205b83db2c4aebdc27512ac57a8d4c72b6d1ff718b83115dca106ac2022fe7b5feee938ec588e432c7a291
   languageName: node
   linkType: hard
 
