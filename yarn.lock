@@ -1446,7 +1446,7 @@ __metadata:
     "@vercel/ncc": "npm:0.38.3"
     eslint: "npm:8.57.1"
     eslint-config-airbnb-base: "npm:15.0.0"
-    eslint-config-prettier: "npm:10.1.5"
+    eslint-config-prettier: "npm:10.1.7"
     eslint-plugin-import: "npm:2.32.0"
     eslint-plugin-jsdoc: "npm:51.4.1"
     eslint-plugin-prettier: "npm:5.5.1"
@@ -3351,14 +3351,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eslint-config-prettier@npm:10.1.5":
-  version: 10.1.5
-  resolution: "eslint-config-prettier@npm:10.1.5"
+"eslint-config-prettier@npm:10.1.7":
+  version: 10.1.7
+  resolution: "eslint-config-prettier@npm:10.1.7"
   peerDependencies:
     eslint: ">=7.0.0"
   bin:
     eslint-config-prettier: bin/cli.js
-  checksum: 10/bc192e703e595c886c33703ebb9a8381a18179ce2ec14a24f671cb675a96b8ba1b4a862c5763680e1c918131007759afb3c874788c7d61706740147ae77f249a
+  checksum: 10/32ae65689aa0f4da8f77235a14399e0f90f9206de93b32069c03f65d575fca341fcfd1a9cc0581a75bd6adf31646a8b2d23fbe43c1b8c750a90fae1dcfd70411
   languageName: node
   linkType: hard
 
