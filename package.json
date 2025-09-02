@@ -43,7 +43,7 @@
     "eslint-plugin-jsdoc": "54.2.1",
     "eslint-plugin-prettier": "5.5.4",
     "husky": "9.1.7",
-    "jest": "30.1.2",
+    "jest": "30.1.3",
     "lint-staged": "16.1.6",
     "prettier": "3.6.2",
     "rimraf": "6.0.1",
