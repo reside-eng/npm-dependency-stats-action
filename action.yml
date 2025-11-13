@@ -5,6 +5,9 @@ inputs:
   working-directory:
     required: false
     description: 'Current working directory'
+  packages-folder:
+    required: false
+    description: 'Path to the packages folder'
   output-file:
     required: false
     description: 'Path for output json file'
