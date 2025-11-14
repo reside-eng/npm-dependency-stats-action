@@ -14,14 +14,15 @@ const depstatsFolder = 'dep-stats';
  */
 export async function run(): Promise<void> {
   const isMonorepoInput = core.getInput('is-monorepo');
+  const packagesFolderName = core.getInput('packages-folder');
   const outputFileConfig = core.getInput('output-file');
   core.debug(
-    `Inputs: is-monorepo:${isMonorepoInput}, output-file:${outputFileConfig}`,
+    `Inputs: is-monorepo:${isMonorepoInput}, output-file:${outputFileConfig}, packages-folder:${packagesFolderName}`,
   );
 
   // If package is a monorepo report on each subpackage
   if (isMonorepoInput === 'true') {
-    const packagesFolder = `${process.cwd()}/packages`;
+    const packagesFolder = `${process.cwd()}/${packagesFolderName}`;
     core.debug('Monorepo detected - getting deps stats for each package');
 
     // Exit with failure if no packages folder found

@@ -77,12 +77,16 @@ describe('run', () => {
         if (inputName === 'is-monorepo') {
           return 'true';
         }
+        if (inputName === 'packages-folder') {
+          return 'packages';
+        }
         return './some-path';
       });
     });
 
     it('should exit with failure if no packages folder found', async () => {
       mockCore.getInput.mockReturnValueOnce('true');
+      mockCore.getInput.mockReturnValueOnce('packages');
       mockCore.getInput.mockReturnValueOnce('');
       await run();
       expect(mockCore.setFailed).toHaveBeenCalledWith(
