@@ -17,7 +17,7 @@
     "format:check": "prettier --check ."
   },
   "dependencies": {
-    "@actions/core": "1.11.1",
+    "@actions/core": "2.0.0",
     "@actions/exec": "1.1.1",
     "semver": "7.7.3"
   },
