@@ -1237,7 +1237,7 @@ __metadata:
     "@side/prettier-config": "npm:1.1.0"
     "@swc/core": "npm:1.15.8"
     "@swc/jest": "npm:0.2.39"
-    "@tsconfig/node22": "npm:22.0.0"
+    "@tsconfig/node22": "npm:22.0.5"
     "@types/jest": "npm:30.0.0"
     "@types/node": "npm:20.11.30"
     "@types/semver": "npm:7.7.1"
@@ -1437,10 +1437,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@tsconfig/node22@npm:22.0.0":
-  version: 22.0.0
-  resolution: "@tsconfig/node22@npm:22.0.0"
-  checksum: 10/9fc45789304640e1e37e1f1e04c02dca593c290d4f1cb55af7e9cab799fb2c6356e1cc15ee9f140185591a81f491a4c7f2d6c08c1e5a3d758658ba69f1afee6d
+"@tsconfig/node22@npm:22.0.5":
+  version: 22.0.5
+  resolution: "@tsconfig/node22@npm:22.0.5"
+  checksum: 10/2e21177946aa0bcd705e8303cd0844eb66d2abc1ceb9ca7bd7762443676e599bb11e7f7b257c027d8dec9d1c62cda114d1a3df5e38699c6b4943e6acadac261d
   languageName: node
   linkType: hard
 
