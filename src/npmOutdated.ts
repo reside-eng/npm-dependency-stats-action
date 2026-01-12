@@ -1,3 +1,4 @@
+import * as path from 'path';
 import * as core from '@actions/core';
 import * as exec from '@actions/exec';
 import { type DepType, DepTypes, getRepoPackageFile } from './utils/repo';
@@ -21,8 +22,8 @@ export type NpmOutdatedOutput = Record<string, NpmOutdatedPackageOutput>;
 async function npmOutdated(basePath: string): Promise<NpmOutdatedOutput> {
   const args = ['outdated', '--json'];
   if (basePath) {
-    args.push('--prefix');
-    args.push(basePath);
+    args.push('--workspace');
+    args.push(path.basename(basePath));
   }
   let outputData = '';
   let errorData = '';
