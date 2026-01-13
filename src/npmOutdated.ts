@@ -22,8 +22,14 @@ export type NpmOutdatedOutput = Record<string, NpmOutdatedPackageOutput>;
 async function npmOutdated(basePath: string): Promise<NpmOutdatedOutput> {
   const args = ['outdated', '--json'];
   if (basePath) {
-    args.push('--workspace');
-    args.push(path.basename(basePath));
+    const isMonorepo = core.getInput('is-monorepo') === 'true';
+    if (isMonorepo) {
+      args.push('--workspace');
+      args.push(path.basename(basePath));
+    } else {
+      args.push('--prefix');
+      args.push(basePath);
+    }
   }
   let outputData = '';
   let errorData = '';
