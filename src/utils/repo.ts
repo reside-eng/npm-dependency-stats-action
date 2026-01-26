@@ -27,6 +27,7 @@ export const DepTypes = {
 export type DepType = (typeof DepTypes)[keyof typeof DepTypes];
 
 export type PackageFile = {
+  name?: string;
   [DepTypes.dependencies]?: Record<string, string>;
   [DepTypes.devDependencies]?: Record<string, string>;
   version?: string;
