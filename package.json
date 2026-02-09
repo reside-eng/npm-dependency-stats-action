@@ -19,7 +19,7 @@
   "dependencies": {
     "@actions/core": "2.0.3",
     "@actions/exec": "2.0.0",
-    "semver": "7.7.3"
+    "semver": "7.7.4"
   },
   "devDependencies": {
     "@commitlint/cli": "20.4.1",
