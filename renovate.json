@@ -6,12 +6,6 @@
   ],
   "packageRules": [
     {
-      "description": "Pin third-party GitHub Action digests (SHA + version comment). Excludes reside-eng first-party actions/workflows which stay on floating major tags.",
-      "matchDepTypes": ["action"],
-      "matchPackageNames": ["!/^reside-eng\\//"],
-      "pinDigests": true
-    },
-    {
       "description": "Prevent upgrade of got to v12 which is ESM",
       "matchPackageNames": ["got"],
       "allowedVersions": "^11"
