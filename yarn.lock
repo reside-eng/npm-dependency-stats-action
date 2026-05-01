@@ -1224,7 +1224,7 @@ __metadata:
     "@swc/jest": "npm:0.2.39"
     "@tsconfig/node24": "npm:24.0.4"
     "@types/jest": "npm:30.0.0"
-    "@types/node": "npm:24.10.1"
+    "@types/node": "npm:24.12.2"
     "@types/semver": "npm:7.7.1"
     "@typescript-eslint/eslint-plugin": "npm:8.58.2"
     "@typescript-eslint/parser": "npm:8.58.2"
@@ -1580,12 +1580,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:24.10.1":
-  version: 24.10.1
-  resolution: "@types/node@npm:24.10.1"
+"@types/node@npm:24.12.2":
+  version: 24.12.2
+  resolution: "@types/node@npm:24.12.2"
   dependencies:
     undici-types: "npm:~7.16.0"
-  checksum: 10/ddac8c97be5f7401e31ea0e9316c6e864993c6cd06689b7f9874ecfb576ef8349f2d14298248a08b94a6dd029570a46a285cddc4d50e524817f1a3730b29a86e
+  checksum: 10/99b9f15e67a4b3c39b39ad83ee0febad7f0b4709c004863104d7acfa4146dd7e58c12a08a9a7ff2be8c2eefd0063bf991fade0879d7c4a370a0ee7fd4c799e8a
   languageName: node
   linkType: hard
 
