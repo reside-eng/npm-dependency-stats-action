@@ -6,7 +6,7 @@
   "license": "MIT",
   "main": "dist/index.js",
   "engines": {
-    "node": ">=20"
+    "node": ">=24"
   },
   "scripts": {
     "prepare": "husky",
@@ -31,7 +31,7 @@
     "@swc/jest": "0.2.39",
     "@tsconfig/node24": "24.0.4",
     "@types/jest": "30.0.0",
-    "@types/node": "20.11.30",
+    "@types/node": "24.10.1",
     "@types/semver": "7.7.1",
     "@typescript-eslint/eslint-plugin": "8.58.2",
     "@typescript-eslint/parser": "8.58.2",
