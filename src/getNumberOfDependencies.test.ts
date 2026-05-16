@@ -1,25 +1,12 @@
-import { existsSync } from 'node:fs';
-import { readFile } from 'node:fs/promises';
+import fs from 'node:fs';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { getNumberOfDependenciesByType } from './getNumberOfDependencies.js';
 
 vi.mock('@actions/core');
-vi.mock('node:fs', async (importActual) => {
-  const actual = await importActual<typeof import('node:fs')>();
-  return { ...actual, existsSync: vi.fn() };
-});
-vi.mock('node:fs/promises', async (importActual) => {
-  const actual = await importActual<typeof import('node:fs/promises')>();
-  return { ...actual, readFile: vi.fn() };
-});
-
-const mockExistsSync = vi.mocked(existsSync);
-const mockReadFile = vi.mocked(readFile);
 
 describe('getNumberOfDependenciesByType', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    mockExistsSync.mockReturnValue(false);
   });
 
   it('should return 0 if package file is not found at path', async () => {
@@ -36,8 +23,8 @@ describe('getNumberOfDependenciesByType', () => {
         'some-dep': '^1.0.0',
       },
     };
-    mockExistsSync.mockReturnValue(true);
-    mockReadFile.mockResolvedValue(
+    vi.spyOn(fs, 'existsSync').mockReturnValue(true);
+    vi.spyOn(fs.promises, 'readFile').mockResolvedValue(
       Buffer.from(JSON.stringify(pkgFileContents)),
     );
     const result = await getNumberOfDependenciesByType('./asdf');
@@ -48,8 +35,10 @@ describe('getNumberOfDependenciesByType', () => {
   });
 
   it('should throw error if package file is invalid JSON', async () => {
-    mockExistsSync.mockReturnValue(true);
-    mockReadFile.mockResolvedValue(Buffer.from('{ { invalidJson }'));
+    vi.spyOn(fs, 'existsSync').mockReturnValue(true);
+    vi.spyOn(fs.promises, 'readFile').mockResolvedValue(
+      Buffer.from('{ { invalidJson }'),
+    );
     await expect(getNumberOfDependenciesByType('./asdf')).rejects.toThrow(
       expect.objectContaining({
         message: expect.stringMatching(
