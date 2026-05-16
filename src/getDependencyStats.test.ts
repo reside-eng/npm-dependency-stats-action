@@ -1,9 +1,8 @@
+import fs from 'node:fs';
 import * as core from '@actions/core';
-import fs from 'fs';
-import { getDependencyStats } from './getDependencyStats';
-import { NpmOutdatedOutput } from './npmOutdated';
-
-const mockCore = core as jest.Mocked<typeof core>;
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { getDependencyStats } from './getDependencyStats.js';
+import type { NpmOutdatedOutput } from './npmOutdated.js';
 
 interface MockObj {
   inputs: Record<string, string | undefined>;
@@ -14,17 +13,15 @@ interface MockObj {
 }
 let mock: MockObj;
 
-jest.mock('@actions/core');
-jest.mock('./npmOutdated', () => ({
-  __esModule: true,
+vi.mock('@actions/core');
+vi.mock('./npmOutdated.js', () => ({
   npmOutdatedByType: () =>
     Promise.resolve({
       dependencies: mock.outdatedDependencies,
       devDependencies: mock.outdatedDevDependencies,
     }),
 }));
-jest.mock('./getNumberOfDependencies', () => ({
-  __esModule: true,
+vi.mock('./getNumberOfDependencies.js', () => ({
   getNumberOfDependenciesByType: () =>
     Promise.resolve({
       dependencies:
@@ -36,9 +33,11 @@ jest.mock('./getNumberOfDependencies', () => ({
     }),
 }));
 
+const mockCore = vi.mocked(core);
+
 describe('getDependencyStats', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     mockCore.getInput.mockImplementation(
       (name: string): string => mock.inputs[name] || '',
     );
@@ -50,7 +49,7 @@ describe('getDependencyStats', () => {
       outdatedDependencies: {},
       outdatedDevDependencies: {},
     };
-    jest.spyOn(fs, 'existsSync').mockReturnValue(false);
+    vi.spyOn(fs, 'existsSync').mockReturnValue(false);
   });
 
   it('returns stats if all dependencies are up to date', async () => {

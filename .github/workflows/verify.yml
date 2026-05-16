@@ -22,14 +22,14 @@ jobs:
       - name: Install dependencies
         run: yarn install --immutable
 
-      - name: Verify formatting
-        run: yarn format:check
+      - name: Check
+        run: yarn check
 
-      - name: Lint
-        run: yarn lint
+      - name: Type check
+        run: yarn types:check
 
       - name: Test
-        run: yarn test --coverage --silent
+        run: yarn test:cov
 
       - name: Build
         run: yarn build

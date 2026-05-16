@@ -1,10 +1,10 @@
+import fs from 'node:fs';
 import * as core from '@actions/core';
-import fs from 'fs';
-import { run } from './run';
-import { type StatsOutput } from './getDependencyStats';
-import { type NpmOutdatedOutput } from './npmOutdated';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import type { StatsOutput } from './getDependencyStats.js';
+import type { NpmOutdatedOutput } from './npmOutdated.js';
+import { run } from './run.js';
 
-const mockCore = core as jest.Mocked<typeof core>;
 interface MockObj {
   inputs: Record<string, string | undefined>;
   outdated?: NpmOutdatedOutput;
@@ -34,23 +34,22 @@ const mock: MockObj = {
   },
 };
 
-jest.mock('@actions/core');
-jest.mock('./getDependencyStats', () => ({
-  __esModule: true,
+vi.mock('@actions/core');
+vi.mock('./getDependencyStats.js', () => ({
   getDependencyStats: () => mock.depStats,
 }));
+
+const mockCore = vi.mocked(core);
 
 describe('run', () => {
   beforeEach(() => {
     mockCore.getInput.mockImplementation(
-      (name: string): string =>
-        // console.log('name:', name);
-        mock.inputs[name] || '',
+      (name: string): string => mock.inputs[name] || '',
     );
   });
 
   afterEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it('should set output by default', async () => {
@@ -62,7 +61,7 @@ describe('run', () => {
   });
 
   it('should write ot output file if output-file input is set', async () => {
-    jest.spyOn(fs, 'writeFileSync').mockImplementation(() => '');
+    vi.spyOn(fs, 'writeFileSync').mockImplementation(() => '');
     mockCore.getInput.mockReturnValueOnce('./some-path');
     await run();
     expect(mockCore.setOutput).toHaveBeenCalledWith(
@@ -95,11 +94,12 @@ describe('run', () => {
     });
 
     it('should write check dependencies for packages if is-monorepo is true', async () => {
-      jest.spyOn(fs, 'writeFileSync').mockImplementation(() => '');
-      jest.spyOn(fs, 'existsSync').mockReturnValueOnce(true);
-      jest
-        .spyOn(fs, 'readdirSync')
-        .mockReturnValueOnce(['package1', 'package2']);
+      vi.spyOn(fs, 'writeFileSync').mockImplementation(() => '');
+      vi.spyOn(fs, 'existsSync').mockReturnValueOnce(true);
+      vi.spyOn(fs, 'readdirSync').mockReturnValueOnce([
+        'package1',
+        'package2',
+      ] as unknown as ReturnType<typeof fs.readdirSync>);
       await run();
       expect(mockCore.setOutput).toHaveBeenCalledWith('dependencies', {
         package1: mock.depStats.dependencies,

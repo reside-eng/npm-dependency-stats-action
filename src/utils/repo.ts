@@ -1,6 +1,6 @@
+import { existsSync } from 'node:fs';
+import { readFile } from 'node:fs/promises';
 import * as core from '@actions/core';
-import { existsSync } from 'fs';
-import { readFile } from 'fs/promises';
 
 /**
  * Load and parse a JSON file from the file system
@@ -49,5 +49,5 @@ export async function getRepoPackageFile(
     core.warning(`Package file does not exist at path ${basePath}`);
     return {};
   }
-  return loadJsonFile<PackageFile>(pkgPath);
+  return await loadJsonFile<PackageFile>(pkgPath);
 }

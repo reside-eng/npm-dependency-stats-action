@@ -1,8 +1,8 @@
+import path from 'node:path';
 import * as core from '@actions/core';
 import semver from 'semver';
-import path from 'path';
-import { getNumberOfDependenciesByType } from './getNumberOfDependencies';
-import { type NpmOutdatedOutput, npmOutdatedByType } from './npmOutdated';
+import { getNumberOfDependenciesByType } from './getNumberOfDependencies.js';
+import { type NpmOutdatedOutput, npmOutdatedByType } from './npmOutdated.js';
 
 type PackagesByOutVersion = {
   major: NpmOutdatedOutput;

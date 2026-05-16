@@ -1,13 +1,12 @@
 import * as exec from '@actions/exec';
-import { npmOutdatedByType } from './npmOutdated';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { npmOutdatedByType } from './npmOutdated.js';
 
-const mockExec = exec as jest.Mocked<typeof exec>;
-
-jest.mock('@actions/core');
-jest.mock('@actions/exec');
-jest.mock('./utils/repo', () => ({
-  ...jest.requireActual('./utils/repo.ts'), // Needed for types
-  getRepoPackageFile: jest.fn().mockImplementation(() =>
+vi.mock('@actions/core');
+vi.mock('@actions/exec');
+vi.mock('./utils/repo.js', async (importActual) => ({
+  ...(await importActual<typeof import('./utils/repo.js')>()),
+  getRepoPackageFile: vi.fn().mockImplementation(() =>
     Promise.resolve({
       name: 'npm-dependency-stats-action',
       dependencies: {
@@ -20,9 +19,11 @@ jest.mock('./utils/repo', () => ({
   ),
 }));
 
+const mockExec = vi.mocked(exec);
+
 describe('npmOutdated', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   describe('npmOutdatedByType', () => {
@@ -39,8 +40,8 @@ describe('npmOutdated', () => {
       };
       mockExec.exec.mockImplementation(
         (
-          commandLine: string,
-          args?: string[] | undefined,
+          _commandLine: string,
+          _args?: string[] | undefined,
           options?: exec.ExecOptions | undefined,
         ) => {
           options?.listeners?.stdout?.(
@@ -68,8 +69,8 @@ describe('npmOutdated', () => {
       };
       mockExec.exec.mockImplementation(
         (
-          commandLine: string,
-          args?: string[] | undefined,
+          _commandLine: string,
+          _args?: string[] | undefined,
           options?: exec.ExecOptions | undefined,
         ) => {
           options?.listeners?.stdout?.(
@@ -104,8 +105,8 @@ describe('npmOutdated', () => {
       };
       mockExec.exec.mockImplementation(
         (
-          commandLine: string,
-          args?: string[] | undefined,
+          _commandLine: string,
+          _args?: string[] | undefined,
           options?: exec.ExecOptions | undefined,
         ) => {
           options?.listeners?.stdout?.(
