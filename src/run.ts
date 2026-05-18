@@ -1,10 +1,10 @@
-import fs from 'fs';
+import fs from 'node:fs';
+import path from 'node:path';
 import * as core from '@actions/core';
-import path from 'path';
 import {
-  getDependencyStats,
   type GlobalStatsOutput,
-} from './getDependencyStats';
+  getDependencyStats,
+} from './getDependencyStats.js';
 
 const depstatsFolder = 'dep-stats';
 

@@ -1,11 +1,12 @@
-import fs from 'fs';
-import { getNumberOfDependenciesByType } from './getNumberOfDependencies';
+import fs from 'node:fs';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { getNumberOfDependenciesByType } from './getNumberOfDependencies.js';
 
-jest.mock('@actions/core');
+vi.mock('@actions/core');
 
 describe('getNumberOfDependenciesByType', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it('should return 0 if package file is not found at path', async () => {
@@ -22,10 +23,10 @@ describe('getNumberOfDependenciesByType', () => {
         'some-dep': '^1.0.0',
       },
     };
-    jest.spyOn(fs, 'existsSync').mockReturnValue(true);
-    jest
-      .spyOn(fs.promises, 'readFile')
-      .mockResolvedValue(Buffer.from(JSON.stringify(pkgFileContents)));
+    vi.spyOn(fs, 'existsSync').mockReturnValue(true);
+    vi.spyOn(fs.promises, 'readFile').mockResolvedValue(
+      Buffer.from(JSON.stringify(pkgFileContents)),
+    );
     const result = await getNumberOfDependenciesByType('./asdf');
     expect(result).toMatchObject({
       dependencies: 1,
@@ -34,10 +35,10 @@ describe('getNumberOfDependenciesByType', () => {
   });
 
   it('should throw error if package file is invalid JSON', async () => {
-    jest.spyOn(fs, 'existsSync').mockReturnValue(true);
-    jest
-      .spyOn(fs.promises, 'readFile')
-      .mockResolvedValue(Buffer.from('{ { invalidJson }'));
+    vi.spyOn(fs, 'existsSync').mockReturnValue(true);
+    vi.spyOn(fs.promises, 'readFile').mockResolvedValue(
+      Buffer.from('{ { invalidJson }'),
+    );
     await expect(getNumberOfDependenciesByType('./asdf')).rejects.toThrow(
       expect.objectContaining({
         message: expect.stringMatching(

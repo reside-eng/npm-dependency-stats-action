@@ -1,7 +1,7 @@
-import * as path from 'path';
+import * as path from 'node:path';
 import * as core from '@actions/core';
 import * as exec from '@actions/exec';
-import { type DepType, DepTypes, getRepoPackageFile } from './utils/repo';
+import { type DepType, DepTypes, getRepoPackageFile } from './utils/repo.js';
 
 export type NpmOutdatedPackageOutput = {
   current?: string;
@@ -80,7 +80,7 @@ export async function npmOutdatedByType(
   const pkgName = pkgFile?.name;
   const devDepNames = new Set(Object.keys(pkgFile.devDependencies || {}));
 
-  return Object.entries(outOfDatePackages).reduce(
+  return Object.entries(outOfDatePackages).reduce<NpmOutdatedByType>(
     (acc, [depName, depInfo]) => {
       if (depInfo.dependent !== pkgName) {
         return acc;
@@ -88,14 +88,12 @@ export async function npmOutdatedByType(
       const depType = devDepNames.has(depName)
         ? DepTypes.devDependencies
         : DepTypes.dependencies;
-      return {
-        ...acc,
-        [depType]: { ...acc[depType], [depName]: depInfo },
-      };
+      acc[depType][depName] = depInfo;
+      return acc;
     },
     {
       [DepTypes.dependencies]: {},
       [DepTypes.devDependencies]: {},
-    } as NpmOutdatedByType,
+    },
   );
 }

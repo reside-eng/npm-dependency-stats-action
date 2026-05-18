@@ -1,4 +1,4 @@
-import { DepTypes, getRepoPackageFile } from './utils/repo';
+import { DepTypes, getRepoPackageFile } from './utils/repo.js';
 
 type NumberOfDependenciesByType = {
   [DepTypes.dependencies]: number;

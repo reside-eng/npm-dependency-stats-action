@@ -1,6 +1,5 @@
+import fs from 'node:fs';
 import * as core from '@actions/core';
-import { existsSync } from 'fs';
-import { readFile } from 'fs/promises';
 
 /**
  * Load and parse a JSON file from the file system
@@ -10,7 +9,7 @@ import { readFile } from 'fs/promises';
 export async function loadJsonFile<T extends Record<string, unknown>>(
   filePath: string,
 ): Promise<T> {
-  const fileBuff = await readFile(filePath);
+  const fileBuff = await fs.promises.readFile(filePath);
   try {
     return JSON.parse(fileBuff.toString()) as T;
   } catch (err) {
@@ -45,9 +44,9 @@ export async function getRepoPackageFile(
   basePath: string,
 ): Promise<PackageFile> {
   const pkgPath = `${basePath}/package.json`;
-  if (!existsSync(pkgPath)) {
+  if (!fs.existsSync(pkgPath)) {
     core.warning(`Package file does not exist at path ${basePath}`);
     return {};
   }
-  return loadJsonFile<PackageFile>(pkgPath);
+  return await loadJsonFile<PackageFile>(pkgPath);
 }
