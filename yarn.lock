@@ -766,14 +766,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@side/commitlint-config@npm:2.0.0":
-  version: 2.0.0
-  resolution: "@side/commitlint-config@npm:2.0.0"
+"@side/commitlint-config@npm:2.0.2":
+  version: 2.0.2
+  resolution: "@side/commitlint-config@npm:2.0.2"
   dependencies:
     "@commitlint/config-conventional": "npm:21.0.0"
   peerDependencies:
     "@commitlint/cli": ">=21.0.0"
-  checksum: 10/59dbe56dfdf7cbddf0f4250591a837d31eb21d7f067a27384c40b510da6ce85db589d3d15e582e7de07309b037713504d04747c02cef25b38a8a564c918c7997
+  checksum: 10/8dbde101e73922f44bec0a62b473292db1ff63097d2c76084e88fd127e5d8dc0f424326d74f307e503faa8177ca9614405db5245c25397292e191dd564ff6e6f
   languageName: node
   linkType: hard
 
@@ -785,7 +785,7 @@ __metadata:
     "@actions/exec": "npm:3.0.0"
     "@biomejs/biome": "npm:2.4.15"
     "@commitlint/cli": "npm:21.0.1"
-    "@side/commitlint-config": "npm:2.0.0"
+    "@side/commitlint-config": "npm:2.0.2"
     "@tsconfig/node24": "npm:24.0.4"
     "@types/node": "npm:24.12.4"
     "@types/semver": "npm:7.7.1"
