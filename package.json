@@ -46,6 +46,6 @@
     "type": "git",
     "url": "https://github.com/reside-eng/npm-dependency-stats-action.git"
   },
-  "packageManager": "yarn@4.15.0",
+  "packageManager": "yarn@4.16.0",
   "private": true
 }
