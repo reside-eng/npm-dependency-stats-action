@@ -19,6 +19,15 @@ inputs:
     required: false
     default: 'false'
     description: 'Whether or not to log dependency info to Github Actions output'
+  minimum-release-age:
+    required: false
+    default: ''
+    description:
+      'Minimum age of a release before it is considered actionable (e.g. "14
+      days"). Outdated dependencies where every version newer than the
+      installed version is younger than this are reported as quarantined and
+      counted as up to date, matching the behavior of the minimumReleaseAge
+      setting in Renovate. Empty (default) disables quarantine filtering.'
 runs:
   using: 'node24'
   main: 'dist/index.mjs'

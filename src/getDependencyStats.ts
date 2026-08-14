@@ -3,6 +3,11 @@ import * as core from '@actions/core';
 import semver from 'semver';
 import { getNumberOfDependenciesByType } from './getNumberOfDependencies.js';
 import { type NpmOutdatedOutput, npmOutdatedByType } from './npmOutdated.js';
+import {
+  parseMinimumReleaseAge,
+  partitionQuarantined,
+  type QuarantinePartition,
+} from './quarantine.js';
 
 type PackagesByOutVersion = {
   major: NpmOutdatedOutput;
@@ -90,6 +95,7 @@ export type StatsOutput = {
     major: NpmOutdatedOutput;
     minor: NpmOutdatedOutput;
     patch: NpmOutdatedOutput;
+    quarantined: NpmOutdatedOutput;
   };
   counts: {
     total: number;
@@ -97,6 +103,7 @@ export type StatsOutput = {
     major: number;
     minor: number;
     patch: number;
+    quarantined: number;
   };
   percents: {
     upToDate: string;
@@ -110,12 +117,16 @@ export type StatsOutput = {
  * @param numDeps - Total number of dependencies (of a specific type or all)
  * @param outdatedDependencies - List of outdated dependencies (of a specific type or all)
  * @param messagePrefix - Prefix to add to debug message
+ * @param quarantinedDependencies - Outdated dependencies excluded from out of date
+ * counts because all newer versions are younger than the minimum release age
+ * (counted as up to date since no action is needed)
  * @returns Calculated dependency stats
  */
 function calculate(
   numDeps: number,
   outdatedDependencies: NpmOutdatedOutput,
   messagePrefix: string,
+  quarantinedDependencies: NpmOutdatedOutput = {},
 ) {
   // Sort packages by if they are out by major/minor/patch
   const sorted = groupPackagesByOutOfDateName(outdatedDependencies);
@@ -139,6 +150,7 @@ function calculate(
         100
       ).toFixed(2)
     : '100.00';
+  const numQuarantined = Object.keys(quarantinedDependencies).length;
   const messageLines = [
     messagePrefix,
     `up to date: ${
@@ -147,6 +159,7 @@ function calculate(
     `major behind: ${majorsOutOfDate}/${numDeps} (${majorPercentOutOfDate} %)`,
     `minor behind: ${minorsOutOfDate}/${numDeps} (${minorPercentOutOfDate} %)`,
     `patch behind: ${patchesOutOfDate}/${numDeps} (${patchPercentOutOfDate} %)`,
+    `quarantined (counted as up to date): ${numQuarantined}/${numDeps}`,
   ];
   core.debug(messageLines.join('\n'));
   // TODO: output total number of dependencies as well as dev/non-dev
@@ -155,6 +168,7 @@ function calculate(
       major: sorted.major,
       minor: sorted.minor,
       patch: sorted.patch,
+      quarantined: quarantinedDependencies,
     },
     counts: {
       total: numDeps,
@@ -163,6 +177,7 @@ function calculate(
       major: majorsOutOfDate,
       minor: minorsOutOfDate,
       patch: patchesOutOfDate,
+      quarantined: numQuarantined,
     },
     percents: {
       upToDate: upToDatePercent,
@@ -228,10 +243,49 @@ export async function getDependencyStats(
     ),
   );
 
+  // Exclude packages which are only out of date because every newer version is
+  // younger than the minimum release age (i.e. quarantined by Renovate's
+  // minimumReleaseAge setting, so no action is needed)
+  const minimumReleaseAgeMs = parseMinimumReleaseAge(
+    core.getInput('minimum-release-age'),
+  );
+  let deps: QuarantinePartition = {
+    actionable: dependenciesOutOfDate,
+    quarantined: {},
+  };
+  let devDeps: QuarantinePartition = {
+    actionable: filteredDevDeps,
+    quarantined: {},
+  };
+  if (minimumReleaseAgeMs > 0) {
+    [deps, devDeps] = await Promise.all([
+      partitionQuarantined(
+        dependenciesOutOfDate,
+        minimumReleaseAgeMs,
+        workingDirectory,
+      ),
+      partitionQuarantined(
+        filteredDevDeps,
+        minimumReleaseAgeMs,
+        workingDirectory,
+      ),
+    ]);
+  }
+
   // Sort packages by if they are out by major/minor/patch
   const results = {
-    dependencies: calculate(numDeps, dependenciesOutOfDate, 'Dependencies'),
-    devDependencies: calculate(numDevDeps, filteredDevDeps, 'Dev Dependencies'),
+    dependencies: calculate(
+      numDeps,
+      deps.actionable,
+      'Dependencies',
+      deps.quarantined,
+    ),
+    devDependencies: calculate(
+      numDevDeps,
+      devDeps.actionable,
+      'Dev Dependencies',
+      devDeps.quarantined,
+    ),
   };
   if (core.getInput('log-results') === 'true') {
     core.info(JSON.stringify(results));
@@ -240,10 +294,14 @@ export async function getDependencyStats(
     ...calculate(
       (numDeps || 0) + (numDevDeps || 0),
       {
-        ...dependenciesOutOfDate,
-        ...devDependenciesOutOfDate,
-      } as NpmOutdatedOutput,
+        ...deps.actionable,
+        ...devDeps.actionable,
+      },
       'All dependencies (including dev)',
+      {
+        ...deps.quarantined,
+        ...devDeps.quarantined,
+      },
     ),
     byType: results,
   };
