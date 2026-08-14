@@ -14,6 +14,18 @@
 ## Features
 
 - Loads dependency ignore settings from `.github/dependabot.yml` if it exists
+- Optionally excludes "quarantined" dependencies from out of date counts via the `minimum-release-age` input. A dependency is quarantined when every version newer than the installed version was published more recently than the given age (matching Renovate's [`minimumReleaseAge`](https://docs.renovatebot.com/configuration-options/#minimumreleaseage) setting, which intentionally holds back fresh releases to guard against supply chain attacks). Quarantined dependencies are counted as up to date and reported separately under `counts.quarantined` / `dependencies.quarantined`. If the latest version is quarantined but an older mature version is still newer than the installed version, the dependency is still reported as out of date relative to that mature version.
+
+## Inputs
+
+| Input                 | Default    | Description                                                                                                       |
+| --------------------- | ---------- | ----------------------------------------------------------------------------------------------------------------- |
+| `working-directory`   |            | Current working directory                                                                                          |
+| `packages-folder`     | `packages` | Path to the packages folder (monorepo only)                                                                        |
+| `output-file`         |            | Path for output json file                                                                                          |
+| `is-monorepo`         |            | Whether or not repo is a monorepo                                                                                  |
+| `log-results`         | `false`    | Whether or not to log dependency info to Github Actions output                                                     |
+| `minimum-release-age` |            | Minimum age of a release before it is considered actionable (e.g. `14 days`). Empty disables quarantine filtering. |
 
 ## Examples
 
